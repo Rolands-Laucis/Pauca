@@ -11,6 +11,8 @@ shorthand:
 
 ``<"">``
 
+``<sym="(",1,2>`` look for a "(" 1 to 2 times in a row.
+
 ### Syntax pattern bound
 
 The end tag marks the end of the pattern to search for. The following tags should be opening and closing target tags. Every new syntax pattern begins on a new line, that isnt the target tag.
@@ -52,7 +54,7 @@ Variables are assigned a label in the syntax to reference by in the target howev
 
 ### Types
 
-Marble supports recognizing patterns of various kinds of symbols for strongly typed languages. These are the same as variables, but whereas the variable tag looks for any string, these specific variable tags look for specific type symbols.
+Marble supports recognizing patterns of various kinds of symbols for strongly typed languages. These are the same as variables, but whereas the variable tag looks for any string, these specific variable tags look for specific type symbols. Some of these are just internal definitions of tags using existing primitve Marble syntax.
 
 ``<d="my_digit">`` for digit/s 
 
@@ -102,11 +104,12 @@ Pattern variables can be accessed by their labels.
 
 ### Multiples
 
-The above example lists 3 patterns that all benefit from 1 common sub pattern reutilization. But its far too verbose to write out all the cases for a seemingly identical pattern. This can be replaced with symbol tag multiples, that will match a list of literal strings in 1 place of the pattern. The above example can be simplified as:
+The above example lists 3 patterns that all benefit from 1 common sub pattern reutilization. But its far too verbose to write out all the cases for a seemingly identical pattern. This can be replaced with tag multiples, that will match a list of tags in 1 place of the pattern. The above example can be simplified as:
 
-``<sym=["let","var","const"]> <pat="var_tail"> <end>`` This 1 pattern is equivalent to the last 3 patterns in the above example.
+``[<sym="let">,<sym="var">,<sym="const">] <pat="var_tail"> <end>`` This 1 pattern is equivalent to the last 3 patterns in the above example. And can further be simplified as:
+``[<"let">,<"var">,<"const">] <pat="var_tail"> <end>`` since <sym="let"> and <"let"> are identical tags.
 
-However, since these 3 symbol string literals mean diffrent concepts in js, then we would like to know which one was actually matched. So using the sym tag with a list (aka a "multiple") makes it a variable tag. Its value can be accessed as '<1>'. Like such:
+However, since these 3 symbol string literals mean diffrent concepts in js, then we would like to know which one was actually matched. So using the sym tag list (aka a "multiple") makes it a variable tag. Its value can be accessed as '<1>'. Like such:
 
 ```
 <sym=["let","var","const"]> <pat="var_tail"> <end>
@@ -114,12 +117,27 @@ However, since these 3 symbol string literals mean diffrent concepts in js, then
 <1> <x> = <number> <if=opt1>;</if>
 </target>
 ```
+where '<1>' evaluates to e.g. "let" (excluding quotes)
 
-### Captures
+Multiples arent for just different values of 1 tag, they are generic. Meaning you can tell Marble to expect any of the given tags with their values at a given spot in the pattern.
 
-Source code is often indented, so marble supports keeping these indents in the output, if it is set up right. The capture tag can be used for this and other purposes. It captures a string of symbols into a variable, that can then be inserted back into the transpilation output text. The cap tag is internally treated as a variable and can be accessed as such.
+``[<"string">,<var="my_var">]`` variable tags should not be labeled, since their value will be accessible via '<1>' 
 
-``<cap=["\t", "\s"]> <sym="int"> ...`` will capture any length repeating specified character strings into a variable. It may be accessed as '<1>', which would be a string of tabs and/or spaces here, so you can insert them back into the target. This is crutial for languages like python.
+Multiples also are not restricted to a choice of just 1 tag per option.
+
+``[<"int">,<"private "> <"int">] ...``
+
+Multiple options are matched by priority in the order that they are supplied left to right.
+
+And since a multiple is not a tag itself, then the optional mark cannot be applied to it, likewise it would be illogical to add an optional mark to any tag within the multiple, if it is by itself. 
+
+### Indents
+
+Source code is often indented, so marble supports keeping these indents in the output, if it is set up right. The indent tag can be used for this and other purposes. It captures a string of symbols into a variable, that can then be inserted back into the transpilation output text. The ind tag is internally treated as a variable and can be accessed as such.
+
+``<ind> <sym="int"> ...`` will capture any length repeating "\t","\s" character strings into a variable. It may be accessed as '<1>', which would be a string of tabs and/or spaces here, so you can insert them back into the target. This is crutial for languages like python.
+
+Internally this tag is defined as just a multiple of the 2 symbol literal tags.
 
 ### Loops
 
@@ -127,6 +145,9 @@ Marble supports looping in the target.
 
 ### Links and recursive patterns. (Fractal patterns)
 
+Marble supports pattern components for better generalization, but what if you want to reference a sub pattern within the current pattern? This is where tricky recursion comes in that i call Links.
+
+``<link>``
 
 ### Regex
 
@@ -136,3 +157,13 @@ But this also means that the user can just supply their own regex to be matched 
 Since Marble is written in js, then standard js regex literals may be used.
 
 ``<re="/[A-Z]{2,4}/gm"> ...`` will match an uppercase letter string of length 2 to 4 using the flags for global and multiline.
+
+### Custom tags
+
+Marble allows you to define custom tags which is different from but similar to defining pattern components. You may also link to other marble syntax files to import them, thus maintaining a library of custom tags and pattern components to use in any marble syntax file for actual transpiling. Indeed the marble standard lib tags are defined this way and the lib is imported by default.
+
+### Escapes
+
+Since Marble has a syntax of its own to define other language syntaxes, there is by nature some overlap of reserved special meaning characters. So to let symbols like "<" and "," be usable in the various tags, they may be escaped with the "\" symbol.
+
+``<"\<\>">``
