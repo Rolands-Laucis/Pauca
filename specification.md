@@ -112,7 +112,7 @@ The above example lists 3 patterns that all benefit from 1 common sub pattern re
 However, since these 3 symbol string literals mean diffrent concepts in js, then we would like to know which one was actually matched. So using the sym tag list (aka a "multiple") makes it a variable tag. Its value can be accessed as '<1>'. Like such:
 
 ```
-<sym=["let","var","const"]> <pat="var_tail"> <end>
+[<sym="let">,<sym="var">,<sym="const">] <pat="var_tail"> <end>
 <target>
 <1> <x> = <number> <if=opt1>;</if>
 </target>
