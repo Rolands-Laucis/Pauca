@@ -79,6 +79,19 @@ Tell marble that a tag may or may not be present in the pattern. This is interna
 The ``<if=1></if>`` tag in target is used for different cases of the transpilation. "1" refers to the 1st variable in the pattern. "?" marked tags are variables. 
 If the <if> tag evaluates true, then the inside tokens and/or tags will be included or evaluated in the output. <if> tags can be nested.
 
+```
+[<"let">,<"var">] <var> ... <end>
+<target>
+    <if=1=let>
+    ...
+    </if>
+    <if=1=var>
+    ...
+    </if>
+</target>
+```
+The argument after "if=" is evaluated. Any normal operator can be used. Left argument is a variable number or variable label in the pattern. Right side is either a number, or if cant be parsed as one, then it is treated as a string literal. Here the if tag compares the first pattern element string with the literal string, to see which was matched.
+
 ### Comments
 
 ``//...``
