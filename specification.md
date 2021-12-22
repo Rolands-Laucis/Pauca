@@ -102,7 +102,7 @@ This is done by giving the end tag a label and referencing that pattern by its l
 The targets for patterns arent nescesary, as is the case for the last 3 patterns for the sake of brevity. So the last 3 patterns wont transpile to anything in a real application. But this is intended to match js syntax of "let x = 0" or "let y = 12319283;" or "const num = 3472" by reusing a pattern as a component in another.
 Pattern variables can be accessed by their labels.
 
-### Multiples (tuples?)
+### Multiples (tuples? arrays? lists? sets?)
 
 The above example lists 3 patterns that all benefit from 1 common sub pattern reutilization. But its far too verbose to write out all the cases for a seemingly identical pattern. This can be replaced with tag multiples, that will match a list of tags in 1 place of the pattern. The above example can be simplified as:
 
@@ -161,6 +161,12 @@ Since Marble is written in js, then standard js regex literals may be used.
 ### Custom tags
 
 Marble allows you to define custom tags which is different from but similar to defining pattern components. You may also link to other marble syntax files to import them, thus maintaining a library of custom tags and pattern components to use in any marble syntax file for actual transpiling. Indeed the marble standard lib tags are defined this way and the lib is imported by default.
+
+```
+<def>
+
+</def>
+```
 
 ### Escapes
 

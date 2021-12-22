@@ -7,5 +7,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Rolands Laucis",
-  "license": "ISC"
+  "license": "ISC",
+  "type": "module"
 }
