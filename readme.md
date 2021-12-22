@@ -1,11 +1,12 @@
 # The Marble language transpiler syntax and spec - the idea
 
 ## What is Marble?
-Marble is a universal pseudo code language syntax for writing transpilers for other languages. It does not execute anything, it merely translates from 1 programming language to another, via easily definable syntax patterns in the source code text file. These patterns are mapped to corresponding syntax in the output target language syntax. The mapping is manual - using Marble. Marble of course also has its own syntax for enabling you to do things. Lets explore it.
+Marble is a universal pseudo code language syntax for writing transpilers for other languages. It does not execute the code, it merely translates from 1 programming language to another, via easily definable syntax patterns in the source code text file. These patterns are mapped to corresponding syntax in the output target language syntax. The mapping is manual - using Marble. Marble of course also has its own syntax for enabling you to do things. Lets explore it.
 
 ### So how do you define anything in Marble? What tells Marble to search for syntax?
 
 Using angle brackets to define tags like html and xml. The inside of angle bracket says what type of tag it is - its functionality in the Marble syntax.
+So Marble takes a reductionist approach to patterns, by letting you build up a whole pattern by individual primitive pieces. This is easier and more readable than using regex.
 
 Check out https://github.com/Rolands-Laucis/Marble/blob/master/specification.md for a full list of supported tags and their uses.
 
@@ -91,3 +92,5 @@ Marble is built with Node.js so it is required to launch the transpiler simply t
 ``node marble [.mrb] [input] [output]``
 
 This will launch marble to read the syntax definition script that is full of the lines seen above for generic syntax patterns, then looks for these patterns in the script.c text file and transpiles them to whatever target language script, here - output.js. 
+
+It is written in nodejs, because i prefer it as a high-level language and its performance over other languages like Python. And a benefit is that nodejs apps can be compiled to native executables, which i might do in the future. You are free to pull the repo and implement the specification in C if you hate yourself. C would definitely give much faster run times.
