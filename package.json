@@ -1,0 +1,11 @@
+{
+  "name": "marble",
+  "version": "0.0.1",
+  "description": "generic transpiler for programming languages",
+  "main": "marble.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Rolands Laucis",
+  "license": "ISC"
+}
