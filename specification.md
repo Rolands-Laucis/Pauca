@@ -89,7 +89,7 @@ Since writing long syntax patterns for every case in a target languages syntax p
 This is done by giving the end tag a label and referencing that pattern by its label in other patterns. To include a pattern use the pat tag. NB! Included pattern variables must all be labeled. Pattern tags can be nested.
 
 ```
-<sym=" "> <var="x"> <sym=" = "> <d="number",1,10> <?=opt1 sym=";"> <end="var_tail">
+<sym=" "> <var="x"> <sym=" = "> <d="number",1,10> <?=opt1 sym=";"> <end="var_tail"> // x = 0;
 <target>
 <x> = <number> <if=opt1>;</if>
 </target>
@@ -141,13 +141,43 @@ Internally this tag is defined as just a multiple of the 2 symbol literal tags.
 
 ### Loops
 
-Marble supports looping in the target.
+Marble supports looping in the target. Yes.
 
 ### Links and recursive patterns. (Fractal patterns)
 
-Marble supports pattern components for better generalization, but what if you want to reference a sub pattern within the current pattern? This is where tricky recursion comes in that i call Links.
+Marble supports pattern components for better generalization, but what if you want to reference the current pattern in itself? Recursion is tricky, but you can tell Marble that a pattern can be recursive with the rec tag right before the end tag.
 
-``<link>``
+``<" "> <var="x"> <" = "> <d="num",1,10> [<"\,">,<";">] <rec> <end="var_tail">`` the whole pattern before rec can repeat any number of times. Meaning it could match " x = 0, y = 0;"
+
+This can be used in a component like such:
+
+``<"int"> <pat="var_tail">`` meaning it could match "int x = 0;" and "int x = 0, y = 0;". This itself can be marked as recursive, the applications for which you can probably guess. 
+
+Recursiveness is scoped, so you still need labels for all variables within a recursive pattern, but each recursive pattern match would have its own variables with those labels.
+
+This is very useful for LISP languages, where you could define a generic list with multiple possibilities in the arguments and have it be recursive, such that a list argument could be another list just like it.
+
+```
+...
+<target>
+
+</target>
+```
+
+how tf would you 
+
+### Slots and code blocks.
+
+All languages have a concept of code blocks - chucks of code that are isolated, doing their own thing. C like languages have these blocks delimited by {} brackets, python has them by indents, clojure has them by the main file defined top level lists. Concepts like functions, classes, structs etc. When traspiling to another language, Marble can be aware of code blocks starting and ending, so that blocks can be nested. This is refered to as Slots and slotting in Marble.
+
+```
+...
+<target>
+<slot>
+</target>
+```
+
+how tf :(
 
 ### Regex
 
@@ -167,6 +197,7 @@ Marble allows you to define custom tags which is different from but similar to d
 
 </def>
 ```
+idk man
 
 ### Escapes
 
