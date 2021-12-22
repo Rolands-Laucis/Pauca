@@ -42,21 +42,25 @@ This will match any line of text that is similar to "int my_var = 1;", "int x = 
 ### The transpile definition.
 
 So far we've only defined what patters marble should look for, but not what to do with them or how to transpile them. The "end" tag is used to mark the end of the syntax.
-
+```
 <sym="int "> <var="var_1"> <sym=" = "> <var="var_2"> <?sym=";"> <end>
 <target>
 int x
 </target>
+```
 
 Here the match string "int abc" will be output to the target language source code text file as the line "int x". However, we can use our saved variable in the transpiled code, like such:
 
+```
 <sym="int "> <var="var_1"> <sym=" = "> <var="var_2"> <?sym=";"> <end>
 <target>
 integer <var_1>
 </target>
+```
 
 Which will transpile a line like "int abc" into "integer abc". The "target" tag also accepts an argument for a specific language, so you can define multiple language transpilations from 1 generic syntax pattern, like such:
 
+```
 <sym="int "> <var="var_1"> <sym=" = "> <var="var_2"> <?sym=";"> <end>
 <target="c">
 int <var_1> = 0;
@@ -64,6 +68,7 @@ int <var_1> = 0;
 <target="js">
 let <var_1>
 </target>
+```
 
 ### Optional tags.
 
