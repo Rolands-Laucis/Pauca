@@ -7,7 +7,7 @@ Marble is a universal pseudo code language syntax for writing transpilers for ot
 
 Using angle brackets to define tags like html and xml. The inside of angle bracket says what type of tag it is - its functionality in the Marble syntax.
 
-Check out https://github.com/Rolands-Laucis/Marble/edit/master/specification.md for a full list of supported tags and their uses.
+Check out https://github.com/Rolands-Laucis/Marble/blob/master/specification.md for a full list of supported tags and their uses.
 
 ``<sym="int">`` tells Marble to look for a symbol string "int". A literal string in the source code text file.
 
