@@ -126,9 +126,9 @@ Since writing long syntax patterns for every case in a target languages syntax p
 This is done by giving the end tag a label and referencing that pattern by its label in other patterns. To include a pattern use the pat tag. NB! Included pattern variables must all be labeled. Pattern tags can be nested.
 
 ```
-[sym " "] [var "x"] [sym "   "] [d "number",1,10] [? opt1 sym ";"] [end "var_tail"] // x   0;
+[sym " "] [var "x"] [sym " = "] [d "number",1,10] [? opt1 sym ";"] [end "var_tail"] // x = 0;
 [target]
-[x]   [number] [if opt1];[/if]
+[x] = [number] [if opt1];[/if]
 [/target]
 
 [sym "let"] [pat "var_tail"] [end]
@@ -136,7 +136,7 @@ This is done by giving the end tag a label and referencing that pattern by its l
 [sym "const"] [pat "var_tail"] [end]
 ```
 
-The targets for patterns arent nescesary, as is the case for the last 3 patterns for the sake of brevity. So the last 3 patterns wont transpile to anything in a real application. But this is intended to match js syntax of "let x   0" or "let y   12319283;" or "const num   3472" by reusing a pattern as a component in another.
+The targets for patterns arent nescesary, as is the case for the last 3 patterns for the sake of brevity. So the last 3 patterns wont transpile to anything in a real application. But this is intended to match js syntax of "let x = 0" or "let y = 12319283;" or "const num = 3472" by reusing a pattern as a component in another.
 Pattern variables can be accessed by their labels.
 
 ### Multiples or arrays (tuples? arrays? lists? sets?)
@@ -149,9 +149,9 @@ The above example lists 3 patterns that all benefit from 1 common sub pattern re
 However, since these 3 symbol string literals mean diffrent concepts in js, then we would like to know which one was actually matched. So using the sym tag list (aka a "multiple") makes it a variable tag. Its value can be accessed as '[1]'. Like such:
 
 ```
-{[sym "let"],[sym "var"],[sym "const"]} [pat "var_tail"] [end]
+{["let"],["var"],["const"]} [pat "var_tail"] [end]
 [target]
-[1] [x]   [number] [if opt1];[/if]
+[1] [x] = [number] [if opt1];[/if]
 [/target]
 ```
 where '[1]' evaluates to e.g. "let" (excluding quotes)
@@ -174,51 +174,80 @@ Marble supports looping in the target. Yes.
 
 ### Slots and recursive patterns
 
-so wrap a part of the pattern in the rec, so that means the rec will automatically have the ? mark, so make sure finite loops, but then also have to use the [slot] tag in the target, to mark where the lower level constructed targed code should be copy pasted to in the current target tag. 
-It is recursive, cuz we go down like a funnel into the pattern and then go bottom up back out of it, constructing the target.
-
 Marble supports pattern components for better generalization, but what if you want to reference the current pattern in itself? Recursion is tricky, but you can tell Marble that a pattern can be recursive with the [rec] tag.
 
-``[rec] [" "] [var "x"] ["   "] [d "num",1,10] {["\,"],[";"]} [/rec] [end "var_tail"]`` the whole pattern before rec can repeat any number of times. Meaning it could match " x   0, y   0;"
+``[rec] [" "] [var "x"] [" = "] [d "num",1,10] {["\,"],[";"]} [/rec] [end "var_tail"]`` the whole pattern inside [rec] can repeat any number of times. Meaning it could match " x = 0, y = 0;" for an infinite amount of times with this short pattern here.
 
 This can be used in a component like such:
 
-``["int"] [pat "var_tail"]`` meaning it could match "int x   0;" and "int x   0, y   0;". This itself can be marked as recursive, the applications for which you can probably guess. 
+``["int"] [pat "var_tail"]`` meaning it could match "int x = 0;" and "int x = 0, y = 0;". This itself can be marked as recursive, the applications for which you can probably guess. 
+
+Then in the [target] tag a [slot] tag must exist. This marks where the inner level output should be dumped in the outter level. This just recursively dumps the discovered output of inner patterns up a level; it is not transpiled output yet. The full transpilable output is only being constructed at this stage.
+
+```
+... [rec] ... [/rec] ... [end]
+
+[target]
+outter something
+[slot] //the inner somethings discovered output will be dumped here unprocessed.
+[/target]
+```
+
+The [slot] tag can sit anywhere inside the [target], which means you can discover and handle code blocks - like multiple lines inside a function or multiple functions inside classes. You could define a 1 line of code pattern, which in most languages is usually just an assignment or function call line.
+
+```
+[target]
+function {
+    [slot]
+}
+[/target]
+```
+
+But note that all recursive pattern output targets are identical and Marble is just replacing the outter [slot] tag with the discovered inner target code, which may contain a [slot] as well. So the above example could potentially output:
+
+```
+function {
+    function {
+        ...
+    }
+}
+```
 
 Recursiveness is scoped, so you still need labels for all variables within a recursive pattern, but each recursive pattern match would have its own variables with those labels.
 
-This is very useful for LISP languages, where you could define a generic list with multiple possibilities in the arguments and have it be recursive, such that a list argument could be another list just like it.
-
-
-```
 lvl 1:
+```
+... [rec] ... [/rec] ... [end]
+
 [target]
-[1] ... [2]
-something
+[1] ... [2] ...
+inner something
 [slot]
 [/target]
 ```
 
 when it goes 1 level out, then it becomes
 
-```
 lvl 0: aka base pattern:
+```
+... [rec] ... [/rec] ... [end]
+
 [target]
-[1] ... [2]
-other line
-[1] ... [2]
-something
+[1] ... [2] ...
+outter something
+[1] ... [2] ...
+inner something
 [slot]
 [/target]
 ```
 
+This is also quite useful for LISP languages, where you could define a generic list with multiple possibilities in the arguments and have it be recursive, such that a list argument could be another list just like it.
+
 ### Indents
 
-Source code is often indented, so marble supports keeping these indents in the output, if it is set up right. The indent tag can be used for this and other purposes. It captures a string of symbols into a variable, that can then be inserted back into the transpilation output text. The ind tag is internally treated as a variable and can be accessed as such.
+Source code is often indented, so marble supports keeping these indents in the output, if it is set up right. The indent tag can be used for this and other purposes. It captures a string of symbols into a variable, that can then be inserted back into the transpilation output text. The [ind] tag is internally treated as a variable and can be accessed as such.
 
 ``[ind] [sym "int"] ...`` will capture any length repeating "\t","\s" character strings into a variable. It may be accessed as '[1]', which would be a string of tabs and/or spaces here, so you can insert them back into the target. This is crutial for languages like python.
-
-Internally this tag is defined as just a multiple of the 2 symbol literal tags.
 
 ### Regex
 
