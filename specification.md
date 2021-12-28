@@ -170,7 +170,37 @@ And since a multiple is not a tag itself, then the optional mark cannot be appli
 
 ### Loops
 
-Marble supports looping in the target. Yes.
+Marble supports looping in the target with the [loop] tag. It takes an integer argument of how many times the inner contents should be copied.
+
+```
+...
+[target]
+    [loop 2]
+        something
+    [/loop]
+[/target]
+``` 
+will produce a result of "somethingsomething"
+
+The argument can be a variable tag capture, if at that point durring transpiling the variable exists.
+
+Optionally a 2nd argument can be given to mark the current loop iteration value into a variable with a label, that can then be used in the nested tags. To be consistent with most other languages, the loop indexing is 0-based.
+
+```
+...
+[target]
+    [loop 2,"count"]
+        [count]
+    [/loop]
+[/target]
+``` 
+will produce a result of "01".
+
+### Operators
+
+Sometimes you might want to perform some mathematical operations to convert the input to an output, i.e. to change the indexing numeration between languages. So Marble supports doing this in the target tag. But special tags must be used, since any normal characters are taken as a literal output to the target.
+
+``[+]``
 
 ### Slots and recursive patterns
 
@@ -242,6 +272,12 @@ inner something
 ```
 
 This is also quite useful for LISP languages, where you could define a generic list with multiple possibilities in the arguments and have it be recursive, such that a list argument could be another list just like it.
+
+### Shortcuts/shorthands
+
+The tag based syntax of Marble is nescesary to allow literal target outputs, but this often creates long winded patterns. To help mitigate this, some special tags have been reserved that literally get replaced with their full lengths before Marble starts transpiling. Here is a list of them (left side is the short form):
+
+``[s]`` -> ``[?" "]`` an optional space character
 
 ### Indents
 
