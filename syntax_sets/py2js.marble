@@ -1,0 +1,13 @@
+// this is a lite example syntax script for Marble to transpile python to js source code files.
+
+// starting with basic assignments
+// x = 0
+// let x = 0
+
+[var "x"] [s] ["="] [s] [var "num"] [?";"] [end]
+[target "py"]
+let [x] = [num] [5]
+[/target]
+
+// simple function calls
+
