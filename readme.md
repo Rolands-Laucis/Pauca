@@ -32,8 +32,6 @@ Marble would be built with Node.js, so it could simply run with a CLI as such:
 
 ``node marble syntax.marble script.c output.js``
 
-``node marble [.mrb] [input] [output]``
-
 This would launch Marble to read the syntax definition script that is full of the lines seen above for generic syntax patterns, then looks for these patterns in the script.c text file and transpiles them to whatever target language script, here - output.js. 
 
 Marble engine implementations should be built such that they can be invoked from CLI and programmatically, by calling a single function in a script.
