@@ -12,13 +12,13 @@ So Marble takes a reductionist approach to patterns, by letting you build up a w
 
 These can be chained together, delimiting tags by spaces, like so:
 
-``[sym "public"] [sym " "] [sym "int"]``
+``[sym "public"] [sym " "] [sym "int"] ...``
 
 This will match any line of text that is similar to "public int". [sym] tags are just string literals to search for, so most often in programming languages these are language reserved keywords. But you can look for any string literal, since Marble aims for generalization.
 
-You can use Marble to create flavors of whatever language you desire and transpile the source code text file before handing it to the corresponding language compiler or interpreter. Like so:
+An interesting use of Marble would be to create "flavors" of whatever language you desire and transpile the source code file before handing it to the corresponding language compiler or interpreter. Like so:
 
-``[sym="public-ish"] [sym=" "] [sym="int"]``
+``[sym="public-ish"] [sym=" "] [sym="int"] ...``
 
 "Public-ish" is not a reserved keyword in C like languages, but you can introduce it via Marble. What you do with this match is up to you to define. 
 
