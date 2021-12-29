@@ -198,6 +198,8 @@ Sometimes you might want to perform some mathematical operations to convert the 
 
 ``[+]``
 
+Under thought.
+
 ### Slots and recursive patterns
 
 Marble supports pattern components for better generalization, but what if you want to reference the current pattern in itself? Recursion is tricky, but you can tell Marble that a pattern can be recursive with the [rec] tag.
@@ -288,7 +290,7 @@ Source code is often indented, so marble supports keeping these indents in the o
 Marble internally uses a regex engine to look for these patterns. But marble is more than a renamed and limited regex. Marble contructs efficient regex patterns in a reductive paradigm.
 But this also means that the user can just supply their own regex to be matched within the pattern. Note that this is not the intended use of Marble and can potentialy cause faults with the inner workings of Marble. This gives you powerful control, so it is your responsibility.
 
-Since Marble is written in js, then standard js regex literals may be used.
+Since Marble is written in js, then standard js regex literals may be used. Other implementations may vary.
 
 ``[re "/[A-Z]{2,4}/gm"] ...`` will match an uppercase letter string of length 2 to 4 using the flags for global and multiline.
 
@@ -301,7 +303,7 @@ Marble allows you to define custom tags which is different from but similar to d
 
 [/def]
 ```
-idk man
+Under thought.
 
 ### Escapes
 
