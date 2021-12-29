@@ -8,5 +8,7 @@ It may be difficult getting started with Marble, if you've never worked with cre
 * Start with the basics.
     * Most C like languages contain 3 types of lines of code 
         * assignment/declaration 
-        * jump/function call/code flow manegement
+        * jump/function call/code flow management
         * code block wrapping of these 2 ^
+* Use comments to mark blocks of syntax that are similar to each other
+* Use comments to show the transpilation expected source and outcome code snippets
