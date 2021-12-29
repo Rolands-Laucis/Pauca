@@ -5,11 +5,7 @@
 
 Tell marble to look for a string literal in the source
 
-``[sym ""]``
-
-shorthand:
-
-``[""]``
+``[sym ""]`` shorthand: ``[""]``, see [Shorthands](#Shortcuts/shorthands)
 
 ``[sym "(",1,2]`` look for a "(" 1 to 2 times in a row.
 
@@ -277,7 +273,9 @@ This is also quite useful for LISP languages, where you could define a generic l
 
 The tag based syntax of Marble is nescesary to allow literal target outputs, but this often creates long winded patterns. To help mitigate this, some special tags have been reserved that literally get replaced with their full lengths before Marble starts transpiling. Here is a list of them (left side is the short form):
 
+``[""]`` -> ``[sym ""]`` a literal symbol string in the source
 ``[s]`` -> ``[?" "]`` an optional space character
+``[;]`` -> ``[?";"]`` an optional ;
 
 ### Indents
 
