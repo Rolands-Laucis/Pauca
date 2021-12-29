@@ -1,7 +1,7 @@
 # Generic source-to-source (s2s) programming language transpiler tool/framework - "Marble".
 
 ## What is Marble?
-Marble is a universal pseudo code language syntax for writing transpilers for other languages. It does not execute the code, it merely translates from 1 programming language source code to another, via easily definable syntax patterns in the source code text file. These patterns are mapped to corresponding syntax in the output target language syntax. The mapping is manual - using Marble and your knowledge of the languages. Marble of course also has its own syntax for enabling you to do things. Lets take a quick look.
+Marble is a general pseudo code language syntax for writing transpilers for other languages. It does not execute the code, it merely translates from 1 programming language source code to another, via easily definable syntax patterns in the source code text file. These patterns are mapped to corresponding syntax in the output target language syntax. The mapping is manual - using Marble and your knowledge of the languages. Marble of course also has its own syntax for enabling you to do things. Lets take a quick look.
 
 ### So how do you define anything in Marble? What tells Marble to search for syntax?
 
