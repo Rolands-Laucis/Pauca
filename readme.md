@@ -38,6 +38,10 @@ This would launch Marble to read the syntax definition script that is full of th
 
 Marble engine implementations should be built such that they can be invoked from CLI and programmatically, by calling a single function in a script.
 
-#### Motivation
+### Motivation
 
 I am creating this for fun and because i could not find something similar to this. Rather i found alot of specific s2s transpilers and a general purpose transpiler that is programmable, but it has to do with scripting the inner workings of the transpiler. The Marble way is to define patterns of syntax.
+
+### Name
+
+The name "Marble" comes from the english word for a stone-like material, that is often used for sculpting sculptures. The act of building complex structures from a simple piece of stone. "Faber est suae quisque fortunae." - Every man is the artisan of his own fortune. And so is every great sculptor the picker of his marble.
