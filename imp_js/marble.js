@@ -7,7 +7,7 @@
 import parse from "args-parser" //i was too lazy to parse them myself ;-;
 import fs from 'fs' //for reading the 3 files content
 
-import { Preprocess, AllPreProcSteps, SliceSection} from './preproc.js'
+import { Preprocess, AllPreProcSteps, ExtractSection} from './preproc.js'
 
 const error_code = Main()
 if(error_code)
@@ -57,14 +57,58 @@ optional arguments:
 /**
  * @param {string} syntax
  * @param {string} source
- * @param {string} output
  */
 function Transpile(syntax, source){
 
     //preprocess steps before parsing the syntax file
-    syntax = SliceSection(syntax, 0)
+    // syntax = ExtractSection(syntax, 1)
     syntax = Preprocess(AllPreProcSteps, syntax)
 
+    //---construct syntax parse tree data structure
+    
+    //segment the syntax file into block pairs, where the first element of the pair is the pattern string, the second - the target string
+    let segments = {}
+    
+    let pat = '', target = '', on_target = false;
+    const re_target_start = /(\[target(\s\".+\")?\])/m
+    const re_target_end = /(\[\/target\])/m
+
+    //due to the preprocessing, we should be starting on a pattern line, that may spill over to a new line
+    syntax.split('\n').forEach(line => {
+        if(line.match(re_target_start))
+            on_target = true
+        else if (line.match(re_target_end)){
+            on_target = false
+            target += line.trimEnd() //since the lower conditional branch wont be run, grab that clossing target tag
+
+            //save down the pattern
+            if (pat.match(re_target_start) || pat.match(re_target_end)){
+                console.log('Target and pattern segments misaligned! Exiting...')
+                process.exit(1)
+            }
+            segments[Object.keys(segments).length] = {'pat': pat, 'target':target}
+
+            //reset for next segment
+            pat = ''
+            target = ''
+
+            return //here acts as a continue keyword would in a for loop
+        }
+        
+        if (on_target)
+            target += line.trimEnd() 
+        else
+            pat += line.trim() 
+    })
+
+    console.log(segments)
+
+    //---parse the segments into a tree of tokens
+
+    //---create regex patterns from marble syntax
+
+    
+    //---Convert source lines with regex
 
 
     return syntax

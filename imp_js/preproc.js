@@ -9,6 +9,13 @@ function RemoveComments(text) {
  * @param {string} text
  */
 function RemoveNewLines(text) {
+    return text.replace(/[\n\r]/gm, '\s')
+}
+
+/**
+ * @param {string} text
+ */
+function ShrinkNewLines(text) {
     return text.replace(/[\n\r]+/gm, '\n')
 }
 
@@ -26,12 +33,12 @@ function Strip(text){
     return text.trim()
 }
 
-export const AllPreProcSteps = [RemoveComments, RemoveNewLines, RemoveTabs, Strip]
+export const AllPreProcSteps = [RemoveComments, ShrinkNewLines, RemoveTabs, Strip]
 
 /**
  * @param {string} text
  */
-export function SliceSection(text, index){
+export function ExtractSection(text, index){
     return text.split(/\/\/-+/gmi)[index]
 }
 
@@ -40,9 +47,6 @@ export function SliceSection(text, index){
  * @param {string} text
  */
 export function Preprocess(steps, text) {
-    let out = text
-    steps.forEach(f => {
-        out = f(out)
-    })
-    return out
+    steps.unshift(text) //insert the text as the first element, so that we can just use the reduce function to apply all steps
+    return steps.reduce((text, f) => f(text))
 }
