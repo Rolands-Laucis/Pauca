@@ -40,6 +40,11 @@ Marble engine implementations should be built such that they can be invoked from
 
 I am creating this for fun and because i could not find something similar to this. Rather i found alot of specific s2s transpilers and a general purpose transpiler that is programmable, but it has to do with scripting the inner workings of the transpiler. The Marble way is to define patterns of syntax.
 
+### Links, resources relating to Marble
+
+* [A higher level abstract regex compiler](https://github.com/Ruminat/Asq-Server). It lets you define regex patterns with more readable syntax, specifically for csv table and such parsing.
+* [General purpose scriptable transpiler for many languages](https://awesomeopensource.com/project/jarble/transpiler). Has support for many languages and lets you script addons to the engine.
+
 ### Name
 
 The name "Marble" comes from the english word for a stone-like material, that is often used for sculpting sculptures. The act of building complex structures from a simple piece of stone. "Faber est suae quisque fortunae." - Every man is the artisan of his own fortune. And so is every great sculptor the picker of his marble.
