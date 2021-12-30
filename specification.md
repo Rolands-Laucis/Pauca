@@ -1,5 +1,6 @@
 #### VERSION 1.0
 
+#### Fundamentals
 
 ### String literals
 
@@ -59,6 +60,8 @@ A label is given after the tag name adding a space and in quotes the label name.
 
 Marble supports recognizing patterns of various kinds of symbols for strongly typed languages. These are the same as variables, but whereas the variable tag looks for any string, these specific variable tags look for specific type symbols. Some of these are just internal definitions of tags using existing primitve Marble syntax.
 
+``[sym ""]`` shorthand: ``[""]``, see [Shorthands](#Shortcuts/shorthands) String literal
+
 ``[d "my_digit"]`` for digit/s.
 
 ``[d "my_digit",2,4]`` for 2 to 4 digits.
@@ -71,9 +74,19 @@ Marble supports recognizing patterns of various kinds of symbols for strongly ty
 
 ``[func "function"]`` will match the generic function call pattern in most languages e.g. Factorial(n) and My_func(p1, p2 "abc", p3 "123"[, ...]) for an infinite list of parameters.
 
+### Operators
+
+Under thought.
+
+Sometimes you might want to perform some mathematical operations to convert the input to an output, i.e. to change the indexing numeration between languages. So Marble supports doing this in the target tag. But special tags must be used, since any normal characters are taken as a literal output to the target.
+
+``[+]``
+
 ### Tag arguments
 
 As seen in the above example, some tags take in a list of arguments. Indeed even the label assignment is internally just an argument passed to the tag object setup. Arguments are supplied after a space character after the tag name, then multiple args are delimited with a ",". E.g. previous section 2nd example.
+
+#### Code flow
 
 ### Optionals/conditionals
 
@@ -110,11 +123,33 @@ This means that the [if] tag receives arguments like other tags, which means mul
 
 Any normal operator can be used. Left side of the operator is a variable number or variable label in the pattern. Right side is either a number, or if cant be parsed as one, then it is treated as a string literal.
 
-### Comments
+### Loops
 
-The rest of a line after "//" is ignored by Marble.
+Marble supports looping in the target with the [loop] tag. It takes an integer argument of how many times the inner contents should be copied.
 
-``... //...``
+```
+...
+[target]
+    [loop 2]
+        something
+    [/loop]
+[/target]
+``` 
+will produce a result of "somethingsomething"
+
+The argument can be a variable tag capture, if at that point durring transpiling the variable exists.
+
+Optionally a 2nd argument can be given to mark the current loop iteration value into a variable with a label, that can then be used in the nested tags. To be consistent with most other languages, the loop indexing is 0-based.
+
+```
+...
+[target]
+    [loop 2,"count"]
+        [count]
+    [/loop]
+[/target]
+``` 
+will produce a result of "01".
 
 ### Componenets and generalization
 
@@ -122,7 +157,7 @@ Since writing long syntax patterns for every case in a target languages syntax p
 This is done by giving the end tag a label and referencing that pattern by its label in other patterns. To include a pattern use the pat tag. NB! Included pattern variables must all be labeled. Pattern tags can be nested.
 
 ```
-[sym " "] [var "x"] [sym " = "] [d "number",1,10] [? opt1 sym ";"] [end "var_tail"] // x = 0;
+[c] [sym " "] [var "x"] [sym " = "] [d "number",1,10] [? opt1 sym ";"] [end "var_tail"] // x = 0;
 [target]
 [x] = [number] [if opt1];[/if]
 [/target]
@@ -134,6 +169,8 @@ This is done by giving the end tag a label and referencing that pattern by its l
 
 The targets for patterns arent nescesary, as is the case for the last 3 patterns for the sake of brevity. So the last 3 patterns wont transpile to anything in a real application. But this is intended to match js syntax of "let x = 0" or "let y = 12319283;" or "const num = 3472" by reusing a pattern as a component in another.
 Pattern variables can be accessed by their labels.
+
+But pattern components will also match and transpile on their own. To mitigate this, the [c] pre-tag is used. Check the [Component only pattern section](#Component-only-pattern) for more details.
 
 ### Multiples or arrays (tuples? arrays? lists? sets?)
 
@@ -164,43 +201,9 @@ Multiple options are matched by priority in the order that they are supplied lef
 
 And since a multiple is not a tag itself, then the optional mark cannot be applied to it, likewise it would be illogical to add an optional mark to any tag within the multiple, if it is by itself. 
 
-### Loops
-
-Marble supports looping in the target with the [loop] tag. It takes an integer argument of how many times the inner contents should be copied.
-
-```
-...
-[target]
-    [loop 2]
-        something
-    [/loop]
-[/target]
-``` 
-will produce a result of "somethingsomething"
-
-The argument can be a variable tag capture, if at that point durring transpiling the variable exists.
-
-Optionally a 2nd argument can be given to mark the current loop iteration value into a variable with a label, that can then be used in the nested tags. To be consistent with most other languages, the loop indexing is 0-based.
-
-```
-...
-[target]
-    [loop 2,"count"]
-        [count]
-    [/loop]
-[/target]
-``` 
-will produce a result of "01".
-
-### Operators
-
-Sometimes you might want to perform some mathematical operations to convert the input to an output, i.e. to change the indexing numeration between languages. So Marble supports doing this in the target tag. But special tags must be used, since any normal characters are taken as a literal output to the target.
-
-``[+]``
+### Slots and recursive patterns
 
 Under thought.
-
-### Slots and recursive patterns
 
 Marble supports pattern components for better generalization, but what if you want to reference the current pattern in itself? Recursion is tricky, but you can tell Marble that a pattern can be recursive with the [rec] tag.
 
@@ -271,6 +274,36 @@ inner something
 
 This is also quite useful for LISP languages, where you could define a generic list with multiple possibilities in the arguments and have it be recursive, such that a list argument could be another list just like it.
 
+#### Pre-tags
+
+Here are some useful tags for code flow of Marbles parser. Instruct Marble to treat some patterns differently.
+
+## New line
+
+Sometimes you may want to detect a pattern only, if it is preceded by a new line character, i.e. a line of code on its own line from the start of the line. You do this by prefixing a pattern with the [n] tag.
+
+``[n] ["let"] ...``
+
+## Component only pattern
+
+Sometimes you want to define a component pattern, but dont want Marble to transpile lines that match it. For this you can use the [c] component tag.
+
+``[c] ... [end "var_tail"]`` so you can use this pattern as a component in other patterns, but Marble will not transpile these lines, when Marble sees them.
+
+## Indents
+
+Source code is often indented, so marble supports keeping these indents in the output, if it is set up right. The indent tag can be used for this and other purposes. It captures a string of symbols into a variable, that can then be inserted back into the transpilation output text. The [i] tag is internally treated as a variable and can be accessed as such.
+
+``[i] [sym "int"] ...`` will capture any length repeating "\t","\s" character strings into a variable. It may be accessed as '[1]', which would be a string of tabs and/or spaces here, so you can insert them back into the target. This is crutial for languages like python.
+
+## Comments
+
+The rest of a line after "//" is ignored by Marble.
+
+``... //...``
+
+#### Specials
+
 ### Shortcuts/shorthands
 
 The tag based syntax of Marble is nescesary to allow literal target outputs, but this often creates long winded patterns. To help mitigate this, some special tags have been reserved that literally get replaced with their full lengths before Marble starts transpiling. Here is a list of them (left side is the short form):
@@ -278,12 +311,6 @@ The tag based syntax of Marble is nescesary to allow literal target outputs, but
 ``[""]`` -> ``[sym ""]`` a literal symbol string in the source
 ``[s]`` -> ``[?" "]`` an optional space character
 ``[;]`` -> ``[?";"]`` an optional ;
-
-### Indents
-
-Source code is often indented, so marble supports keeping these indents in the output, if it is set up right. The indent tag can be used for this and other purposes. It captures a string of symbols into a variable, that can then be inserted back into the transpilation output text. The [ind] tag is internally treated as a variable and can be accessed as such.
-
-``[ind] [sym "int"] ...`` will capture any length repeating "\t","\s" character strings into a variable. It may be accessed as '[1]', which would be a string of tabs and/or spaces here, so you can insert them back into the target. This is crutial for languages like python.
 
 ### Regex
 
@@ -296,6 +323,8 @@ Since Marble is written in js, then standard js regex literals may be used. Othe
 
 ### Custom tags
 
+Under thought.
+
 Marble allows you to define custom tags which is different from but similar to defining pattern components. You may also link to other marble syntax files to import them, thus maintaining a library of custom tags and pattern components to use in any marble syntax file for actual transpiling. Indeed the marble standard lib tags are defined this way and the lib is imported by default.
 
 ```
@@ -303,7 +332,6 @@ Marble allows you to define custom tags which is different from but similar to d
 
 [/def]
 ```
-Under thought.
 
 ### Escapes
 
