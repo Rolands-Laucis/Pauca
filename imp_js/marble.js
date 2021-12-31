@@ -54,6 +54,9 @@ optional arguments:
     return 0
 }
 
+
+//https://jsdoc.app/index.html
+
 /**
  * @param {string} syntax
  * @param {string} source
@@ -67,43 +70,11 @@ function Transpile(syntax, source){
     //---construct syntax parse tree data structure
     
     //segment the syntax file into block pairs, where the first element of the pair is the pattern string, the second - the target string
-    let segments = {}
-    
-    let pat = '', target = '', on_target = false;
-    const re_target_start = /(\[target(\s\".+\")?\])/m
-    const re_target_end = /(\[\/target\])/m
-
-    //due to the preprocessing, we should be starting on a pattern line, that may spill over to a new line
-    syntax.split('\n').forEach(line => {
-        if(line.match(re_target_start))
-            on_target = true
-        else if (line.match(re_target_end)){
-            on_target = false
-            target += line.trimEnd() //since the lower conditional branch wont be run, grab that clossing target tag
-
-            //save down the pattern
-            if (pat.match(re_target_start) || pat.match(re_target_end)){
-                console.log('Target and pattern segments misaligned! Exiting...')
-                process.exit(1)
-            }
-            segments[Object.keys(segments).length] = {'pat': pat, 'target':target}
-
-            //reset for next segment
-            pat = ''
-            target = ''
-
-            return //here acts as a continue keyword would in a for loop
-        }
-        
-        if (on_target)
-            target += line.trimEnd() 
-        else
-            pat += line.trim() 
-    })
-
-    console.log(segments)
+    let pairs = PairPatTarget(syntax)
+    // console.log(pairs)
 
     //---parse the segments into a tree of tokens
+    pairs = TokenizePattern(pairs)
 
     //---create regex patterns from marble syntax
 
@@ -115,3 +86,70 @@ function Transpile(syntax, source){
 }
 
 
+/**
+ * Expects the syntax text preprocessed without \n, i.e. the entire string is on a single line
+ * @param {string} text
+ * @returns {Array} pairs
+ */
+function PairPatTarget(text){
+    const pairs = []
+    
+    const re_pat = /(.*?\[end(\s\".*?\")?\])/m
+    const re_target = /(\[target(\s\".*?\")?\].*?\[\/target\])/m
+    const re_target_start_tag = /(\[target(\s\".*?\")?\])/m
+    const re_target_begin = /^(\[target(\s\".*?\")?\])/m
+    const re_pat_end_tag = /(\[end(\s\".*?\")?\])/m
+
+    let match = text.match(re_pat)
+    while(match){
+        if (!match){
+            console.log(text)
+            console.log(pairs)
+        }
+        //save down the pattern
+        const pat = match[0].trim() //Object.values(match).join(' ')
+        if (pat.match(re_target_start_tag)){ //make sure no conflictions in parsing
+            console.log('Target tag found in pattern sequence. Exiting...')
+            console.log(pairs)
+            process.exit(1)
+        }
+        pairs.push({ 'pat': pat }) //match.groups.pat + match.groups.tail
+        //remove the extracted match
+        text = text.replace(re_pat, '').trim()
+
+        //Now the text should begin with a target tag. save down the target
+        if (!text.match(re_target_begin)){
+            console.log('No target tag after pattern match. Exiting...')
+            console.log(text)
+            console.log(pairs)
+            process.exit(1)
+        }
+        match = text.match(re_target)
+        const target = match[0].trim() //Object.values(match.groups).join(' ')
+        if (target.match(re_pat_end_tag)) { //make sure no conflictions in parsing
+            console.log('End tag found in target sequence. Exiting...')
+            console.log(pairs)
+            process.exit(1)
+        }
+        // console.log(pairs[pairs.length - 1])
+        pairs[pairs.length - 1]['tar'] = target
+        //remove the extracted match
+        text = text.replace(re_target, '').trim()
+
+        //re-search for next iter
+        match = text.match(re_pat)
+    }
+
+    return pairs
+}
+
+/**
+ * Expects the syntax text preprocessed without \n, i.e. the entire string is on a single line
+ * @param {object[]} pairs
+ * @returns {object[]} pairs
+ */
+function TokenizePattern(pairs){
+    pairs.map(p => {
+        p['pat'] //tokenize
+    })
+}

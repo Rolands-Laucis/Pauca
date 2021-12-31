@@ -16,7 +16,7 @@ function RemoveNewLines(text) {
  * @param {string} text
  */
 function ShrinkNewLines(text) {
-    return text.replace(/[\n\r]+/gm, '\n')
+    return text.replace(/[\n\r]+/gm, '')
 }
 
 /**

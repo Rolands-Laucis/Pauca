@@ -49,6 +49,8 @@ Variables are assigned a label in the syntax to reference in the target however,
 
 ``[var "var_name"]`` accesed in target with '[var_name]'
 
+This is THE variable tag, but other tags may be "varialbe tags", meaning that they are used the same as here, but have their own name and utility. Internally variable tags store their generated target output and copy paste it into the current pattern places via the label or numeration notation, i.e. [1].
+
 ### Labels
 
 Any pattern tag can be given a label, with which to reference the tag and its value in the target, though sometimes that is not useful. Labels cannot be given inside taget tags, but the target tags accept a special case label, which informs Marble about the target language to transpile to, as seen in the [Targets](#Defining-the-transpilation-aka-the-Target) section. 
@@ -154,7 +156,7 @@ will produce a result of "01".
 ### Componenets and generalization
 
 Since writing long syntax patterns for every case in a target languages syntax parse tree would be very long winded and lengthy, marble supports defining pattern components.
-This is done by giving the end tag a label and referencing that pattern by its label in other patterns. To include a pattern use the pat tag. NB! Included pattern variables must all be labeled. Pattern tags can be nested.
+This is done by giving the end tag a label and referencing that pattern by its label in other patterns. To include a pattern use the [pat] tag, which is a variable tag. NB! Included pattern variables must all be labeled, if they are a component, they dont have a target. Pattern tags can be nested.
 
 ```
 [c] [sym " "] [var "x"] [sym " = "] [d "number",1,10] [? opt1 sym ";"] [end "var_tail"] // x = 0;
@@ -280,7 +282,7 @@ Here are some useful tags for code flow of Marbles parser. Instruct Marble to tr
 
 ## New line
 
-Sometimes you may want to detect a pattern only, if it is preceded by a new line character, i.e. a line of code on its own line from the start of the line. You do this by prefixing a pattern with the [n] tag.
+Sometimes you may want to match a pattern in source only, if it is preceded by a new line character, i.e. a line of source code on its own line from the start of the line. You do this by prefixing a pattern with the [n] tag.
 
 ``[n] ["let"] ...``
 
