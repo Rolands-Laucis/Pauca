@@ -15,7 +15,7 @@ function RemoveNewLines(text) {
 /**
  * @param {string} text
  */
-function ShrinkNewLines(text) {
+function RemoveNewLines(text) {
     return text.replace(/[\n\r]+/gm, '')
 }
 
@@ -23,7 +23,7 @@ function ShrinkNewLines(text) {
  * @param {string} text
  */
 function RemoveTabs(text) {
-    return text.replace(/\t/gm, '')
+    return text.replace(/\t+/gm, '')
 }
 
 /**
@@ -33,7 +33,7 @@ function Strip(text){
     return text.trim()
 }
 
-export const AllPreProcSteps = [RemoveComments, ShrinkNewLines, RemoveTabs, Strip]
+const All_PreProc_Steps = [RemoveComments, RemoveNewLines, RemoveTabs, Strip]
 
 /**
  * @param {string} text
@@ -45,8 +45,9 @@ export function ExtractSection(text, index){
 /**
  * @param {Function[]} steps
  * @param {string} text
+ * @returns {string} text
  */
-export function Preprocess(steps, text) {
+export function Preprocess(text, steps = All_PreProc_Steps) {
     steps.unshift(text) //insert the text as the first element, so that we can just use the reduce function to apply all steps
     return steps.reduce((text, f) => f(text))
 }

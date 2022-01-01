@@ -7,7 +7,8 @@
 import parse from "args-parser" //i was too lazy to parse them myself ;-;
 import fs from 'fs' //for reading the 3 files content
 
-import { Preprocess, AllPreProcSteps, ExtractSection} from './preproc.js'
+import { Preprocess, ExtractSection} from './preproc.js'
+import { Parse } from './lexer.js'
 
 const error_code = Main()
 if(error_code)
@@ -65,16 +66,13 @@ function Transpile(syntax, source){
 
     //preprocess steps before parsing the syntax file
     // syntax = ExtractSection(syntax, 1)
-    syntax = Preprocess(AllPreProcSteps, syntax)
+    syntax = Preprocess(syntax)
 
     //---construct syntax parse tree data structure
     
-    //segment the syntax file into block pairs, where the first element of the pair is the pattern string, the second - the target string
-    let pairs = PairPatTarget(syntax)
-    // console.log(pairs)
-
-    //---parse the segments into a tree of tokens
-    pairs = TokenizePattern(pairs)
+    //parse the marble syntax into a ready-to-use data structure
+    const parsed_marble = Parse(syntax)
+    console.log(parsed_marble)
 
     //---create regex patterns from marble syntax
 
@@ -83,73 +81,4 @@ function Transpile(syntax, source){
 
 
     return syntax
-}
-
-
-/**
- * Expects the syntax text preprocessed without \n, i.e. the entire string is on a single line
- * @param {string} text
- * @returns {Array} pairs
- */
-function PairPatTarget(text){
-    const pairs = []
-    
-    const re_pat = /(.*?\[end(\s\".*?\")?\])/m
-    const re_target = /(\[target(\s\".*?\")?\].*?\[\/target\])/m
-    const re_target_start_tag = /(\[target(\s\".*?\")?\])/m
-    const re_target_begin = /^(\[target(\s\".*?\")?\])/m
-    const re_pat_end_tag = /(\[end(\s\".*?\")?\])/m
-
-    let match = text.match(re_pat)
-    while(match){
-        if (!match){
-            console.log(text)
-            console.log(pairs)
-        }
-        //save down the pattern
-        const pat = match[0].trim() //Object.values(match).join(' ')
-        if (pat.match(re_target_start_tag)){ //make sure no conflictions in parsing
-            console.log('Target tag found in pattern sequence. Exiting...')
-            console.log(pairs)
-            process.exit(1)
-        }
-        pairs.push({ 'pat': pat }) //match.groups.pat + match.groups.tail
-        //remove the extracted match
-        text = text.replace(re_pat, '').trim()
-
-        //Now the text should begin with a target tag. save down the target
-        if (!text.match(re_target_begin)){
-            console.log('No target tag after pattern match. Exiting...')
-            console.log(text)
-            console.log(pairs)
-            process.exit(1)
-        }
-        match = text.match(re_target)
-        const target = match[0].trim() //Object.values(match.groups).join(' ')
-        if (target.match(re_pat_end_tag)) { //make sure no conflictions in parsing
-            console.log('End tag found in target sequence. Exiting...')
-            console.log(pairs)
-            process.exit(1)
-        }
-        // console.log(pairs[pairs.length - 1])
-        pairs[pairs.length - 1]['tar'] = target
-        //remove the extracted match
-        text = text.replace(re_target, '').trim()
-
-        //re-search for next iter
-        match = text.match(re_pat)
-    }
-
-    return pairs
-}
-
-/**
- * Expects the syntax text preprocessed without \n, i.e. the entire string is on a single line
- * @param {object[]} pairs
- * @returns {object[]} pairs
- */
-function TokenizePattern(pairs){
-    pairs.map(p => {
-        p['pat'] //tokenize
-    })
 }
