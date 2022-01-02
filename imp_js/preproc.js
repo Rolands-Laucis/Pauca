@@ -9,14 +9,21 @@ function RemoveComments(text) {
  * @param {string} text
  */
 function RemoveNewLines(text) {
-    return text.replace(/[\n\r]/gm, '\s')
+    return text.replace(/[\n\r]/gm, ' ')
 }
 
 /**
  * @param {string} text
  */
-function RemoveNewLines(text) {
-    return text.replace(/[\n\r]+/gm, '')
+function CollapseNewLines(text) {
+    return text.replace(/[\n\r]+/gm, '\n')
+}
+
+/**
+ * @param {string} text
+ */
+function CollapseSpaces(text) {
+    return text.replace(/[\s]+/gm, ' ')
 }
 
 /**
@@ -33,13 +40,14 @@ function Strip(text){
     return text.trim()
 }
 
-const All_PreProc_Steps = [RemoveComments, RemoveNewLines, RemoveTabs, Strip]
+const All_PreProc_Steps = [RemoveComments, RemoveNewLines, CollapseSpaces, RemoveTabs, Strip]
 
 /**
  * @param {string} text
+ * @param {number} index - 0 based array index
  */
 export function ExtractSection(text, index){
-    return text.split(/\/\/-+/gmi)[index]
+    return text.split(/\/\/-+/gm)[index]
 }
 
 /**

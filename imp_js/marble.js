@@ -9,6 +9,7 @@ import fs from 'fs' //for reading the 3 files content
 
 import { Preprocess, ExtractSection} from './preproc.js'
 import { Parse } from './lexer.js'
+import { CastToRegex } from "./grammer.js"
 
 const error_code = Main()
 if(error_code)
@@ -43,7 +44,7 @@ optional arguments:
 
     //set up the 3 texts to work with from their files
     let syntax = fs.readFileSync(args.s, { encoding: 'utf8', flag: 'r' })
-    let source = '' //fs.readFileSync(args.i, { encoding: 'utf8', flag: 'r' })
+    let source = fs.readFileSync(args.i, { encoding: 'utf8', flag: 'r' })
     let output = "TODO..."
 
     //do the transpilation
@@ -65,18 +66,23 @@ optional arguments:
 function Transpile(syntax, source){
 
     //preprocess steps before parsing the syntax file
-    // syntax = ExtractSection(syntax, 1)
+    syntax = ExtractSection(syntax, 0)
     syntax = Preprocess(syntax)
+    // console.log(syntax)
+
+    // const parsed = Parse(syntax, [Pairer, Tokenizer])
 
     //---construct syntax parse tree data structure
     
     //parse the marble syntax into a ready-to-use data structure
     const parsed_marble = Parse(syntax)
-    console.log(parsed_marble)
+    // console.log(parsed_marble)
+    // console.log(parsed_marble[0]['pat'])
 
     //---create regex patterns from marble syntax
+    // const re = CastToRegex(parsed_marble[0]['pat'])
+    // console.log(source.match(re))
 
-    
     //---Convert source lines with regex
 
 

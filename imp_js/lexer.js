@@ -1,5 +1,7 @@
 // This script contains lexing functions for parsing the Marble file syntax - "pairer", tokenizer
 
+import { Link } from "./grammer.js" 
+
 /**
  * Expects the syntax text preprocessed without \n, i.e. the entire string is on a single line
  * @param {string} text
@@ -91,7 +93,7 @@ export function Tokenizer(pairs) {
 export function Mapper(pairs){
     return pairs.map(p => {
         return {
-            'pat': p['pat'],
+            'pat': p['pat'].map(token => Link(token)),
             'tar': p['tar']
         }
     })
