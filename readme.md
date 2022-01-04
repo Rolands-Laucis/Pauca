@@ -1,7 +1,7 @@
-# Generic source-to-source (s2s) programming language transpiler tool/framework - "Marble".
+# General purpose source-to-source (s2s) programming language transpiler tool/framework - "Marble".
 
 ## What is Marble?
-Marble is a general pseudo code language syntax for writing transpilers for other languages. It does not execute the code, it merely translates from 1 programming language source code to another, via easily definable syntax patterns in the source code text file. These patterns are mapped to corresponding syntax in the output target language syntax. The mapping is manual - using Marble and your knowledge of the languages. Marble of course also has its own syntax for enabling you to do things. Lets take a quick look.
+Marble is a pseudo code language syntax for writing transpilers for other languages (or plain text in general). It does not execute the code, it merely translates from 1 programming language source code to another, via easily definable syntax patterns in the source code text file. These patterns are mapped to corresponding syntax in the output target language syntax. The mapping is manual - using Marble and your knowledge of the languages. Marble of course also has its own syntax for enabling you to do things. Lets take a quick look.
 
 ### So how do you define anything in Marble? What tells Marble to search for syntax?
 
@@ -26,7 +26,7 @@ You can check [the Specification for Marble syntax here](https://github.com/Rola
 
 ## Running Marble.
 
-Currently Marble's specification is being devloped by Rolands Laucis, and this may take a considerable amount of time. So far there is no implementation of the Marble engine, i.e. it is still just an idea. You are free to implement it in whatever language you wish.
+Currently Marble's specification is being devloped by Rolands Laucis, and this may take a considerable amount of time. So far there is no implementation of the Marble engine, i.e. it is still just an idea. You are free to implement it in whatever language you wish, so long as you credit this repo.
 
 Marble would be built with Node.js, so it could simply run with a CLI as such:
 
@@ -44,6 +44,7 @@ I am creating this for fun and because i could not find something similar to thi
 
 * [A higher level abstract regex compiler](https://github.com/Ruminat/Asq-Server). It lets you define regex patterns with more readable syntax, specifically for csv table and such parsing.
 * [General purpose scriptable transpiler for many languages](https://awesomeopensource.com/project/jarble/transpiler). Has support for many languages and lets you script addons to the engine.
+* [GNU Bison](https://www.gnu.org/software/bison/) A general-purpose parser generator for grammar syntaxes in C.
 
 ### Name
 
