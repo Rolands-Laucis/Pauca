@@ -1,11 +1,12 @@
 // This script contains lexing functions for parsing the Marble file syntax - "pairer", tokenizer
 
-import { Link } from "./grammer.js" 
+import { LinkPat, LinkTar } from "./grammer.js" 
 
 /**
- * Expects the syntax text preprocessed without \n, i.e. the entire string is on a single line
+ * Expects the syntax text preprocessed without \n, i.e. the entire string is on a single line.
+ * It then segments that into pairs of pattern and target strings
  * @param {string} text
- * @returns {Array} pairs
+ * @returns {object[]} pairs
  */
 export function Pairer(text) {
     const pairs = []
@@ -60,7 +61,8 @@ export function Pairer(text) {
 }
 
 /**
- * Expects a pairs object, where the pat and tar vals are a string, it then converts these strings into more useful arrays of tokens
+ * Expects a pairs object, where the pat and tar vals are a string. 
+ * It then converts these strings into more useful arrays of tokens
  * @param {object[]} pairs
  * @returns {object[]} pairs
  */
@@ -86,20 +88,31 @@ export function Tokenizer(pairs) {
 
 
 /**
- * Expects a pairs object, where the pat and tar vals are token arrays, it then maps a function call with its arguments for every token according to its functionality
+ * Expects a pairs object, where the pat and tar vals are token arrays. 
+ * It then maps a function call with its arguments for every token according to its functionality
  * @param {object[]} pairs
  * @returns {object[]} pairs
  */
 export function Mapper(pairs){
     return pairs.map(p => {
         return {
-            'pat': p['pat'].map(token => Link(token)),
-            'tar': p['tar']
+            'pat': p['pat'].map(token => LinkPat(token)),
+            'tar': p['tar']//.map(token => LinkTar(token))
         }
     })
 }
 
-const All_Parsing_Steps = [Pairer, Tokenizer, Mapper]
+/**
+ * Expects a pairs object, where the pat and tar vals are funtion+args arrays. 
+ * It then resolves (links, builds) the full pattern function calls recursively from nested pattern component references
+ * @param {object[]} pairs
+ * @returns {object[]} pairs
+ */
+export function Linker(pairs){
+    return pairs
+}
+
+const All_Parsing_Steps = [Pairer, Tokenizer, Mapper, Linker]
 /**
  * Expects the syntax text preprocessed without \n, i.e. the entire string is on a single line
  * @param {string} text
