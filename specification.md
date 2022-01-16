@@ -57,6 +57,11 @@ Any pattern tag can be given a label, with which to reference the tag and its va
 Labels are automatically escaped, see section [Escapes](#Escapes).
 Labels are global, so overlaps or reassigns will cause problems with transpiling. However, there is an exception with the [rec] tag, see section [Slots and recursive patterns](#Slots-and-recursive-patterns).
 A label is given after the tag name adding a space and in quotes the label name. E.g. previous example line.
+Variables in the [target] tag are resolved in order: 
+first as a string literal by label in the pattern, 
+then as int literal by index in the pattern, 
+then as just an int or string literal (in that order). 
+Meaning '[1]', '[my_var]', '1', '"str_literal"' will all be resolved intuitively inside the target tag in that order of precedence and the last 2 only when used as arguments for other tags, like in the [if] tag.
 
 ### Types
 
@@ -67,6 +72,10 @@ Marble supports recognizing patterns of various kinds of symbols for strongly ty
 ``[d "my_digit"]`` for digit/s.
 
 ``[d "my_digit",2,4]`` for 2 to 4 digits.
+
+``[f "my_digit"]`` for float/s. Includes an optional appended 'f' as in the literal '0.1f'. Also supports handling integers and doubles.
+
+``[f "my_digit",2,4]`` for 2 to 4 digits.
 
 ``[str "my_str"]`` for a matching literally - "abcd" including the double quotes.
 
@@ -104,10 +113,10 @@ If the [if] tag evaluates true, then the inside tokens and/or tags will be inclu
 ```
 [["let"],["var"]] [var] ... [end]
 [target]
-    [if 1=let]
+    [if [1]=let]
     ...
     [/if]
-    [if 1=var]
+    [if [1]=var]
     ...
     [/if]
 [/target]
@@ -117,13 +126,13 @@ This means that the [if] tag receives arguments like other tags, which means mul
 
 ```
 ...
-[if 1=1,3>2]
+[if [1]=1,[3]>2]
 ...
 [/if]
 ...
 ```
 
-Any normal operator can be used. Left side of the operator is a variable number or variable label in the pattern. Right side is either a number, or if cant be parsed as one, then it is treated as a string literal.
+Any normal operator can be used. Both sides of the operator are a normal variable tag syntax or int and string literals.
 
 ### Loops
 
@@ -159,9 +168,9 @@ Since writing long syntax patterns for every case in a target languages syntax p
 This is done by giving the end tag a label and referencing that pattern by its label in other patterns. To include a pattern use the [pat] tag, which is a variable tag. NB! Included pattern variables must all be labeled, if they are a component, they dont have a target. Pattern tags can be nested.
 
 ```
-[c] [sym " "] [var "x"] [sym " = "] [d "number",1,10] [? opt1 sym ";"] [end "var_tail"] // x = 0;
+[c] [sym " "] [var "x"] [sym " = "] [d "number",1,10] [? "opt1" sym ";"] [end "var_tail"] // x = 0;
 [target]
-[x] = [number] [if opt1];[/if]
+[x] = [number] [if [opt1]];[/if]
 [/target]
 
 [sym "let"] [pat "var_tail"] [end]
@@ -186,7 +195,7 @@ However, since these 3 symbol string literals mean diffrent concepts in js, then
 ```
 {["let"],["var"],["const"]} [pat "var_tail"] [end]
 [target]
-[1] [x] = [number] [if opt1];[/if]
+[1] [x] = [number] [if [opt1]];[/if]
 [/target]
 ```
 where '[1]' evaluates to e.g. "let" (excluding quotes)
@@ -305,6 +314,26 @@ The rest of a line after "//" is ignored by Marble.
 ``... //...``
 
 #### Specials
+
+### Pre-pend and Post-pend tags
+
+Sometimes you may want to add extra code at the top or bottom of the transpiled script, so marble lets you do this with these 2 tags. These dont look for a pattern, but tell Marble to add this target code snippets to the top and/or bottom of the script once it is done.
+
+```
+[pre] [end]
+[target]
+#include <std.h>
+...
+[/target]
+```
+
+```
+[post] [end]
+[target]
+...
+exit(0)
+[/target]
+```
 
 ### Shortcuts/shorthands
 
