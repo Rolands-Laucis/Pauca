@@ -5,12 +5,14 @@
   "main": "marble.js",
   "scripts": {
     "test": "node marble -s=\"./gen/test.marble\" -i=\"./gen/input.txt\" -o=\"./gen/output.txt\"",
-    "tests": "echo not implemented!"
+    "gram": "node tests/grammer_tests",
+    "lex": "node tests/lexer_tests"
   },
   "author": "Rolands Laucis",
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "args-parser": "^1.3.0"
+    "args-parser": "^1.3.0",
+    "pino": "^7.6.2"
   }
 }

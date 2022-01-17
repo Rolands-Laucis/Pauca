@@ -1,6 +1,6 @@
 // This script contains lexing functions for parsing the Marble file syntax - "pairer", tokenizer
 
-import { LinkPat, LinkTar } from "./grammer.js" 
+import { LinkPat, LinkTar } from "./linker.js" 
 
 /**
  * Expects the syntax text preprocessed without \n, i.e. the entire string is on a single line.

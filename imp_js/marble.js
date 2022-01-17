@@ -6,6 +6,7 @@
 
 import parse from "args-parser" //i was too lazy to parse them myself ;-;
 import fs from 'fs' //for reading the 3 files content
+import pino from "pino"
 
 import { Preprocess, ExtractSection} from './preproc.js'
 import { Parse } from './lexer.js'
@@ -42,6 +43,9 @@ optional arguments:
         process.exit(1)
     }
 
+    //set up a logger
+    // const logger = pino(pino.destination({ dest: './run.log', sync: false }))
+
     //set up the 3 texts to work with from their files
     let syntax = fs.readFileSync(args.s, { encoding: 'utf8', flag: 'r' })
     let source = fs.readFileSync(args.i, { encoding: 'utf8', flag: 'r' })
@@ -62,11 +66,17 @@ optional arguments:
 /**
  * @param {string} syntax
  * @param {string} source
+ * @param {Function} logger
  */
-function Transpile(syntax, source){
+function Transpile(syntax, source, logger = null){
+
+    // if (!logger){
+    //     logger = pino(pino.destination({dest: './run.log', sync: false}))
+    // }
+    // logger.info('Hello world!')
 
     //preprocess steps before parsing the syntax file
-    syntax = ExtractSection(syntax, 0)
+    syntax = ExtractSection(syntax, 3)
     syntax = Preprocess(syntax)
     // console.log(syntax)
 
@@ -78,6 +88,7 @@ function Transpile(syntax, source){
     const parsed_marble = Parse(syntax)
     // console.log(parsed_marble)
     // console.log(parsed_marble[0]['pat'])
+    // console.log(parsed_marble[0]['tar'])
 
     //---create regex patterns from marble syntax
     // const re = CastToRegex(parsed_marble[0]['pat'])

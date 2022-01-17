@@ -3,7 +3,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=node,visualstudiocode
 
 imp_js/gen
-
+marble_vs_tml/marble/*
 
 ### Node ###
 # Logs
