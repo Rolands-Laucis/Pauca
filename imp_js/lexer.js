@@ -1,6 +1,7 @@
 // This script contains lexing functions for parsing the Marble file syntax - "pairer", tokenizer
 
 import { LinkPat, LinkTar } from "./linker.js" 
+import {error} from './log.js'
 
 /**
  * Expects the syntax text preprocessed without \n, i.e. the entire string is on a single line.
@@ -11,47 +12,54 @@ import { LinkPat, LinkTar } from "./linker.js"
 export function Pairer(text) {
     const pairs = []
 
-    const re_pat = /(.*?\[end(\s\".*?\")?\])/m
-    const re_target = /(\[target(\s\".*?\")?\].*?\[\/target\])/m
+    const re_pat = /((.|\n|\t|\r)*?\[end(\s\".*?\")?\])/m
+    const re_target = /(\[target(\s\".*?\")?\](.|\n|\t|\r)*?\[\/target\])/m
     const re_target_start_tag = /(\[target(\s\".*?\")?\])/m
     const re_target_begin = /^(\[target(\s\".*?\")?\])/m
     const re_pat_end_tag = /(\[end(\s\".*?\")?\])/m
 
     let match = text.match(re_pat)
+    if (!match)
+        error('Could not find starting pattern block', match)
+        
+
     while (match) {
-        if (!match) {
-            console.log(text)
-            console.log(pairs)
-        }
+        
         //save down the pattern
-        const pat = match[0].trim() //Object.values(match).join(' ')
-        if (pat.match(re_target_start_tag)) { //make sure no conflictions in parsing
-            console.log('Target tag found in pattern sequence. Exiting...')
-            console.log(pairs)
-            process.exit(1)
+        const pat = match[0].trim().replace('\n', '') || null
+        if (pat) {
+            pairs.push({ 'pat': pat })
+            //remove the extracted match
+            text = text.replace(re_pat, '').trim()
+        }else{
+            error('Could not find starting pattern block', match)
         }
-        pairs.push({ 'pat': pat }) //match.groups.pat + match.groups.tail
-        //remove the extracted match
-        text = text.replace(re_pat, '').trim()
+
+        if (pat && pat.match(re_target_start_tag))
+            error('Target tag found in pattern sequence. Exiting...', pairs)
 
         //Now the text should begin with a target tag. save down the target
-        if (!text.match(re_target_begin)) {
-            console.log('No target tag after pattern match. Exiting...')
-            console.log(text)
-            console.log(pairs)
-            process.exit(1)
-        }
+        if (!text.match(re_target_begin)) 
+            error('No target tag after pattern match. Exiting...', pairs)
+
         match = text.match(re_target)
-        const target = match[0].trim() //Object.values(match.groups).join(' ')
-        if (target.match(re_pat_end_tag)) { //make sure no conflictions in parsing
-            console.log('End tag found in target sequence. Exiting...')
-            console.log(pairs)
-            process.exit(1)
+        if(!match){
+            pairs[pairs.length - 1]['tar'] = {}
+            //re-search for next iter
+            match = text.match(re_pat)
+            continue
         }
-        // console.log(pairs[pairs.length - 1])
-        pairs[pairs.length - 1]['tar'] = target
-        //remove the extracted match
-        text = text.replace(re_target, '').trim()
+
+        const target = match[0].trim() || null
+
+        if (target && target.match(re_pat_end_tag))
+            error('End tag found in target sequence. Exiting...', pairs)
+
+        if(target){
+            pairs[pairs.length - 1]['tar'] = target
+            //remove the extracted match
+            text = text.replace(re_target, '').trim()
+        }
 
         //re-search for next iter
         match = text.match(re_pat)
@@ -108,11 +116,11 @@ export function Mapper(pairs){
  * @param {object[]} pairs
  * @returns {object[]} pairs
  */
-export function Linker(pairs){
+export function Builder(pairs){
     return pairs
 }
 
-const All_Parsing_Steps = [Pairer, Tokenizer, Mapper, Linker]
+const All_Parsing_Steps = [Pairer, Tokenizer, Mapper, Builder]
 /**
  * Expects the syntax text preprocessed without \n, i.e. the entire string is on a single line
  * @param {string} text

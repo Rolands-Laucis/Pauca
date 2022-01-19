@@ -19,12 +19,29 @@ import { Pairer } from '../lexer.js'
  * @param {object} generated
  * @param {object} expected
  */
-function test(name, generated, expected) {
+function test_pairs(name, generated, expected) {
     if (generated['pat'] === expected['pat'] && generated['tar'] === expected['tar'])
         console.log(`✔️\t${name} PASS`)
     else
-        console.log(`❌\t${name} FAIL - GOT [${generated['pat'] + '\n' + generated['tar']}] BUT EXPECTED [${expected['pat'] + '\n' + expected['tar']}]`)
+        console.log(`❌\t${name} FAIL - GOT ${'\n' + generated['pat'] + '\n' + generated['tar']}\nBUT EXPECTED \n${expected['pat'] + '\n' + expected['tar']}`)
 }
 
 console.log('📝 Testing Pairer...')
-test('basic string', Pairer('[var "x"] [sym " "] [end "smth"] [target] var [x] = [num] [5] [/target]'), { 'pat': '[var "x"] [sym " "] [end "smth"]', 'tar':'[target] var [x] = [num] [5] [/target]'})
+test_pairs('basic full string', Pairer('[var "x"] [sym " "] [end "smth"] [target] var [x] = [num] [5] [/target]')[0], { 'pat': '[var "x"] [sym " "] [end "smth"]', 'tar':'[target] var [x] = [num] [5] [/target]'})
+test_pairs('basic string no end label', Pairer('[var "x"] [sym " "] [end] [target] var [x] = [num] [5] [/target]')[0], { 'pat': '[var "x"] [sym " "] [end]', 'tar': '[target] var [x] = [num] [5] [/target]' })
+test_pairs('basic full string target label', Pairer('[var "x"] [sym " "] [end "smth"] [target "py"] var [x] = [num] [5] [/target]')[0], { 'pat': '[var "x"] [sym " "] [end "smth"]', 'tar': '[target "py"] var [x] = [num] [5] [/target]' })
+
+test_pairs('multiline target', Pairer(`
+[var "x"] [sym " "] [end] 
+[target] 
+var [x] = [num] [5] 
+[/target]`)[0], { 'pat': '[var "x"] [sym " "] [end]', 'tar': `[target] 
+var [x] = [num] [5] 
+[/target]` })
+
+test_pairs('multiline pattern', Pairer(`
+[var "x"] [sym " "] 
+[end] 
+[target] var [x] = [num] [5] [/target]`)[0], { 'pat': '[var "x"] [sym " "] [end]', 'tar': '[target] var [x] = [num] [5] [/target]' })
+
+
