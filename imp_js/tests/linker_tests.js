@@ -42,7 +42,7 @@ function test_singles(name, generated, expected) {
 //sym
 console.log('📝 Testing symbol tags...')
 test('symbol full tag', LinkPat('sym "smth"'), [p['sym'], 'smth'])
-test('symbol short tag', LinkPat('"smth"'), [p['sym'], 'smth'])
+test('symbol short tag', LinkPat('"smth"'), [p[''], 'smth'])
 
 //var
 console.log('📝 Testing variable tags...')
