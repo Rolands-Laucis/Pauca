@@ -5,7 +5,7 @@
   "main": "marble.js",
   "scripts": {
     "test": "node marble -s=\"./gen/test.marble\" -i=\"./gen/input.txt\" -o=\"./gen/output.txt\"",
-    "gram": "node tests/grammer_tests",
+    "link": "node tests/linker_tests",
     "lex": "node tests/lexer_tests"
   },
   "author": "Rolands Laucis",

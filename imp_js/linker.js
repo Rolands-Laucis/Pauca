@@ -1,16 +1,19 @@
 // this script holds the functions of marble syntax grammar - links tokens (lexemes) to functional grams (computer linguistic grams) in the Marble grammar.
 // i.e. links a token to its corresponding method to be called when the regex needs to be generated or an action needs to be taken
 
+import {error} from './log.js'
+
 export const pat_grams = {
-    'n': new_line,
-    'c': none,
-    'i': indent,
+    'n': '^',
+    'c': '',
+    'i': '([\t\s]+)',
     'sym': sym,
     '': sym,
+    's': '(?: )',
     'var': var_tag,
-    'rec': rec_start,
-    '/rec': rec_end,
-    'end' : none
+    'rec': '(',
+    '/rec': ')+',
+    'end': end
 }
 
 const tar_grams = {
@@ -24,20 +27,23 @@ const re_tar_var_label = /"[a-z_]+"/
 /**
  * Expects a token as a string, which should be 1 tag, it then links a method with its arguments for the token according to its functionality
  * @param {string} token
- * @param {number} index
  * @returns {Array} f
  */
-export function LinkPat(token, index = 1){
+export function LinkPat(token){
     const tag_name = token.match(re_tag_name) || ''
-    // console.log(tag_name)
-    if (!(tag_name in pat_grams)){
-        console.error('Unrecognized tag name! Exiting...')
-        process.exit(1)
-    }
+
+    if (!(tag_name in pat_grams))
+        error('Unrecognized tag name! Exiting...', tag_name)
+
+    const linked_func = pat_grams[tag_name]
+
+    if (typeof (linked_func) == 'string') //if its not a function, then it must be a string, so just use that, and no need for args
+        return [linked_func]
+        
     let args = token.replace(re_tag_name, '').trim().split(',') //TODO this would mean that , cannot be used inside labels. NOTE looks like supplying more args to a func than it supports, has no negative effect, so no need to check arg lenth
     args = args.map(a => isNaN(parseInt(a)) ? a.replace(/"/g, '') : parseInt(a)) //turn number strings into numbers
 
-    return args.every(a => a != '') ? [pat_grams[tag_name], ...args] : [pat_grams[tag_name]] //edge case for when args is [''] - an empty string. Makes it difficult to test
+    return args.every(a => a != '') ? [linked_func, ...args] : [linked_func] //edge case for when args is [''] - an empty string. Makes it difficult to test
 }
 
 export function LinkTar(token){
@@ -50,7 +56,7 @@ export function LinkTar(token){
  * @returns {RegExp} regex
  */
 export function CastPatToRegex(tags) {
-    return RegExp(tags.map(t => t[0](...t.slice(1))).join(''), 'm')
+    return RegExp(tags.map(t => typeof (t[0]) == 'function' ? t[0](...t.slice(1)) : t[0]).join(''), 'm')
     //https://stackoverflow.com/questions/185510/how-can-i-concatenate-regex-literals-in-javascript
 }
 
@@ -60,22 +66,12 @@ export function CastPatToRegex(tags) {
  * @returns {RegExp} regex
  */
 export function CastTagToRegex(tag) {
-    return RegExp(tag[0](...tag.slice(1)), 'm')
+    return RegExp((typeof (tag[0]) == 'function' ? tag[0](...tag.slice(1)) : tag[0]), 'm')
 }
 
 //----pattern tags
 
 //----generic tags
-function none() { return '' }
-
-//--pre and post tags
-function new_line(){
-    return '^'
-}
-
-function indent(){
-    return '([\t\s]+)'
-}
 
 function end(label = ''){
     return '$'
@@ -88,14 +84,6 @@ function sym(str, opt = false){
 
 function var_tag(label = '', opt = false){
     return (label ? `(?<${label}>[a-zA-Z_]+)` : `([a-zA-Z_]+)`) + (opt ? '?' : '')
-}
-
-function rec_start(){
-    return '('
-}
-
-function rec_end() {
-    return ')+'
 }
 
 //-----target tags
@@ -141,13 +129,3 @@ function opr(ctx, a, b, op) {
     else if (op == '<=')
         return a <= b
 }
-
-// function add(ctx, a, b){ return opr(ctx, a, b, '+') }
-// function sub(ctx, a, b) { return opr(ctx, a, b, '-') }
-// function div(ctx, a, b) { return opr(ctx, a, b, '/') }
-// function mul(ctx, a, b) { return opr(ctx, a, b, '*') }
-// function eq(ctx, a, b) { return opr(ctx, a, b, '==') }
-// function (ctx, a, b) { return opr(ctx, a, b, '>') }
-// function add(ctx, a, b) { return opr(ctx, a, b, '<') }
-// function add(ctx, a, b) { return opr(ctx, a, b, '>=') }
-// function add(ctx, a, b) { return opr(ctx, a, b, '<=') }
