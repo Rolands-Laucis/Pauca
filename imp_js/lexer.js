@@ -84,12 +84,12 @@ export function Tokenizer(pairs) {
     return pairs.map(p => { 
         return {
             //split pat string into array of [tag]. Then also remove the surrounding [] symbols from each tag
-            'pat': p['pat'].match(re_tag).map(t => t.slice(1, -1)),
+            'pat': p['pat'] ? p['pat'].match(re_tag).map(t => t.slice(1, -1)) : undefined,
             //from target extract its language and tokenize its body, splitting by [tag]
-            'tar': {
-                'lang': p['tar'].match(re_tar_lang).groups.lang || '',
-                'body': p['tar'].match(re_tar_body).groups.body.split(re_tar_split_by_tag) || ''
-            }
+            'tar': p['tar'] ? {
+                'lang': p['tar'] ? p['tar'].match(re_tar_lang).groups.lang : undefined,
+                'body': p['tar'] ? p['tar'].match(re_tar_body).groups.body.split(re_tar_split_by_tag) : undefined
+            } : undefined
         }
     })
 }

@@ -6,11 +6,11 @@
 
 import parse from "args-parser" //i was too lazy to parse them myself ;-;
 import fs from 'fs' //for reading the 3 files content
-import pino from "pino"
+// import pino from "pino"
 
 import { Preprocess, ExtractSection} from './preproc.js'
 import { Parse } from './lexer.js'
-import { CastToRegex } from "./grammer.js"
+// import { CastToRegex } from "./lexer.js"
 
 const error_code = Main()
 if(error_code)

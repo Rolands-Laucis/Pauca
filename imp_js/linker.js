@@ -13,11 +13,13 @@ export const pat_grams = {
     'i': '([\t\s]+)',
     'sym': (str, opt = false) => `(?:${str})` + (opt ? '?' : ''),
     '': (str, opt = false) => `(?:${str})` + (opt ? '?' : ''),
-    's': '(?: )',
     'var': (label = '', opt = false) => (label ? `(?<${label}>[a-zA-Z_]+)` : `([a-zA-Z_]+)`) + (opt ? '?' : ''),
     'rec': '(',
     '/rec': ')+',
-    'end': (label = '') => '$'
+    'end': (label = '') => '$',
+    //shorthands
+    's': '(?: )',
+    ';': '(?:;)'
 }
 
 const ops = {
@@ -64,6 +66,10 @@ export function LinkPat(token){
     args = args.map(a => isNaN(parseInt(a)) ? a.replace(/"/g, '') : parseInt(a)) //turn number strings into numbers
 
     return args.every(a => a != '') ? [linked_func, ...args] : [linked_func] //edge case for when args is [''] - an empty string. Makes it difficult to test
+}
+
+const tar = {
+    'tar': ['var ', '[1]', '=']
 }
 
 export function LinkTar(token){
