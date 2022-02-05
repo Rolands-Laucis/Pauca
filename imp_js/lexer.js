@@ -94,14 +94,49 @@ export function Tokenizer(pairs) {
     })
 }
 
+/**
+ * Expects a pairs object, where the pat and tar vals are arrays of tokens after the Tokenizer. 
+ * It then lints some of the tokens, unique indexing the target block if/loop... etc. tags as code blocks - to better know where a block begins and ends
+ * Unique indexing happens by a counter that just increments upon seeing a new block begining and a stack mechanism to ensure the closing tag has the same index as the starting
+ * The index (number) is just prepended to the tag in its string. It can later easily be ignored or removed if need be.
+ * @param {object[]} pairs
+ * @returns {object[]} pairs
+ */
+export function Linter(pairs){
+    const re_block_begin = /^\[(if|loop)/m //here lie the recognized code block keywords
+    const re_block_end = /^\[\/(if|loop)/m
+
+    return pairs.map(p => {
+        let counter = 0
+        const stack = []
+
+        return {
+            'pat': p['pat'] ? p['pat'] : undefined,
+            'tar': p['tar'] ? {
+                'lang': p['tar']['lang'] ? p['tar']['lang'] : undefined,
+                'body': p['tar']['body'] ? p['tar']['body'].map(t => {
+                    if (t.match(re_block_begin)) {
+                        counter++
+                        stack.push(counter)
+                        return counter + t
+                    } else if (t.match(re_block_end))
+                        return stack.pop() + t
+                    else
+                        return t
+                }) : undefined
+            } : undefined
+        }
+    })
+}
 
 /**
  * Expects a pairs object, where the pat and tar vals are token arrays. 
  * It then maps a function call with its arguments for every token according to its functionality
+ * Used to be called "Mapper", but really it just calls the Linker.js main functions. This might be a bit confusing to have a file Linker and a function Linker.
  * @param {object[]} pairs
  * @returns {object[]} pairs
  */
-export function Mapper(pairs){
+export function Linker(pairs){
     return pairs.map(p => {
         return {
             'pat': p['pat'].map(token => LinkPat(token)),
@@ -120,7 +155,7 @@ export function Builder(pairs){
     return pairs
 }
 
-const All_Parsing_Steps = [Pairer, Tokenizer, Mapper, Builder]
+const All_Parsing_Steps = [Pairer, Tokenizer, Linker, Builder]
 /**
  * Expects the syntax text preprocessed without \n, i.e. the entire string is on a single line
  * @param {string} text
