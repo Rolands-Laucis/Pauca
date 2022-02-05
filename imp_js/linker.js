@@ -23,9 +23,13 @@ export const pat_grams = {
     ';': '(?:;)'
 }
 
+//can write string literals of regex that it should cast to
+//can write lambda functions, that will be called
+//can write function names, that are defined somewhere later in the script
 export const tar_grams = {
     'ctx': (...args) => ResolveFromContext(...args),
-    'if': (cond, nest) => cond ? nest : null
+    'if': (cond, nest) => cond ? nest : null,
+    'cond': (...args) => opr(...args)
 }
 
 const ops = {
@@ -42,6 +46,8 @@ const ops = {
 };
 
 const re_tag_name = /^[a-z/]+/m
+const re_tar_var_ind = /\[([0-9]+)\]/
+const re_tar_var_label = /"[a-z_]+"/
 
 /**
  * Expects a token as a string, which should be 1 tag, 
@@ -67,7 +73,7 @@ export function LinkPat(token){
 }
 
 const re_tar_var_tag = /^\[[a-z0-9_]+\]/m
-const re_tar_block_begin_tag = /^(?<index>\d+)\[(?<name>if|loop)\s(?<args>.+)\]/m
+const re_tar_block_begin_tag = /^(?<index>\d+)\[(?<name>if|loop)\s(?<args>.+)\]/m //NOTE code block keywords
 
 /**
  * Expects a token array, 
@@ -99,17 +105,43 @@ export function LinkTar(tokens){
             if (skip_to == -1)
                 error(`Didnt find ending tag with index ${match.groups.index}. Tokens in this function call:`, tokens)
 
-            const nested_tree = []
-            for(let j = i+1; j < skip_to; j++)
-                nested_tree.push(tokens[j])
+            const nested_tree = tokens.slice(i+1, skip_to)
             
-            parse_tree.push([tar_grams[name], match.groups.args, LinkTar(nested_tree)])
+            parse_tree.push([tar_grams[name], ParseCond(match.groups.args), LinkTar(nested_tree)])
             i = skip_to
         }else
             parse_tree.push(tokens[i])
     }
 
     return parse_tree
+}
+
+const re_cond = /(?<op1>[0-9a-z_\[\]]+)\s?(?<opr>.{1,2})\s?(?<op2>[0-9a-z_\[\]]+)/
+
+/**
+ * Expects string of a condition to be evalueate, like "[1]>2"
+ * Parses it to the corresponding oprerator function with corresponding operands from the string
+ * @param {string} cond
+ * @returns {Array} f
+ */
+export function ParseCond(cond){
+    const match = cond.match(re_cond)
+    if(match)
+        if(match.groups.opr in ops)
+            return [opr, match.groups.op1, match.groups.op2]
+        else
+            error(`Invalid operator [${match.groups.opr}] in condition evaluation!`, cond)
+    else
+        error(`Could not parse condition, since it is not a valid condition expression signature/format!`, cond)
+}
+
+function opr(ctx, a, b, op) {
+    if (!(op in ops))
+        error(`Unsupported operand [${op}]! Exiting...`)
+
+    a = ResolveFromContext(ctx, a)
+    b = ResolveFromContext(ctx, b)
+    return ops[op](a, b)
 }
 
 /**
@@ -126,15 +158,6 @@ export function ResolveFromContext(ctx, val) {
         return ctx[val.match(re_tar_var_ind)[1]]
     else
         return parseInt(val) ? parseInt(val) : val
-}
-
-function opr(ctx, a, b, op) {
-    if (!(op in ops))
-        error(`Unsupported operand [${op}]! Exiting...`)
-
-    a = ResolveFromContext(ctx, a)
-    b = ResolveFromContext(ctx, b)
-    return ops[op](a, b)
 }
 
 /**
