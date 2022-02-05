@@ -107,7 +107,7 @@ export function LinkTar(tokens){
 
             const nested_tree = tokens.slice(i+1, skip_to)
             
-            parse_tree.push([tar_grams[name], ParseCond(match.groups.args), LinkTar(nested_tree)])
+            parse_tree.push([tar_grams[name], LinkCond(match.groups.args), LinkTar(nested_tree)])
             i = skip_to
         }else
             parse_tree.push(tokens[i])
@@ -124,7 +124,7 @@ const re_cond = /(?<op1>[0-9a-z_\[\]]+)\s?(?<opr>.{1,2})\s?(?<op2>[0-9a-z_\[\]]+
  * @param {string} cond
  * @returns {Array} f
  */
-export function ParseCond(cond){
+export function LinkCond(cond){
     const match = cond.match(re_cond)
     if(match)
         if(match.groups.opr in ops)

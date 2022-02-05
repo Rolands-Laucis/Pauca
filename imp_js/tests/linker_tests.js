@@ -51,14 +51,15 @@ function test_singles(name, generated, expected) {
 }
 
 const test_cases = ['if'] //'symbol', 'variable', 'ending', 'pre_tags', 'recursive', 'if'
+const all = false
 
-if (test_cases.includes('symbol')) {
+if (test_cases.includes('symbol') || all) {
     console.log('📝 Testing symbol tags...')
     test('symbol full tag', LinkPat('sym "smth"'), [p['sym'], 'smth'])
     test('symbol short tag', LinkPat('"smth"'), [p[''], 'smth'])
 }
 
-if (test_cases.includes('variable')) {
+if (test_cases.includes('variable') || all) {
     console.log('📝 Testing variable tags...')
     test('variable full tag', LinkPat('var "x"'), [p['var'], 'x'])
     test('variable tag no label', LinkPat('var'), [p['var']])
@@ -72,32 +73,32 @@ if (test_cases.includes('variable')) {
     test_singles('variable tag resolve by label', ResolveFromContext(match, 'x'), 'x')
 }
 
-if (test_cases.includes('ending')) {
+if (test_cases.includes('ending') || all) {
     console.log('📝 Testing ending tags...')
     test('end full tag', LinkPat('end "smth"'), [p['end'], 'smth'])
     test('end tag no label', LinkPat('end'), [p['end']])
 }
 
-if (test_cases.includes('pre_tags')) {
+if (test_cases.includes('pre_tags') || all) {
     console.log('📝 Testing pre-tags...')
     test('new line capture tag', LinkPat('n'), [p['n']])
     test('indent capture tag', LinkPat('i'), [p['i']])
 }
 
-if (test_cases.includes('recursive')){
+if (test_cases.includes('recursive') || all){
     console.log('📝 Testing recursive tags...')
     test('rec start tag', LinkPat('rec'), [p['rec']])
     test('rec end tag', LinkPat('/rec'), [p['/rec']])
 }
 
-if (test_cases.includes('if')) {
+if (test_cases.includes('if') || all) {
     console.log('📝 Testing IF tags...')
     // console.log(JSON.stringify())
 
-    jtest('single IF block', LinkTar(['before block', '1[if [1]>2]', 'inside', '1[/if]', 'after block']), ['before block', [t['if'],'[1]>2', ['inside']], 'after block'])
-    jtest('single nested IF block', LinkTar(['1[if [1]>2]', ' var ', '2[if [1]>2]', ' something ', '2[/if]', '1[/if]']), [[t['if'], "[1]>2", [" var ", [t['if'], "[1]>2", [" something "]]]]])
+    jtest('single IF block', LinkTar(['before block', '1[if [1]>2]', 'inside', '1[/if]', 'after block']), ['before block', [t.if,[t.cond, '[1]', "2"], ['inside']], 'after block'])
+    jtest('single nested IF block', LinkTar(['1[if [1]>2]', ' var ', '2[if [1]>2]', ' something ', '2[/if]', '1[/if]']), [[t.if, [t.cond, '[1]', "2"], [" var ", [t.if, [t.cond, '[1]', "2"], [" something "]]]]])
 
-    jtest('double IF block', LinkTar(['1[if [1]>2]', ' var ', '1[/if]', '2[if [1]>2]', ' something ', '2[/if]']), [[t['if'], "[1]>2", [" var "]], [t['if'],"[1]>2",[" something "]]])
-    jtest('double nested IF block', LinkTar(['1[if [1]>2]', ' var ', '2[if [1]>2]', ' something ', '2[/if]', '3[if [1]>2]', ' something else ', '3[/if]', '1[/if]']), [[t['if'], "[1]>2", [" var ", [t['if'], "[1]>2", [" something "]], [t['if'],"[1]>2",[" something else "]]]]])
+    jtest('double IF block', LinkTar(['1[if [1]>2]', ' var ', '1[/if]', '2[if [1]>2]', ' something ', '2[/if]']), [[t.if, [t.cond, '[1]', "2"], [" var "]], [t.if,[t.cond, '[1]', "2"],[" something "]]])
+    jtest('double nested IF block', LinkTar(['1[if [1]>2]', ' var ', '2[if [1]>2]', ' something ', '2[/if]', '3[if [1]>2]', ' something else ', '3[/if]', '1[/if]']), [[t.if, [t.cond, '[1]', "2"], [" var ", [t.if, [t.cond, '[1]', "2"], [" something "]], [t.if,[t.cond, '[1]', "2"],[" something else "]]]]])
 }
 

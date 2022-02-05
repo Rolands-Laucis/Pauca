@@ -15,8 +15,9 @@ function test(name, generated, expected) {
 }
 
 const test_cases = ['Linter'] //'Pairer', 'Tokenizer', 'Linter'
+const all = false
 
-if (test_cases.includes('Pairer')){
+if (test_cases.includes('Pairer') || all){
     console.log('📝 Testing Pairer...')
     test('basic full string', Pairer('[var "x"] [sym " "] [end "smth"] [target] var [x] = [num] [5] [/target]')[0], { 'pat': '[var "x"] [sym " "] [end "smth"]', 'tar': '[target] var [x] = [num] [5] [/target]' })
     test('basic string no end label', Pairer('[var "x"] [sym " "] [end] [target] var [x] = [num] [5] [/target]')[0], { 'pat': '[var "x"] [sym " "] [end]', 'tar': '[target] var [x] = [num] [5] [/target]' })
@@ -38,7 +39,7 @@ var [x] = [num] [5]
 
 }
 
-if (test_cases.includes('Tokenizer')) {
+if (test_cases.includes('Tokenizer') || all) {
     console.log('📝 Testing Tokenizer for pattern...')
     test('pattern simple', Tokenizer([{ 'pat': '[sym "var "] [var "x"] [end]' }])[0], { 'pat': ['sym "var "', 'var "x"', 'end']})
     test('pattern with end label', Tokenizer([{ 'pat': '[sym "var "] [var "x"] [end "pat"]' }])[0], { 'pat': ['sym "var "', 'var "x"', 'end "pat"'] })
@@ -52,9 +53,7 @@ if (test_cases.includes('Tokenizer')) {
     test('target with IF block tag', Tokenizer([{'tar': '[target] [if [1]>2] var [/if] [/target]' }])[0], { 'tar': { 'body': [' ', '[if [1]>2]', ' var ', '[/if]'] } })
 }
 
-if (test_cases.includes('Linter')) {
-    // console.log('📝 Testing Linter for pattern...')
-
+if (test_cases.includes('Linter') || all) {
     console.log('📝 Testing Linter for target...')
     test('target single IF block', Linter([{ 'tar': { 'body': ['[if [1]>2]', ' var ', '[/if]'] } }])[0], { 'tar': { 'body': ['1[if [1]>2]', ' var ', '1[/if]'] } })
     test('target simple nested IF block', Linter([{ 'tar': { 'body': ['[if [1]>2]', ' var ', '[if [1]>2]', ' something ', '[/if]', '[/if]'] } }])[0], { 'tar': { 'body': ['1[if [1]>2]', ' var ', '2[if [1]>2]', ' something ', '2[/if]', '1[/if]'] } })

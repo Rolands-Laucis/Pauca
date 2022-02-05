@@ -1,4 +1,5 @@
-// This script contains lexing functions for parsing the Marble file syntax - "pairer", tokenizer
+// This script contains lexing functions for parsing the Marble file syntax - Pairer, tTokenizer, Linter, Linker, Builder
+// "If you have a problem and you solve it with regex, you now have 2 problems." Marble uses only regex for these processes.
 
 import { LinkPat, LinkTar } from "./linker.js" 
 import {error} from './log.js'
@@ -96,19 +97,19 @@ export function Tokenizer(pairs) {
 
 /**
  * Expects a pairs object, where the pat and tar vals are arrays of tokens after the Tokenizer. 
- * It then lints some of the tokens, unique indexing the target block if/loop... etc. tags as code blocks - to better know where a block begins and ends
+ * It then lints some of the tokens - unique indexing the target block if/loop/etc. tags as code blocks - to better know where a block begins and ends
  * Unique indexing happens by a counter that just increments upon seeing a new block begining and a stack mechanism to ensure the closing tag has the same index as the starting
  * The index (number) is just prepended to the tag in its string. It can later easily be ignored or removed if need be.
  * @param {object[]} pairs
  * @returns {object[]} pairs
  */
 export function Linter(pairs){
-    const re_block_begin = /^\[(if|loop)/m //here lie the recognized code block keywords
-    const re_block_end = /^\[\/(if|loop)/m
+    const re_block_begin = /^\[(if|loop)/m //NOTE code block keywords
+    const re_block_end = /^\[\/(if|loop)/m //NOTE code block keywords
 
     return pairs.map(p => {
-        let counter = 0
-        const stack = []
+        let counter = 0 //unique identifier - could be something fancier like a UUID or combination of counter + random ascii, but rly this just works
+        const stack = [] //stack mechanism, whereby pushing and popping in the same order as source text keeps the structure of the source text blocks
 
         return {
             'pat': p['pat'] ? p['pat'] : undefined,
@@ -155,7 +156,7 @@ export function Builder(pairs){
     return pairs
 }
 
-const All_Parsing_Steps = [Pairer, Tokenizer, Linker, Builder]
+const All_Parsing_Steps = [Pairer, Tokenizer, Linter, Linker, Builder]
 /**
  * Expects the syntax text preprocessed without \n, i.e. the entire string is on a single line
  * @param {string} text
