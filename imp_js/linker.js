@@ -17,9 +17,15 @@ export const pat_grams = {
     'rec': '(',
     '/rec': ')+',
     'end': (label = '') => '$',
+
     //shorthands
     's': '(?: )',
     ';': '(?:;)'
+}
+
+export const tar_grams = {
+    'ctx': (...args) => ResolveFromContext(...args),
+    'if': (cond, nest) => cond ? nest : null
 }
 
 const ops = {
@@ -35,19 +41,11 @@ const ops = {
     '<=': (a, b) => a <= b
 };
 
-const tar_grams = {
-    '+': opr,
-    '-': opr,
-    '*': opr,
-    '/': opr
-}
-
 const re_tag_name = /^[a-z/]+/m
-const re_tar_var_ind = /\[([0-9]+)\]/
-const re_tar_var_label = /"[a-z_]+"/
 
 /**
- * Expects a token as a string, which should be 1 tag, it then links a method with its arguments for the token according to its functionality
+ * Expects a token as a string, which should be 1 tag, 
+ * It then links a method with its arguments for the token according to its functionality
  * @param {string} token
  * @returns {Array} f
  */
@@ -68,34 +66,52 @@ export function LinkPat(token){
     return args.every(a => a != '') ? [linked_func, ...args] : [linked_func] //edge case for when args is [''] - an empty string. Makes it difficult to test
 }
 
-const tar = {
-    'tar': ['var ', '[1]', '=']
-}
-
-export function LinkTar(token){
-    return token
-}
+const re_tar_var_tag = /^\[[a-z0-9_]+\]/m
+const re_tar_block_begin_tag = /^(?<index>\d+)\[(?<name>if|loop)\s(?<args>.+)\]/m
 
 /**
- * Expects tags array, where the first element of a tag is a the tag function and the others are args to it. Calls the function with its args and returns a regex object
- * @param {Array} tags
- * @returns {RegExp} regex
+ * Expects a token array, 
+ * It then links a method with its arguments for each token or block of tokens according to its functionality
+ * @param {string[]} tokens
+ * @returns {Array} f
  */
-export function CastPatToRegex(tags) {
-    return RegExp(tags.map(t => typeof (t[0]) == 'function' ? t[0](...t.slice(1)) : t[0]).join(''), 'm')
-    //https://stackoverflow.com/questions/185510/how-can-i-concatenate-regex-literals-in-javascript
+export function LinkTar(tokens){
+
+    //linear pass through the tokens
+    //add tokens to array
+    //find a code block begin tag - start new array adding all tokens until the block end tag, 
+    //close (save) array
+    //pass new array into this func recursively
+    //insert the returned array into current array
+    //continue going through tokens ^ step 2
+
+    const parse_tree = []
+
+    for(let i = 0; i < tokens.length; i++){
+        if (tokens[i].match(re_tar_var_tag))
+            parse_tree.push([tar_grams['ctx'], tokens[i]])
+
+        else if (tokens[i].match(re_tar_block_begin_tag)){
+            const match = tokens[i].match(re_tar_block_begin_tag)
+            const name = match.groups.name
+            const skip_to = tokens.indexOf(`${match.groups.index}[/${name}]`)
+
+            if (skip_to == -1)
+                error(`Didnt find ending tag with index ${match.groups.index}. Tokens in this function call:`, tokens)
+
+            const nested_tree = []
+            for(let j = i+1; j < skip_to; j++)
+                nested_tree.push(tokens[j])
+            
+            parse_tree.push([tar_grams[name], match.groups.args, LinkTar(nested_tree)])
+            i = skip_to
+        }else
+            parse_tree.push(tokens[i])
+    }
+
+    return parse_tree
 }
 
-/**
- * Expects a tag as an array, where the first element is a the tag function and the others are args to it. Calls the function with its args and returns a regex object
- * @param {Array} tag
- * @returns {RegExp} regex
- */
-export function CastTagToRegex(tag) {
-    return RegExp((typeof (tag[0]) == 'function' ? tag[0](...tag.slice(1)) : tag[0]), 'm')
-}
-
-//-----target tags
 /**
  * Expects a regex match array as the context.
  * Resolves the target tag value as a string. Resolving, because there can be a labeled ["my_var"] and unlabeled [1] tag or int and string literals.
@@ -118,5 +134,24 @@ function opr(ctx, a, b, op) {
 
     a = ResolveFromContext(ctx, a)
     b = ResolveFromContext(ctx, b)
-    return ops[op](a,b)
+    return ops[op](a, b)
+}
+
+/**
+ * Expects tags array, where the first element of a tag is a the tag function and the others are args to it. Calls the function with its args and returns a regex object
+ * @param {Array} tags
+ * @returns {RegExp} regex
+ */
+export function CastPatToRegex(tags) {
+    return RegExp(tags.map(t => typeof (t[0]) == 'function' ? t[0](...t.slice(1)) : t[0]).join(''), 'm')
+    //https://stackoverflow.com/questions/185510/how-can-i-concatenate-regex-literals-in-javascript
+}
+
+/**
+ * Expects a tag as an array, where the first element is a the tag function and the others are args to it. Calls the function with its args and returns a regex object
+ * @param {Array} tag
+ * @returns {RegExp} regex
+ */
+export function CastTagToRegex(tag) {
+    return RegExp((typeof (tag[0]) == 'function' ? tag[0](...tag.slice(1)) : tag[0]), 'm')
 }
