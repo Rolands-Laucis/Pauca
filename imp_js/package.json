@@ -5,8 +5,8 @@
   "main": "marble.js",
   "scripts": {
     "test": "node marble -s=\"./gen/test.marble\" -i=\"./gen/input.txt\" -o=\"./gen/output.txt\"",
-    "link": "node tests/linker_tests",
-    "lex": "node tests/lexer_tests"
+    "lex": "node tests/lexer_tests",
+    "link": "node tests/linker_tests"
   },
   "author": "Rolands Laucis",
   "license": "ISC",

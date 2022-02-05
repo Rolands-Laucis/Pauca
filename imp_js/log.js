@@ -6,7 +6,7 @@
  * @param {object} obj
  * @param {boolean} exit
  */
-export function error(msg, obj = null, exit = false) {
+export function error(msg, obj = null, exit = true) {
     console.log('😐 Bruh...\n'+msg)
     if(obj)
         console.log(obj)

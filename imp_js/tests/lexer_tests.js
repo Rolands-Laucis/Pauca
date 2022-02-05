@@ -56,7 +56,7 @@ if (test_cases.includes('Linter')) {
     // console.log('📝 Testing Linter for pattern...')
 
     console.log('📝 Testing Linter for target...')
-    test('target single IF block', Linter([{ 'tar': { 'body': [' ', '[if [1]>2]', ' var ', '[/if]'] } }])[0], { 'tar': { 'body': [' ', '1[if [1]>2]', ' var ', '1[/if]'] } })
-    test('target simple nested IF block', Linter([{ 'tar': { 'body': [' ', '[if [1]>2]', ' var ', '[if [1]>2]', ' something ', '[/if]', '[/if]'] } }])[0], { 'tar': { 'body': [' ', '1[if [1]>2]', ' var ', '2[if [1]>2]', ' something ', '2[/if]', '1[/if]'] } })
-    test('target double nested IF block', Linter([{ 'tar': { 'body': [' ', '[if [1]>2]', ' var ', '[if [1]>2]', ' something ', '[/if]', '[if [1]>2]', ' something else ', '[/if]', '[/if]'] } }])[0], { 'tar': { 'body': [' ', '1[if [1]>2]', ' var ', '2[if [1]>2]', ' something ', '2[/if]', '3[if [1]>2]', ' something else ', '3[/if]', '1[/if]'] } })
+    test('target single IF block', Linter([{ 'tar': { 'body': ['[if [1]>2]', ' var ', '[/if]'] } }])[0], { 'tar': { 'body': ['1[if [1]>2]', ' var ', '1[/if]'] } })
+    test('target simple nested IF block', Linter([{ 'tar': { 'body': ['[if [1]>2]', ' var ', '[if [1]>2]', ' something ', '[/if]', '[/if]'] } }])[0], { 'tar': { 'body': ['1[if [1]>2]', ' var ', '2[if [1]>2]', ' something ', '2[/if]', '1[/if]'] } })
+    test('target double nested IF block', Linter([{ 'tar': { 'body': ['[if [1]>2]', ' var ', '[if [1]>2]', ' something ', '[/if]', '[if [1]>2]', ' something else ', '[/if]', '[/if]'] } }])[0], { 'tar': { 'body': ['1[if [1]>2]', ' var ', '2[if [1]>2]', ' something ', '2[/if]', '3[if [1]>2]', ' something else ', '3[/if]', '1[/if]'] } })
 }
