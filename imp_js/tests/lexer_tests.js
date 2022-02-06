@@ -14,7 +14,7 @@ function test(name, generated, expected) {
         console.log(`❌\t${name} FAIL - GOT\n${JSON.stringify(generated)}\nBUT EXPECTED\n${JSON.stringify(expected)}`)
 }
 
-const test_cases = ['Linter'] //'Pairer', 'Tokenizer', 'Linter'
+const test_cases = ['Tokenizer'] //'Pairer', 'Tokenizer', 'Linter'
 const all = false
 
 if (test_cases.includes('Pairer') || all){
@@ -50,7 +50,7 @@ if (test_cases.includes('Tokenizer') || all) {
     test('target simplest', Tokenizer([{'tar': '[target] var [/target]' }])[0], { 'tar': {'body':[' var ']} })
     test('target simple with lang', Tokenizer([{'tar': '[target "js"] var [/target]' }])[0], { 'tar': { 'lang': 'js', 'body': [' var '] } })
     test('target with tags', Tokenizer([{'tar': '[target] var [x] = [/target]' }])[0], { 'tar': { 'body': [' var ', '[x]', ' = '] } })
-    test('target with IF block tag', Tokenizer([{'tar': '[target] [if [1]>2] var [/if] [/target]' }])[0], { 'tar': { 'body': [' ', '[if [1]>2]', ' var ', '[/if]'] } })
+    test('target with IF block tag', Tokenizer([{'tar': '[target][if [1]>2] var [/if][/target]' }])[0], { 'tar': { 'body': ['','[if [1]>2]', ' var ', '[/if]',''] } })
 }
 
 if (test_cases.includes('Linter') || all) {
