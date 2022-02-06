@@ -89,13 +89,14 @@ export function LinkTar(tokens){
     //close (save) array
     //pass new array into this func recursively
     //insert the returned array into current array
-    //continue going through tokens ^ step 2
+    //continue going through tokens ^ step 2 until end of tokens
+    //return constructed tree
 
-    const parse_tree = []
+    const tree = []
 
     for(let i = 0; i < tokens.length; i++){
         if (tokens[i].match(re_tar_var_tag))
-            parse_tree.push([tar_grams['ctx'], tokens[i]])
+            tree.push([tar_grams['ctx'], tokens[i]])
 
         else if (tokens[i].match(re_tar_block_begin_tag)){
             const match = tokens[i].match(re_tar_block_begin_tag)
@@ -104,16 +105,15 @@ export function LinkTar(tokens){
 
             if (skip_to == -1)
                 error(`Didnt find ending tag with index ${match.groups.index}. Tokens in this function call:`, tokens)
-
-            const nested_tree = tokens.slice(i+1, skip_to)
             
-            parse_tree.push([tar_grams[name], LinkCond(match.groups.args), LinkTar(nested_tree)])
+            tree.push([tar_grams[name], LinkCond(match.groups.args), LinkTar(tokens.slice(i + 1, skip_to))])
+
             i = skip_to
         }else
-            parse_tree.push(tokens[i])
+            tree.push(tokens[i])
     }
 
-    return parse_tree
+    return tree
 }
 
 const re_cond = /(?<op1>[0-9a-z_\[\]]+)\s?(?<opr>.{1,2})\s?(?<op2>[0-9a-z_\[\]]+)/
