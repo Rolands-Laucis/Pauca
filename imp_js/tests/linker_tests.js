@@ -2,13 +2,11 @@
 import { LinkPat, pat_grams as p, CastPatToRegex, ResolveFromContext, LinkTar, tar_grams as t } from "../linker.js";
 
 Array.prototype.equals = function (arr) {
-    if (!arr)
-        return false;
-    if (this.length != arr.length)
-        return false;
+    if (!arr || this.length != arr.length)
+        return false
 
-    //compare all elements side by side. This will exit early, if there is a mismatch
-    return this.every((e, i) => e === arr[i])
+    //compare all aligned elements (same order in place) recursively. This will exit early, if there is a mismatch.
+    return this.every((e, i) => typeof (e) == 'array' ? (typeof (arr[i]) == 'array' ? e.equals(arr[i]) : false) : e === arr[i])
 }
 
 /**
@@ -21,7 +19,8 @@ function test(name, generated, expected) {
     if (generated.equals(expected))
         console.log(`✔️\t${name} PASS`)
     else
-        console.log(`❌\t${name} FAIL - GOT\n${[generated[0].name, ...generated.slice(1)]}\nBUT EXPECTED\n${[expected[0].name, ...expected.slice(1)]}\n`)
+        console.log(`❌\t${name} FAIL - GOT\n${generated}\nBUT EXPECTED\n${expected}\n`)
+        // console.log(`❌\t${name} FAIL - GOT\n${[generated[0].name, ...generated.slice(1)]}\nBUT EXPECTED\n${[expected[0].name, ...expected.slice(1)]}\n`)
 }
 
 /**
@@ -71,6 +70,10 @@ if (test_cases.includes('variable') || all) {
     test_singles('variable tag resolve by index', ResolveFromContext(match, '[1]'), 'x')
     test_singles('variable tag resolve by index 2nd var', ResolveFromContext(match, '[2]'), 'y')
     test_singles('variable tag resolve by label', ResolveFromContext(match, 'x'), 'x')
+
+    console.log('📝 Testing variable linking in target...')
+    jtest('variable by number', LinkTar(['[1]']), [[t.ctx, '[1]']])
+    jtest('variable by label', LinkTar(['[my_var]']), [[t.ctx, '[my_var]']])
 }
 
 if (test_cases.includes('ending') || all) {
