@@ -23,9 +23,6 @@ export const pat_grams = {
     ';': '(?:;)'
 }
 
-//can write string literals of regex that it should cast to
-//can write lambda functions, that will be called
-//can write function names, that are defined somewhere later in the script
 export const tar_grams = {
     'ctx': (...args) => ResolveFromContext(...args),
     'if': (cond, nest) => cond ? nest : null,
@@ -55,7 +52,7 @@ const re_tar_var_label = /"[a-z_]+"/
  * @param {string} token
  * @returns {Array} f
  */
-export function LinkPat(token){
+export function LinkPatToken(token){
     const tag_name = token.match(re_tag_name) || ''
 
     if (!(tag_name in pat_grams))
@@ -71,6 +68,14 @@ export function LinkPat(token){
 
     return args.every(a => a != '') ? [linked_func, ...args] : [linked_func] //edge case for when args is [''] - an empty string. Makes it difficult to test
 }
+
+/**
+ * Expects a token as a string, which should be 1 tag, 
+ * It then links a method with its arguments for the token according to its functionality
+ * @param {string[]} tokens
+ * @returns {Array} f
+ */
+export function LinkPat(tokens){ return tokens.map(t => LinkPatToken(t))}
 
 const re_tar_var_tag = /^\[[a-z0-9_]+\]/m
 const re_tar_block_begin_tag = /^(?<index>\d+)\[(?<name>if|loop)\s(?<args>.+)\]/m //NOTE code block keywords

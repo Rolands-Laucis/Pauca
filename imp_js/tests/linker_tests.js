@@ -1,5 +1,5 @@
 //node grammer_tests.js
-import { LinkPat, pat_grams as p, CastPatToRegex, ResolveFromContext, LinkTar, tar_grams as t } from "../linker.js";
+import { LinkPatToken, pat_grams as p, CastPatToRegex, ResolveFromContext, LinkTar, tar_grams as t } from "../linker.js";
 
 Array.prototype.equals = function (arr) {
     if (!arr || this.length != arr.length)
@@ -54,17 +54,17 @@ const all = false
 
 if (test_cases.includes('symbol') || all) {
     console.log('📝 Testing symbol tags...')
-    test('symbol full tag', LinkPat('sym "smth"'), [p['sym'], 'smth'])
-    test('symbol short tag', LinkPat('"smth"'), [p[''], 'smth'])
+    test('symbol full tag', LinkPatToken('sym "smth"'), [p['sym'], 'smth'])
+    test('symbol short tag', LinkPatToken('"smth"'), [p[''], 'smth'])
 }
 
 if (test_cases.includes('variable') || all) {
     console.log('📝 Testing variable tags...')
-    test('variable full tag', LinkPat('var "x"'), [p['var'], 'x'])
-    test('variable tag no label', LinkPat('var'), [p['var']])
+    test('variable full tag', LinkPatToken('var "x"'), [p['var'], 'x'])
+    test('variable tag no label', LinkPatToken('var'), [p['var']])
 
     console.log('📝 Testing variable resolving from context...')
-    var match = "let x y".match(CastPatToRegex(['"let "', 'var "x"', '" "', 'var'].map(tag => LinkPat(tag))))
+    var match = "let x y".match(CastPatToRegex(['"let "', 'var "x"', '" "', 'var'].map(tag => LinkPatToken(tag))))
     test_singles('variable tag resolve to literal', ResolveFromContext(match, 1), 1)
     test_singles('variable tag resolve to literal', ResolveFromContext(match, '1'), 1)
     test_singles('variable tag resolve by index', ResolveFromContext(match, '[1]'), 'x')
@@ -78,20 +78,20 @@ if (test_cases.includes('variable') || all) {
 
 if (test_cases.includes('ending') || all) {
     console.log('📝 Testing ending tags...')
-    test('end full tag', LinkPat('end "smth"'), [p['end'], 'smth'])
-    test('end tag no label', LinkPat('end'), [p['end']])
+    test('end full tag', LinkPatToken('end "smth"'), [p['end'], 'smth'])
+    test('end tag no label', LinkPatToken('end'), [p['end']])
 }
 
 if (test_cases.includes('pre_tags') || all) {
     console.log('📝 Testing pre-tags...')
-    test('new line capture tag', LinkPat('n'), [p['n']])
-    test('indent capture tag', LinkPat('i'), [p['i']])
+    test('new line capture tag', LinkPatToken('n'), [p['n']])
+    test('indent capture tag', LinkPatToken('i'), [p['i']])
 }
 
 if (test_cases.includes('recursive') || all){
     console.log('📝 Testing recursive tags...')
-    test('rec start tag', LinkPat('rec'), [p['rec']])
-    test('rec end tag', LinkPat('/rec'), [p['/rec']])
+    test('rec start tag', LinkPatToken('rec'), [p['rec']])
+    test('rec end tag', LinkPatToken('/rec'), [p['/rec']])
 }
 
 if (test_cases.includes('if') || all) {

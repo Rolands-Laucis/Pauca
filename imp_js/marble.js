@@ -2,7 +2,7 @@
 //And thus i present - Marble.
 
 //cd imp_js
-//node marble -s="./gen/test.marble" -i="." -o="./gen/output.txt"
+//node marble -s="./gen/test.marble" -i="./gen/input.txt" -o="./gen/output.txt"
 
 import parse from "args-parser" //i was too lazy to parse them myself ;-;
 import fs from 'fs' //for reading the 3 files content
@@ -10,13 +10,14 @@ import fs from 'fs' //for reading the 3 files content
 
 import { Preprocess, ExtractSection} from './preproc.js'
 import { Parse } from './lexer.js'
-// import { CastToRegex } from "./lexer.js"
+import { info, startTimer, endTimer } from "./log.js"
 
 const error_code = Main()
 if(error_code)
     console.error(`Marble exited with error code ${error_code}`)
 else
-    console.log('Marble Success!')
+    info('Success!')
+    // console.log('Marble Success!')
 
 function Main(){
     const args = parse(process.argv);
@@ -52,7 +53,7 @@ optional arguments:
     let output = "TODO..."
 
     //do the transpilation
-    output = Transpile(syntax, source)
+    output = Transpile(syntax, source, true)
 
     //write transpilation to output file
     fs.writeFileSync(args.o, output, { encoding: 'utf8', flag: 'w' })
@@ -66,33 +67,24 @@ optional arguments:
 /**
  * @param {string} syntax
  * @param {string} source
- * @param {Function} logger
+ * @param {boolean} verbose
  */
-function Transpile(syntax, source, logger = null){
-
-    // if (!logger){
-    //     logger = pino(pino.destination({dest: './run.log', sync: false}))
-    // }
-    // logger.info('Hello world!')
+function Transpile(syntax, source, verbose = false){
+    if (verbose) startTimer()
 
     //preprocess steps before parsing the syntax file
-    syntax = ExtractSection(syntax, 3)
+    syntax = ExtractSection(syntax, 0)
+    if (verbose) info('Done section extraction')
+
     syntax = Preprocess(syntax)
-    // console.log(syntax)
+    if (verbose) info('Done preprocessing')
 
-    // const parsed = Parse(syntax, [Pairer, Tokenizer])
-
-    //---construct syntax parse tree data structure
-    
     //parse the marble syntax into a ready-to-use data structure
     const parsed_marble = Parse(syntax)
-    // console.log(parsed_marble)
-    // console.log(parsed_marble[0]['pat'])
-    // console.log(parsed_marble[0]['tar'])
-
-    //---create regex patterns from marble syntax
-    // const re = CastToRegex(parsed_marble[0]['pat'])
-    // console.log(source.match(re))
+    if (verbose) info('Done parsing marble file')
+        
+    // console.log(parsed_marble[0].pat)
+    // console.log(JSON.stringify(parsed_marble[0].tar.body))
 
     //---Convert source lines with regex
 

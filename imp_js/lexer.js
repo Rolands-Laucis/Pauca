@@ -1,7 +1,7 @@
 // This script contains lexing functions for parsing the Marble file syntax - Pairer, tTokenizer, Linter, Linker, Builder
 // "If you have a problem and you solve it with regex, you now have 2 problems." Marble uses only regex for these processes.
 
-import { LinkPat, LinkTar } from "./linker.js" 
+import { LinkPat, LinkTar, CastPatToRegex } from "./linker.js" 
 import {error} from './log.js'
 
 /**
@@ -140,8 +140,11 @@ export function Linter(pairs){
 export function Linker(pairs){
     return pairs.map(p => {
         return {
-            'pat': p['pat'].map(token => LinkPat(token)),
-            'tar': p['tar']//.map(token => LinkTar(token))
+            'pat': LinkPat(p.pat),
+            'tar': {
+                'lang': p.tar.lang ? p.tar.lang : undefined,
+                'body': p.tar.body ? LinkTar(p.tar.body) : undefined
+            }
         }
     })
 }
@@ -153,7 +156,12 @@ export function Linker(pairs){
  * @returns {object[]} pairs
  */
 export function Builder(pairs){
-    return pairs
+    return pairs.map(p => {
+        return {
+            'pat': CastPatToRegex(p.pat),
+            'tar': p.tar
+        }
+    })
 }
 
 const All_Parsing_Steps = [Pairer, Tokenizer, Linter, Linker, Builder]
