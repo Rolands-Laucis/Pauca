@@ -1,5 +1,8 @@
 import { Pairer, Tokenizer, Linter } from '../lexer.js'
 
+const test_cases = ['Tokenizer'] //'Pairer', 'Tokenizer', 'Linter'
+const all = true
+
 
 /**
  * Testing function for single values
@@ -14,8 +17,6 @@ function test(name, generated, expected) {
         console.log(`❌\t${name} FAIL - GOT\n${JSON.stringify(generated)}\nBUT EXPECTED\n${JSON.stringify(expected)}`)
 }
 
-const test_cases = ['Tokenizer'] //'Pairer', 'Tokenizer', 'Linter'
-const all = false
 
 if (test_cases.includes('Pairer') || all){
     console.log('📝 Testing Pairer...')

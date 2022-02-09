@@ -10,14 +10,13 @@ import fs from 'fs' //for reading the 3 files content
 
 import { Preprocess, ExtractSection} from './preproc.js'
 import { Parse } from './lexer.js'
-import { info, startTimer, endTimer } from "./log.js"
+import { info, startTimer } from "./log.js"
 
 const error_code = Main()
 if(error_code)
     console.error(`Marble exited with error code ${error_code}`)
 else
     info('Success!')
-    // console.log('Marble Success!')
 
 function Main(){
     const args = parse(process.argv);
@@ -44,16 +43,12 @@ optional arguments:
         process.exit(1)
     }
 
-    //set up a logger
-    // const logger = pino(pino.destination({ dest: './run.log', sync: false }))
-
     //set up the 3 texts to work with from their files
-    let syntax = fs.readFileSync(args.s, { encoding: 'utf8', flag: 'r' })
-    let source = fs.readFileSync(args.i, { encoding: 'utf8', flag: 'r' })
-    let output = "TODO..."
+    const syntax = fs.readFileSync(args.s, { encoding: 'utf8', flag: 'r' })
+    const source = fs.readFileSync(args.i, { encoding: 'utf8', flag: 'r' })
 
     //do the transpilation
-    output = Transpile(syntax, source, true)
+    const output = Transpile(syntax, source, true)
 
     //write transpilation to output file
     fs.writeFileSync(args.o, output, { encoding: 'utf8', flag: 'w' })

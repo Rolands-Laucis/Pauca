@@ -22,7 +22,7 @@ export function startTimer(){
     last_time = process.hrtime();
 }
 
-export function endTimer(){
+function endTimer(){
     let ms = process.hrtime(last_time)
     startTimer()
     return ((ms[0] * 1000) + (ms[1] / 1000000)).toFixed(2)

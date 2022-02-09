@@ -1,5 +1,8 @@
-//node grammer_tests.js
-import { LinkPatToken, pat_grams as p, CastPatToRegex, ResolveFromContext, LinkTar, tar_grams as t } from "../linker.js";
+//node linker_tests.js
+import { LinkPatToken, pat_grams as p, CastPatToRegex, ResolveFromContext, LinkTar, tar_grams as t, opr } from "../linker.js";
+
+const test_cases = ['tar tags']
+const all = false
 
 Array.prototype.equals = function (arr) {
     if (!arr || this.length != arr.length)
@@ -49,9 +52,6 @@ function test_singles(name, generated, expected) {
         console.log(`❌\t${name} FAIL - GOT\n${generated}\nBUT EXPECTED\n${expected}\n`)
 }
 
-const test_cases = ['if'] //'symbol', 'variable', 'ending', 'pre_tags', 'recursive', 'if'
-const all = false
-
 if (test_cases.includes('symbol') || all) {
     console.log('📝 Testing symbol tags...')
     test('symbol full tag', LinkPatToken('sym "smth"'), [p['sym'], 'smth'])
@@ -98,10 +98,16 @@ if (test_cases.includes('if') || all) {
     console.log('📝 Testing IF tags...')
     // console.log(JSON.stringify())
 
-    jtest('single IF block', LinkTar(['before block', '1[if [1]>2]', 'inside', '1[/if]', 'after block']), ['before block', [t.if,[t.cond, '[1]', "2"], ['inside']], 'after block'])
-    jtest('single nested IF block', LinkTar(['1[if [1]>2]', ' var ', '2[if [1]>2]', ' something ', '2[/if]', '1[/if]']), [[t.if, [t.cond, '[1]', "2"], [" var ", [t.if, [t.cond, '[1]', "2"], [" something "]]]]])
+    jtest('single IF block', LinkTar(['before block', '1[if [1]>2]', 'inside', '1[/if]', 'after block']), ['before block', [t.if,[t.cond, ">", '[1]', "2"], ['inside']], 'after block'])
+    jtest('single nested IF block', LinkTar(['1[if [1]>2]', ' var ', '2[if [1]>2]', ' something ', '2[/if]', '1[/if]']), [[t.if, [t.cond, ">", '[1]', "2"], [" var ", [t.if, [t.cond, ">", '[1]', "2"], [" something "]]]]])
 
-    jtest('double IF block', LinkTar(['1[if [1]>2]', ' var ', '1[/if]', '2[if [1]>2]', ' something ', '2[/if]']), [[t.if, [t.cond, '[1]', "2"], [" var "]], [t.if,[t.cond, '[1]', "2"],[" something "]]])
-    jtest('double nested IF block', LinkTar(['1[if [1]>2]', ' var ', '2[if [1]>2]', ' something ', '2[/if]', '3[if [1]>2]', ' something else ', '3[/if]', '1[/if]']), [[t.if, [t.cond, '[1]', "2"], [" var ", [t.if, [t.cond, '[1]', "2"], [" something "]], [t.if,[t.cond, '[1]', "2"],[" something else "]]]]])
+    jtest('double IF block', LinkTar(['1[if [1]>2]', ' var ', '1[/if]', '2[if [1]>2]', ' something ', '2[/if]']), [[t.if, [t.cond, ">", '[1]', "2"], [" var "]], [t.if, [t.cond, ">", '[1]', "2"],[" something "]]])
+    jtest('double nested IF block', LinkTar(['1[if [1]>2]', ' var ', '2[if [1]>2]', ' something ', '2[/if]', '3[if [1]>2]', ' something else ', '3[/if]', '1[/if]']), [[t.if, [t.cond, ">", '[1]', "2"], [" var ", [t.if, [t.cond, ">", '[1]', "2"], [" something "]], [t.if, [t.cond, ">", '[1]', "2"],[" something else "]]]]])
 }
 
+if (test_cases.includes('tar tags') || all){
+    console.log('📝 Testing tar tags...')
+
+    jtest('simple + operation', LinkTar(['[+ 1 2]']), [[opr, '+', '1', '2']])
+    jtest('simple == operation', LinkTar(['[== 1 2]']), [[opr, '==', '1', '2']])
+}

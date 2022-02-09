@@ -29,7 +29,7 @@ export const tar_grams = {
     'cond': (...args) => opr(...args)
 }
 
-const ops = {
+export const ops = {
     '+': (a, b) => a + b,
     '-': (a, b) => a - b,
     '*': (a, b) => a * b,
@@ -42,9 +42,9 @@ const ops = {
     '<=': (a, b) => a <= b
 };
 
-const re_tag_name = /^[a-z/]+/m
-const re_tar_var_ind = /\[([0-9]+)\]/
-const re_tar_var_label = /"[a-z_]+"/
+const re_tag_name = /^[\w/]+/m
+const re_tar_var_ind = /\[(\d+)\]/
+const re_tar_var_label = /"[\w_]+"/
 
 /**
  * Expects a token as a string, which should be 1 tag, 
@@ -77,8 +77,9 @@ export function LinkPatToken(token){
  */
 export function LinkPat(tokens){ return tokens.map(t => LinkPatToken(t))}
 
-const re_tar_var_tag = /^\[[a-z0-9_]+\]/m
-const re_tar_block_begin_tag = /^(?<index>\d+)\[(?<name>if|loop)\s(?<args>.+)\]/m //NOTE code block keywords
+const re_tar_var_tag = /^\[[\d\w_]+\]/m
+const re_tar_tag = /^\[(?<f>[\w_+\-\/*=<>]+)\s(?<args>[\d\w\[\]\s,]+)\]/m
+const re_tar_block_begin_tag = /^(?<index>\d+)\[(?<f>if|loop)\s(?<args>.+)\]/m //NOTE code block keywords
 
 /**
  * Expects a token array, 
@@ -87,25 +88,15 @@ const re_tar_block_begin_tag = /^(?<index>\d+)\[(?<name>if|loop)\s(?<args>.+)\]/
  * @returns {Array} f
  */
 export function LinkTar(tokens){
-
-    //linear pass through the tokens
-    //add tokens to array
-    //find a code block begin tag - start new array adding all tokens until the block end tag, 
-    //close (save) array
-    //pass new array into this func recursively
-    //insert the returned array into current array
-    //continue going through tokens ^ step 2 until end of tokens
-    //return constructed tree
-
     const tree = []
 
     for(let i = 0; i < tokens.length; i++){
-        if (tokens[i].match(re_tar_var_tag))
+        if (tokens[i].match(re_tar_var_tag)) //found variable tag in target
             tree.push([tar_grams['ctx'], tokens[i]])
 
-        else if (tokens[i].match(re_tar_block_begin_tag)){
+        else if (tokens[i].match(re_tar_block_begin_tag)){ //found the begining of a code block, so gonna have to recursively link the inside of it
             const match = tokens[i].match(re_tar_block_begin_tag)
-            const name = match.groups.name
+            const name = match.groups.f
             const skip_to = tokens.indexOf(`${match.groups.index}[/${name}]`)
 
             if (skip_to == -1)
@@ -114,14 +105,19 @@ export function LinkTar(tokens){
             tree.push([tar_grams[name], LinkCond(match.groups.args), LinkTar(tokens.slice(i + 1, skip_to))])
 
             i = skip_to
-        }else
+        }
+        else if (tokens[i].match(re_tar_tag)) //found any regular target tag in target
+            tree.push(LinkTarTag(tokens[i].match(re_tar_tag).groups.f, tokens[i].match(re_tar_tag).groups.args))
+
+        else //prob just a string, meaning literally put this token in the output and no action needed
             tree.push(tokens[i])
     }
 
     return tree
 }
 
-const re_cond = /(?<op1>[0-9a-z_\[\]]+)\s?(?<opr>.{1,2})\s?(?<op2>[0-9a-z_\[\]]+)/
+const re_cond = /(?<op1>[0-9\w_\[\]]+)\s?(?<opr>.{1,2})\s?(?<op2>[0-9\w_\[\]]+)/
+// const re_op = /(?<opr>.{1,2})\s(?<op1>[0-9\w_\[\]]+)[\s,]?(?<op2>[0-9\w_\[\]]+)/ //TODO this could be generalized to have an infinite amount of operands, but then opr() needs that generalization too with the ...args param and reduce()
 
 /**
  * Expects string of a condition to be evalueate, like "[1]>2"
@@ -133,14 +129,33 @@ export function LinkCond(cond){
     const match = cond.match(re_cond)
     if(match)
         if(match.groups.opr in ops)
-            return [opr, match.groups.op1, match.groups.op2]
+            return [opr, match.groups.opr, match.groups.op1, match.groups.op2]
         else
             error(`Invalid operator [${match.groups.opr}] in condition evaluation!`, cond)
     else
         error(`Could not parse condition, since it is not a valid condition expression signature/format!`, cond)
 }
 
-function opr(ctx, a, b, op) {
+const re_tar_tag_args = /([,\s])/m //TODO this does not support correct splitting of args, if an arg is of type string and has a space in the string
+
+/**
+ * Expects string that is the name of the tag and then space or comma delimited args to it
+ * Parses it to the corresponding oprerator function with corresponding operands from the string
+ * @param {string} f
+ * @returns {string} args
+ */
+export function LinkTarTag(f, args){
+    args = args.split(re_tar_tag_args).filter((a) => a != ' ' && a != '')
+
+    if(f in ops && args.length >= 2)
+        return [opr, f, args[0], args[1]]
+    else if (f in tar_grams)
+        return [tar_grams[f], ...args]
+    else
+        error('Target tag not recognized!', [f, args], exit=true)
+}
+
+export function opr(ctx, op, a, b) {
     if (!(op in ops))
         error(`Unsupported operand [${op}]! Exiting...`)
 
