@@ -212,19 +212,19 @@ Multiple options are matched by priority in the order that they are supplied lef
 
 And since a multiple is not a tag itself, then the optional mark cannot be applied to it, likewise it would be illogical to add an optional mark to any tag within the multiple, if it is by itself. 
 
-### Slots and recursive patterns
+### Slots and recurring patterns
 
-Under thought.
+Under thought. THIS IS WRONG. THIS IS NOT RECURSION, BUT RATHER PATTERN SEGMENT REOCURRANCE. FIX THIS.
 
-Marble supports pattern components for better generalization, but what if you want to reference the current pattern in itself? Recursion is tricky, but you can tell Marble that a pattern can be recursive with the [rec] tag.
+Marble supports pattern components for better generalization, but what if you want to reference the current pattern in itself? Recursion is tricky, but you can tell Marble that a pattern can be recurring with the [rec] tag.
 
 ``[rec] [" "] [var "x"] [" = "] [d "num",1,10] {["\,"],[";"]} [/rec] [end "var_tail"]`` the whole pattern inside [rec] can repeat any number of times. Meaning it could match " x = 0, y = 0;" for an infinite amount of times with this short pattern here.
 
 This can be used in a component like such:
 
-``["int"] [pat "var_tail"]`` meaning it could match "int x = 0;" and "int x = 0, y = 0;". This itself can be marked as recursive, the applications for which you can probably guess. 
+``["int"] [pat "var_tail"]`` meaning it could match "int x = 0;" and "int x = 0, y = 0;". This itself can be marked as recurring, the applications for which you can probably guess. 
 
-Then in the [target] tag a [slot] tag must exist. This marks where the inner level output should be dumped in the outter level. This just recursively dumps the discovered output of inner patterns up a level; it is not transpiled output yet. The full transpilable output is only being constructed at this stage.
+Then in the [target] tag a [slot] tag must exist. This marks where the inner level output should be dumped in the outter level. This just recursively dumps the discovered output of inner patterns up a level; it is not transpiled output yet. The full transpilable output is only being constructed at this stage. 
 
 ```
 ... [rec] ... [/rec] ... [end]
