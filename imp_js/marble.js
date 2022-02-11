@@ -6,11 +6,9 @@
 
 import parse from "args-parser" //i was too lazy to parse them myself ;-;
 import fs from 'fs' //for reading the 3 files content
-// import pino from "pino"
 
-import { Preprocess, ExtractSection} from './preproc.js'
-import { Parse } from './lexer.js'
-import { info, startTimer } from "./log.js"
+import { Transpile } from "./transpile.js"
+import { info } from "./log.js"
 
 const error_code = Main()
 if(error_code)
@@ -48,7 +46,7 @@ optional arguments:
     const source = fs.readFileSync(args.i, { encoding: 'utf8', flag: 'r' })
 
     //do the transpilation
-    const output = Transpile(syntax, source, true)
+    const output = Transpile(syntax, source, 'flavor', true)
 
     //write transpilation to output file
     fs.writeFileSync(args.o, output, { encoding: 'utf8', flag: 'w' })
@@ -59,30 +57,4 @@ optional arguments:
 
 //https://jsdoc.app/index.html
 
-/**
- * @param {string} syntax
- * @param {string} source
- * @param {boolean} verbose
- */
-function Transpile(syntax, source, verbose = false){
-    if (verbose) startTimer()
 
-    //preprocess steps before parsing the syntax file
-    syntax = ExtractSection(syntax, 0)
-    if (verbose) info('Done section extraction')
-
-    syntax = Preprocess(syntax)
-    if (verbose) info('Done preprocessing')
-
-    //parse the marble syntax into a ready-to-use data structure
-    const parsed_marble = Parse(syntax)
-    if (verbose) info('Done parsing marble file')
-        
-    // console.log(parsed_marble[0].pat)
-    // console.log(JSON.stringify(parsed_marble[0].tar.body))
-
-    //---Convert source lines with regex
-
-
-    return syntax
-}

@@ -13,7 +13,7 @@ export const pat_grams = {
     'i': '([\t\s]+)',
     'sym': (str, opt = false) => `(?:${str})` + (opt ? '?' : ''),
     '': (str, opt = false) => `(?:${str})` + (opt ? '?' : ''),
-    'var': (label = '', opt = false) => (label ? `(?<${label}>[a-zA-Z_]+)` : `([a-zA-Z_]+)`) + (opt ? '?' : ''),
+    'var': (label = '', opt = false) => (label ? `(?<${label}>[\\w\\d_]+)` : `([\\w\\d_]+)`) + (opt ? '?' : ''),
     'rec': '(',
     '/rec': ')+',
     'end': (label = '') => '$',
@@ -24,7 +24,7 @@ export const pat_grams = {
 }
 
 export const tar_grams = {
-    'ctx': (...args) => ResolveFromContext(...args),
+    'ctx': (ctx, val) => ResolveFromContext(ctx, val),
     'if': (cond, nest) => cond ? nest : null,
     'cond': (...args) => opr(...args)
 }
@@ -43,8 +43,6 @@ export const ops = {
 };
 
 const re_tag_name = /^[\w/]+/m
-const re_tar_var_ind = /\[(\d+)\]/
-const re_tar_var_label = /"[\w_]+"/
 
 /**
  * Expects a token as a string, which should be 1 tag, 
@@ -164,16 +162,19 @@ export function opr(ctx, op, a, b) {
     return ops[op](a, b)
 }
 
+const re_tar_var_ind = /\[(\d+)\]/
+const re_tar_var_label = /\[([\w_]+)\]/
+
 /**
  * Expects a regex match array as the context.
- * Resolves the target tag value as a string. Resolving, because there can be a labeled ["my_var"] and unlabeled [1] tag or int and string literals.
+ * Resolves the target tag value as a string. Resolving, because there can be a labeled [my_var] and unlabeled [1] tag or int and string literals.
  * @param {RegExpMatchArray} ctx
  * @param {string|number} val
  * @returns {string} regex
  */
 export function ResolveFromContext(ctx, val) {
     if (isNaN(val) && val.match(re_tar_var_label))
-        return ctx[val.match(re_tar_var_label)[1]]
+        return ctx.groups[val.match(re_tar_var_label)[1]]
     else if (isNaN(val) && val.match(re_tar_var_ind))
         return ctx[val.match(re_tar_var_ind)[1]]
     else
@@ -197,4 +198,50 @@ export function CastPatToRegex(tags) {
  */
 export function CastTagToRegex(tag) {
     return RegExp((typeof (tag[0]) == 'function' ? tag[0](...tag.slice(1)) : tag[0]), 'm')
+}
+
+/**
+ * Inserts (recursively) the regex match object as the context (ctx) into all the functions of the pair.tar object, that need it.
+ * @param {Array} target
+ * @param {RegExpMatchArray} ctx
+ * @returns {Array} tree
+ */
+export function ContextualizeTargetTags(target, ctx){
+    const tree = []
+    target.forEach((t,i) => {
+        // console.log(typeof(t))
+        if(typeof(t) == 'function' && [tar_grams.cond, tar_grams.ctx].includes(t))
+            tree.push(t, ctx)
+        else if(typeof(t) == 'object') //array
+            tree.push(ContextualizeTargetTags(t, ctx))
+        else if(typeof(t) == 'string')
+            tree.push(t)
+        else
+            error(`U dun fucked up now, idk what u did, but the current token (${JSON.stringify(t)}|${typeof(t)}) in the target tag parse tree is not a function, object or string. Fix it.`, t, true)
+    })
+    return tree
+}
+
+/**
+ * Traverses (recursively) the target object and calls the functions in it to generate a single string to be written into the output file
+ * @param {Array} target
+ * @returns {string} output
+ */
+export function ResolveTarget(target){
+    let str = ''
+    for(let i = 0; i < target.length; i++){
+        const t = target[i]
+        if (i > 0 && typeof (t) == 'object' && t.groups) //this means the current element is the context for the function call, so skip this. typeof (target[i - 1]) == 'function'
+            str += ''
+        else if (typeof (t) == 'function')
+            return str + t(...target.slice(i + 1))
+        else if (typeof (t) == 'string')
+            str += t
+        else if (typeof (t) == 'object')
+            str += ResolveTarget(t)
+        else
+            error(`U dun fucked up now, idk what u did, but the current token (${JSON.stringify(t)}|${typeof (t)}) in the target tag parse tree is not a function, object or string. Fix it.`, t, true)
+    }
+    console.log(str)
+    return str
 }

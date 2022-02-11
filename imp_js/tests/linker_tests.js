@@ -69,7 +69,7 @@ if (test_cases.includes('variable') || all) {
     test_singles('variable tag resolve to literal', ResolveFromContext(match, '1'), 1)
     test_singles('variable tag resolve by index', ResolveFromContext(match, '[1]'), 'x')
     test_singles('variable tag resolve by index 2nd var', ResolveFromContext(match, '[2]'), 'y')
-    test_singles('variable tag resolve by label', ResolveFromContext(match, 'x'), 'x')
+    test_singles('variable tag resolve by label', ResolveFromContext(match, '[x]'), 'x')
 
     console.log('📝 Testing variable linking in target...')
     jtest('variable by number', LinkTar(['[1]']), [[t.ctx, '[1]']])
@@ -107,6 +107,8 @@ if (test_cases.includes('if') || all) {
 
 if (test_cases.includes('tar tags') || all){
     console.log('📝 Testing tar tags...')
+
+    jtest('simple inserted context variable resolution', LinkTar(['[x]']), [[t.ctx, '[x]']])
 
     jtest('simple + operation', LinkTar(['[+ 1 2]']), [[opr, '+', '1', '2']])
     jtest('simple == operation', LinkTar(['[== 1 2]']), [[opr, '==', '1', '2']])
