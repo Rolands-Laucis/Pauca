@@ -16,6 +16,7 @@ export const pat_grams = {
     'var': (label = '', opt = false) => (label ? `(?<${label}>[\\w\\d_]+)` : `([\\w\\d_]+)`) + (opt ? '?' : ''),
     'rec': '(',
     '/rec': ')+',
+    're': (str) => str.match(/\/(?<exp>.*)\/(\w{0,5})?/).groups.exp,
     'end': (label = '') => '$',
 
     //shorthands
