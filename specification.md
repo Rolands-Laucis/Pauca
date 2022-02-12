@@ -352,6 +352,8 @@ Since Marble is written in js, then standard js regex literals may be used. Othe
 
 ``[re "/[A-Z]{2,4}/gm"] ...`` will match an uppercase letter string of length 2 to 4 using the flags for global and multiline.
 
+The regex flags are ignored by Marble, since that is nescesary for Marble to use regex itself internally.
+
 ### Custom tags
 
 Under thought.
@@ -366,7 +368,11 @@ Marble allows you to define custom tags which is different from but similar to d
 
 ### Escapes
 
+Under thought.
+
 Since Marble has a syntax of its own to define other language syntaxes, there is by nature some overlap of reserved special meaning characters. So to let symbols like "[" be usable in the various tags, they may be escaped with the "\" symbol inside the target. Outside the target, anything inside quotes "" is automatically escaped, except the different quote marks themselves, which then need to be escaped with the "\" symbol. But of course strings may end with a "\" symbol, so the "\" symbol may be itself escaped with a "\" symbol.
+
+The nature of Marbles syntax means that common C like language array indexing or constructing patterns will need escaping in the target. E.g. "array[1]".
 
 ```
 ...
