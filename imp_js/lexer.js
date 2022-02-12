@@ -164,14 +164,13 @@ export function Builder(pairs){
     })
 }
 
-const All_Parsing_Steps = [Pairer, Tokenizer, Linter, Linker, Builder]
 /**
  * Expects the syntax text preprocessed without \n, i.e. the entire string is on a single line
  * @param {string} text
  * @param {Function[]} steps
  * @returns {object[]} pairs
  */
-export function Parse(text, steps = All_Parsing_Steps){
+export function Parse(text, steps = [Pairer, Tokenizer, Linter, Linker, Builder]){
     steps.unshift(text) //insert the text as the first element, so that we can just use the reduce function to apply all steps
     return steps.reduce((text, f) => f(text))
 }

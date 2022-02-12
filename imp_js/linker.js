@@ -3,6 +3,8 @@
 
 import {error} from './log.js'
 
+const verbose = false
+
 //?: means non-capturing group
 //can write string literals of regex that it should cast to
 //can write lambda functions, that will be called
@@ -13,10 +15,10 @@ export const pat_grams = {
     'i': '([\t\s]+)',
     'sym': (str, opt = false) => `(?:${str})` + (opt ? '?' : ''),
     '': (str, opt = false) => `(?:${str})` + (opt ? '?' : ''),
-    'var': (label = '', opt = false) => (label ? `(?<${label}>[\\w\\d_]+)` : `([\\w\\d_]+)`) + (opt ? '?' : ''),
+    'var': (label = '', opt = false) => (label ? `(?<${label}>[a-zA-Z\\d_]+)` : `([a-zA-Z\\d_]+)`) + (opt ? '?' : ''),
     'rec': '(',
     '/rec': ')+',
-    're': (str) => str.match(/\/(?<exp>.*)\/(\w{0,5})?/).groups.exp,
+    're': (str) => str.match(/\/(?<exp>.*)\/(a-zA-Z{0,5})?/).groups.exp,
     'end': (label = '') => '$',
 
     //shorthands
@@ -26,8 +28,10 @@ export const pat_grams = {
 
 export const tar_grams = {
     'ctx': (ctx, val) => ResolveFromContext(ctx, val),
-    'if': (cond, nest) => cond ? nest : null,
-    'cond': (...args) => opr(...args)
+    'cond': (ctx, op, a, b) => opr(ctx, op, a, b),
+    'if': (cond, nest) => tar_grams['cond'](...cond.slice(1)) ? nest : '',
+    'loop': (args) => args
+    
 }
 
 export const ops = {
@@ -43,7 +47,7 @@ export const ops = {
     '<=': (a, b) => a <= b
 };
 
-const re_tag_name = /^[\w/]+/m
+const re_tag_name = /^[a-zA-Z/]+/m
 
 /**
  * Expects a token as a string, which should be 1 tag, 
@@ -76,8 +80,8 @@ export function LinkPatToken(token){
  */
 export function LinkPat(tokens){ return tokens.map(t => LinkPatToken(t))}
 
-const re_tar_var_tag = /^\[[\d\w_]+\]/m
-const re_tar_tag = /^\[(?<f>[\w_+\-\/*=<>]+)\s(?<args>[\d\w\[\]\s,]+)\]/m
+const re_tar_var_tag = /^\[[\w_]+\]/m
+const re_tar_tag = /^\[(?<f>[a-zA-Z_+\-\/*=<>]+)\s(?<args>[\w\[\]\s,]+)\]/m
 const re_tar_block_begin_tag = /^(?<index>\d+)\[(?<f>if|loop)\s(?<args>.+)\]/m //NOTE code block keywords
 
 /**
@@ -100,10 +104,10 @@ export function LinkTar(tokens){
 
             if (skip_to == -1)
                 error(`Didnt find ending tag with index ${match.groups.index}. Tokens in this function call:`, tokens)
-            
+
             tree.push([tar_grams[name], LinkCond(match.groups.args), LinkTar(tokens.slice(i + 1, skip_to))])
 
-            i = skip_to
+            i = skip_to //this is why this loop needs to be a regular for loop
         }
         else if (tokens[i].match(re_tar_tag)) //found any regular target tag in target
             tree.push(LinkTarTag(tokens[i].match(re_tar_tag).groups.f, tokens[i].match(re_tar_tag).groups.args))
@@ -115,8 +119,7 @@ export function LinkTar(tokens){
     return tree
 }
 
-const re_cond = /(?<op1>[0-9\w_\[\]]+)\s?(?<opr>.{1,2})\s?(?<op2>[0-9\w_\[\]]+)/
-// const re_op = /(?<opr>.{1,2})\s(?<op1>[0-9\w_\[\]]+)[\s,]?(?<op2>[0-9\w_\[\]]+)/ //TODO this could be generalized to have an infinite amount of operands, but then opr() needs that generalization too with the ...args param and reduce()
+const re_cond = /(?<op1>[\w_\[\]]+)\s?(?<opr>.{1,2})\s?(?<op2>[\w_\[\]]+)/ 
 
 /**
  * Expects string of a condition to be evalueate, like "[1]>2"
@@ -156,15 +159,16 @@ export function LinkTarTag(f, args){
 
 export function opr(ctx, op, a, b) {
     if (!(op in ops))
-        error(`Unsupported operand [${op}]! Exiting...`)
+        error(`Unsupported operand [${op}] with args [${a}] [${b}]! Has context [${ctx}]. Exiting...`)
 
     a = ResolveFromContext(ctx, a)
     b = ResolveFromContext(ctx, b)
+    if (verbose) console.log(`${a} ${op} ${b} = ${ops[op](a, b)}`)
     return ops[op](a, b)
 }
 
 const re_tar_var_ind = /\[(\d+)\]/
-const re_tar_var_label = /\[([\w_]+)\]/
+const re_tar_var_label = /\[([a-zA-Z_]+)\]/
 
 /**
  * Expects a regex match array as the context.
@@ -210,12 +214,12 @@ export function CastTagToRegex(tag) {
 export function ContextualizeTargetTags(target, ctx){
     const tree = []
     target.forEach((t,i) => {
-        // console.log(typeof(t))
-        if(typeof(t) == 'function' && [tar_grams.cond, tar_grams.ctx].includes(t))
+        if(verbose) console.log(typeof(t))
+        if(typeof(t) == 'function' && [tar_grams.cond, tar_grams.ctx, opr].includes(t))
             tree.push(t, ctx)
         else if(typeof(t) == 'object') //array
             tree.push(ContextualizeTargetTags(t, ctx))
-        else if(typeof(t) == 'string')
+        else if (typeof (t) == 'string' || (typeof (t) == 'function' && [tar_grams.if, tar_grams.loop].includes(t)))
             tree.push(t)
         else
             error(`U dun fucked up now, idk what u did, but the current token (${JSON.stringify(t)}|${typeof(t)}) in the target tag parse tree is not a function, object or string. Fix it.`, t, true)
@@ -234,15 +238,20 @@ export function ResolveTarget(target){
         const t = target[i]
         if (i > 0 && typeof (t) == 'object' && t.groups) //this means the current element is the context for the function call, so skip this. typeof (target[i - 1]) == 'function'
             str += ''
-        else if (typeof (t) == 'function')
-            return str + t(...target.slice(i + 1))
+        else if (typeof (t) == 'function'){
+            if (verbose) console.log(`calling function [${t.name}] with arg count [${target.slice(i + 1).length}]`)
+            const gen = t(...target.slice(i + 1))
+            if(typeof(gen) == 'string')
+                return str + gen
+            else if (typeof (gen) == 'object')
+                return str + ResolveTarget(gen)
+        }
         else if (typeof (t) == 'string')
             str += t
         else if (typeof (t) == 'object')
             str += ResolveTarget(t)
         else
-            error(`U dun fucked up now, idk what u did, but the current token (${JSON.stringify(t)}|${typeof (t)}) in the target tag parse tree is not a function, object or string. Fix it.`, t, true)
+            error(`U dun fucked up now, idk what u did, but the current [${i}] token (${JSON.stringify(t)}|${typeof (t)}) in the target tag parse tree is not a function, object or string. Fix it.`, t, true)
     }
-    console.log(str)
     return str
 }

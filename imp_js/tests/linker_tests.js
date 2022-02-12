@@ -2,7 +2,7 @@
 import { LinkPatToken, pat_grams as p, CastPatToRegex, ResolveFromContext, LinkTar, tar_grams as t, opr } from "../linker.js";
 
 const test_cases = ['tar tags']
-const all = false
+const all = true
 
 Array.prototype.equals = function (arr) {
     if (!arr || this.length != arr.length)
