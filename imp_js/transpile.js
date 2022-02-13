@@ -10,7 +10,7 @@ import { info, startTimer } from "./log.js"
  * @param {string} source
  * @param {boolean} verbose
  */
-export function Transpile(syntax, source, mode = 'transpile', verbose = false) {
+export function MarbleTranspile(syntax, source, mode = 'transpile', verbose = false) {
     if (verbose) startTimer()
 
     if (verbose) info('Starting transpilation...')
@@ -42,5 +42,6 @@ export function Transpile(syntax, source, mode = 'transpile', verbose = false) {
         return source
     }
 
+    if (verbose) info('Done transpiling')
     return output
 }
