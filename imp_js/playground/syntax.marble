@@ -1,0 +1,14 @@
+//complete the marble [target] body such that for the input string the correct output is generated
+
+//input:
+//public int my_var = 2
+//public int x = 5304
+
+//output:
+//my_var is 2
+//x is 5304
+
+["public int "] [var "x"] [" = "] [var "num"] [end]
+[target]
+
+[/target]

@@ -34,9 +34,7 @@ if(test_cases.includes('basic') || all){
 [/target]`, 'public int my_var = 2', 'transpile', true), '')
 
     test('basic IF block without tag spaces', MarbleTranspile(`
-["public int "] [var "x"] [" = "] [var "num"] [end]
-[target]
-[if [num]>1][x] is bigger than 1[/if]
-[/target]`, 'public int my_var = 2', 'transpile', true), 'my_var is bigger than 1')
+["public int "][var "x"][" = "][var "num"][end]
+[target][if [num]>1][x] is bigger than 1[/if][/target]`, 'public int my_var = 2', 'transpile', true), 'my_var is bigger than 1')
 
 }

@@ -32,9 +32,11 @@ Marble would be built with Node.js, so it could simply run with a CLI as such:
 
 ``node marble syntax.marble script.c output.js``
 
-This would launch Marble to read the syntax definition script that is full of the lines seen above for generic syntax patterns, then looks for these patterns in the script.c text file and transpiles them to whatever target language script, here - output.js. 
+This would launch Marble to read the syntax definition script that is full of the lines seen above for generic syntax patterns, then looks for these patterns in the script.c text file and transpiles them to whatever target language script, here - output.js. Both script and output are just any plain text files, not necessarily programming language scripts.
 
 Marble engine implementations should be built such that they can be invoked from CLI and programmatically, by calling a single function in a script.
+
+``./imp_js/playground/`` contains example excersises and challenges to try with Marble and understand how to use it. Fun puzzles maybe.
 
 ### Motivation
 
@@ -46,6 +48,7 @@ I am creating this for fun and because i could not find something similar to thi
 * [General purpose scriptable transpiler for many languages](https://awesomeopensource.com/project/jarble/transpiler). Has support for many languages and lets you script addons to the engine.
 * [GNU Bison](https://www.gnu.org/software/bison/) A general-purpose parser generator for grammar syntaxes in C.
 * [The Lex & Yacc Page](http://dinosaur.compilertools.net/) Tokenize source code and find its hierarchical structure.
+* [Haxe language](https://haxe.org/) Haxe is an open source high-level strictly-typed programming language with a fast optimizing cross-compiler. Haxe can build cross-platform applications targeting JavaScript, C++, C#, Java, JVM, Python, Lua, PHP, Flash
 
 ### Name
 

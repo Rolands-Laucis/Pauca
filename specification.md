@@ -340,8 +340,11 @@ exit(0)
 The tag based syntax of Marble is nescesary to allow literal target outputs, but this often creates long winded patterns. To help mitigate this, some special tags have been reserved that literally get replaced with their full lengths before Marble starts transpiling. Here is a list of them (left side is the short form):
 
 ``[""]`` -> ``[sym ""]`` a literal symbol string in the source
+
 ``[s]`` -> ``[?" "]`` an optional space character
+
 ``[;]`` -> ``[?";"]`` an optional ;
+
 
 ### Regex
 
