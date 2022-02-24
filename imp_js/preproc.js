@@ -23,7 +23,7 @@ function CollapseNewLines(text) {
  * @param {string} text
  */
 function CollapseSpaces(text) {
-    return text.replace(/[\s]+/gm, ' ')
+    return text.replace(/\s+/g, ' ')
 }
 
 /**
@@ -53,7 +53,7 @@ export function ExtractSection(text, index){
  * @param {string} text
  * @returns {string} text
  */
-export function Preprocess(text, steps = [RemoveComments, CollapseSpaces, Strip]) {
+export function Preprocess(text, steps = [RemoveComments, CollapseNewLines, Strip]) {
     steps.unshift(text) //insert the text as the first element, so that we can just use the reduce function to apply all steps
     return steps.reduce((text, f) => f(text))
 }
