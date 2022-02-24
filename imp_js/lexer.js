@@ -78,7 +78,7 @@ export function Pairer(text) {
 export function Tokenizer(pairs) {
     const re_tag = /\[.*?\]/g
     const re_tar_lang = /\[target\s?("(?<lang>.*?)")?\]/
-    const re_tar_body = /\[target(\s".*?")?\](?<body>.*?)\[\/target\]/
+    const re_tar_body = /\[target(\s"\w+?")?\](?<body>(\n|.)*?)\[\/target\]/
     const re_tar_split_by_tag = /(\[[\w/]+?(?:\s[\[\d\w_\>\<\=\]]+)?\])/g
 
     //the map has to return an object, since the annonymous function body decleration has the same syntax as object decleration in javascript :(
@@ -170,7 +170,7 @@ export function Builder(pairs){
  * @param {Function[]} steps
  * @returns {object[]} pairs
  */
-export function Parse(text, steps = [Pairer, Tokenizer, Linter, Linker, Builder]){
+export function Parse(text, steps = [Pairer, Tokenizer, Linter, Linker, Builder]) { //
     steps.unshift(text) //insert the text as the first element, so that we can just use the reduce function to apply all steps
     return steps.reduce((text, f) => f(text))
 }

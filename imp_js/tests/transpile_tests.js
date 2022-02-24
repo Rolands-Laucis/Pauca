@@ -1,7 +1,7 @@
 import { MarbleTranspile } from '../transpile.js'
 
-const test_cases = ['basic']
-const all = true
+const test_cases = ['loop']
+const all = false
 
 /**
  * Testing function for single values
@@ -24,7 +24,9 @@ if(test_cases.includes('basic') || all){
 [target]
 [x] is [num]
 [/target]`, 'public int my_var = 2', 'transpile', true), ' my_var is 2 ')
+}
 
+if (test_cases.includes('if') || all) {
     test('basic IF block', MarbleTranspile(`
 ["public int "] [var "x"] [" = "] [var "num"] [end]
 [target]
@@ -36,5 +38,22 @@ if(test_cases.includes('basic') || all){
     test('basic IF block without tag spaces', MarbleTranspile(`
 ["public int "][var "x"][" = "][var "num"][end]
 [target][if [num]>1][x] is bigger than 1[/if][/target]`, 'public int my_var = 2', 'transpile', true), 'my_var is bigger than 1')
+}
 
+if (test_cases.includes('loop') || all){
+    console.log('📝 Testing loop...')
+
+    test('basic loop with count literal', MarbleTranspile(`
+["public int "] [var "x"] [" = "] [var "num"] [end]
+[target]
+    [loop 2]
+        [x] is [num]
+    [/loop]
+[/target]`, 'public int my_var = 2', 'transpile'), `
+    
+        my_var is 2
+    
+        my_var is 2
+    
+`)
 }

@@ -30,7 +30,7 @@ export const tar_grams = {
     'ctx': (ctx, val) => ResolveFromContext(ctx, val),
     'cond': (ctx, op, a, b) => opr(ctx, op, a, b),
     'if': (cond, nest) => tar_grams['cond'](...cond.slice(1)) ? nest : '',
-    'loop': (args) => args
+    'loop': (count, nest) => Array(parseInt(count)).fill(nest)
     
 }
 
@@ -134,6 +134,8 @@ export function LinkCond(cond){
             return [opr, match.groups.opr, match.groups.op1, match.groups.op2]
         else
             error(`Invalid operator [${match.groups.opr}] in condition evaluation!`, cond)
+    else if(cond.match(/\d+/))
+        return cond.match(/\d+/)[0]
     else
         error(`Could not parse condition, since it is not a valid condition expression signature/format!`, cond)
 }
