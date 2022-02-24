@@ -1,0 +1,28 @@
+[+ 1,2]
+[- 1,2]
+[* 1,2]
+[/ 1,2]
+[> 1,2]
+[< 1,2]
+[== 1,2]
+[>= 1,2]
+[<= 1,2]
+
+[loop [2]]
+[/loop]
+
+//some comment
+
+[n] [i] [c] [sym "smth"] ['smth'] [var "smth"] [end] //other comment
+
+[rec] ['smth'] [/rec] [var "smth"] [end]
+
+[target]
+
+[/target]
+
+[target "js"]
+    [if [2] > 0]
+        
+    [/if]
+[/target]

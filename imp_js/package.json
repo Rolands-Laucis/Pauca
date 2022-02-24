@@ -4,13 +4,13 @@
   "description": "generic transpiler for programming languages",
   "main": "marble.js",
   "scripts": {
-    "test": "node marble -s=\"./gen/test.marble\" -i=\"./gen/input.txt\" -o=\"./gen/output.txt\"",
+    "marble": "node marble -s=\"./gen/test.marble\" -i=\"./gen/input.txt\" -o=\"./gen/output.txt\"",
     "lex": "node tests/lexer_tests",
     "link": "node tests/linker_tests",
     "out": "node tests/transpile_tests"
   },
   "author": "Rolands Laucis",
-  "license": "ISC",
+  "license": "MIT",
   "type": "module",
   "dependencies": {
     "args-parser": "^1.3.0"

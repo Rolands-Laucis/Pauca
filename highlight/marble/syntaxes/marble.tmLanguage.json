@@ -1,0 +1,100 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Marble",
+	"patterns": [
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#brackets"
+		},
+		{
+			"include": "#numbers"
+		},
+		{
+			"include": "#operators"
+		},
+		{
+			"include": "#keywords_pat"
+		},
+		{
+			"include": "#keywords_tar"
+		},
+		{
+			"include": "#pre-tags"
+		}
+	],
+	"repository": {
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.line.double-slash.marble",
+					"match": "\\/\\/.*"
+				}
+			]
+		},
+		"strings": {
+			"name": "string.quoted.double.marble",
+			"begin": "(\"|'|`)",
+			"end": "(\"|'|`)",
+			"patterns": [
+				{
+					"name": "constant.character.escape.marble",
+					"match": "\\\\."
+				}
+			]
+		},
+		"brackets": {
+			"patterns": [
+				{
+					"name": "meta.brace.square.marble",
+					"match": "(\\[|\\])"
+				}
+			]
+		},
+		"numbers": {
+			"patterns": [
+				{
+					"name": "constant.numeric.decimal.marble",
+					"match": "\\d+"
+				}
+			]
+		},
+		"operators": {
+			"patterns": [
+				{
+					"name": "keyword.operator.logical.marble",
+					"match": "(\\+|-|\\/|\\*|>|<|==|>=|<=)\\s"
+				}
+			]
+		},
+		"keywords_pat": {
+			"patterns": [
+				{
+					"name": "variable.marble",
+					"match": "\\b(sym|var|end|rec)\\b"
+				}
+			]
+		},
+		"keywords_tar": {
+			"patterns": [
+				{
+					"name": "entity.name.function.marble",
+					"match": "\\b(target|if|loop)\\b"
+				}
+			]
+		},
+		"pre-tags": {
+			"patterns": [
+				{
+					"name": "support.function.marble",
+					"match": "\\b(n|c|i)\\b"
+				}
+			]
+		}
+	},
+	"scopeName": "source.marble"
+}

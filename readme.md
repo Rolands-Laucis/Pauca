@@ -48,7 +48,9 @@ I am creating this for fun and because i could not find something similar to thi
 * [General purpose scriptable transpiler for many languages](https://awesomeopensource.com/project/jarble/transpiler). Has support for many languages and lets you script addons to the engine.
 * [GNU Bison](https://www.gnu.org/software/bison/) A general-purpose parser generator for grammar syntaxes in C.
 * [The Lex & Yacc Page](http://dinosaur.compilertools.net/) Tokenize source code and find its hierarchical structure.
-* [Haxe language](https://haxe.org/) Haxe is an open source high-level strictly-typed programming language with a fast optimizing cross-compiler. Haxe can build cross-platform applications targeting JavaScript, C++, C#, Java, JVM, Python, Lua, PHP, Flash
+* [Haxe language](https://haxe.org/) Haxe is an open source high-level strictly-typed programming language with a fast optimizing cross-compiler. Haxe can build cross-platform applications 
+* [Antlr page](https://www.antlr.org/) Antlr is basically like Yacc and Bison, but perhaps has some cooler features. Inner workings are customizable. 
+targeting JavaScript, C++, C#, Java, JVM, Python, Lua, PHP, Flash
 
 ### Name
 
