@@ -10,12 +10,12 @@ import sizeof from 'object-sizeof'
  * @param {string} source
  * @param {boolean} verbose
  */
-export function MarbleTranspile(syntax, source, mode = 'transpile', segment = 0, verbose = false) {
+export function MarbleTranspile(syntax, source, mode = 'transpile', segment = null, verbose = false) {
     if (verbose) startTimer()
 
     if (verbose) info('Starting transpilation...')
     //preprocess steps before parsing the syntax file
-    syntax = ExtractSection(syntax, segment)
+    if (segment != null) syntax = ExtractSection(syntax, segment)
 
     syntax = Preprocess(syntax)
     if (verbose) info('Done preprocessing')
@@ -36,7 +36,7 @@ export function MarbleTranspile(syntax, source, mode = 'transpile', segment = 0,
             if (ctx) {
                 const target = ContextualizeTargetTags(pair.tar.body, ctx)
                 if(verbose) info(`Contextualized target. Size of contextualized target object ${sizeof(target)} Bytes`)
-                console.log(target[1][2][1])
+                // console.log(target[1][2][1])
                 // console.log(JSON.stringify(target))
                 output += ResolveTarget(target)
             }

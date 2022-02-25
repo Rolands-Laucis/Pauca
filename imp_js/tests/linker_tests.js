@@ -1,5 +1,6 @@
 //node linker_tests.js
 import { LinkPatToken, pat_grams as p, CastPatToRegex, ResolveFromContext, LinkTar, tar_grams as t, opr } from "../linker.js";
+import { endTimer, startTimer } from "../log.js"
 
 const test_cases = ['tar tags']
 const all = true
@@ -20,10 +21,10 @@ Array.prototype.equals = function (arr) {
  */
 function test(name, generated, expected) {
     if (generated.equals(expected))
-        console.log(`✔️\t${name} PASS`)
+        console.log(`✔️\t${name} - ${endTimer()}ms`)
     else
         console.log(`❌\t${name} FAIL - GOT\n${generated}\nBUT EXPECTED\n${expected}\n`)
-        // console.log(`❌\t${name} FAIL - GOT\n${[generated[0].name, ...generated.slice(1)]}\nBUT EXPECTED\n${[expected[0].name, ...expected.slice(1)]}\n`)
+    startTimer()
 }
 
 /**
@@ -34,9 +35,10 @@ function test(name, generated, expected) {
  */
 function jtest(name, generated, expected) {
     if (JSON.stringify(generated) == JSON.stringify(expected))
-        console.log(`✔️\t${name} PASS`)
+        console.log(`✔️\t${name} - ${endTimer()}ms`)
     else
         console.log(`❌\t${name} FAIL - GOT\n${JSON.stringify(generated)}\nBUT EXPECTED\n${JSON.stringify(expected)}\n`)
+    startTimer()
 }
 
 /**
@@ -47,11 +49,13 @@ function jtest(name, generated, expected) {
  */
 function test_singles(name, generated, expected) {
     if (generated === expected)
-        console.log(`✔️\t${name} PASS`)
+        console.log(`✔️\t${name} - ${endTimer()}ms`)
     else
         console.log(`❌\t${name} FAIL - GOT\n${generated}\nBUT EXPECTED\n${expected}\n`)
+    startTimer()
 }
 
+startTimer()
 if (test_cases.includes('symbol') || all) {
     console.log('📝 Testing symbol tags...')
     test('symbol full tag', LinkPatToken('sym "smth"'), [p['sym'], 'smth'])

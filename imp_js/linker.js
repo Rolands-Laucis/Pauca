@@ -119,7 +119,7 @@ export function LinkTar(tokens){
     return tree
 }
 
-const re_cond = /(?<op1>[\w_\[\]]+)\s?(?<opr>.{1,2})\s?(?<op2>[\w_\[\]]+)/ 
+const re_cond = /(?<op1>[\w_\[\]]+)\s?(?<opr>[><=]{1,2})\s?(?<op2>[\w_\[\]]+)/ 
 //some
 /**
  * Expects string of a condition to be evalueate, like "[1]>2"

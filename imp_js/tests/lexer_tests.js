@@ -1,4 +1,5 @@
 import { Pairer, Tokenizer, Linter } from '../lexer.js'
+import { endTimer, startTimer } from "../log.js"
 
 const test_cases = ['Tokenizer'] //'Pairer', 'Tokenizer', 'Linter'
 const all = true
@@ -12,12 +13,13 @@ const all = true
  */
 function test(name, generated, expected) {
     if (JSON.stringify(generated) === JSON.stringify(expected))
-        console.log(`✔️\t${name}`)
+        console.log(`✔️\t${name} - ${endTimer()}ms`)
     else
         console.log(`❌\t${name} FAIL - GOT\n${JSON.stringify(generated)}\nBUT EXPECTED\n${JSON.stringify(expected)}`)
+    startTimer()
 }
 
-
+startTimer()
 if (test_cases.includes('Pairer') || all){
     console.log('📝 Testing Pairer...')
     test('basic full string', Pairer('[var "x"] [sym " "] [end "smth"] [target] var [x] = [num] [5] [/target]')[0], { 'pat': '[var "x"] [sym " "] [end "smth"]', 'tar': '[target] var [x] = [num] [5] [/target]' })
