@@ -3,7 +3,7 @@ import { Parse } from './lexer.js'
 import { ContextualizeTargetTags, ResolveTarget } from './linker.js'
 
 import { info, startTimer } from "./log.js"
-
+import sizeof from 'object-sizeof'
 
 /**
  * @param {string} syntax
@@ -24,7 +24,7 @@ export function MarbleTranspile(syntax, source, mode = 'transpile', segment = 0,
 
     //parse the marble syntax into a ready-to-use data structure
     const parsed_marble = Parse(syntax)
-    if (verbose) info('Done parsing marble file')
+    if (verbose) info(`Done parsing marble file. Size of parsed target object ${sizeof(parsed_marble)} Bytes`)
     // console.log(parsed_marble[0].tar.body)
     // return
 
@@ -35,7 +35,8 @@ export function MarbleTranspile(syntax, source, mode = 'transpile', segment = 0,
             const ctx = source.match(pair.pat)
             if (ctx) {
                 const target = ContextualizeTargetTags(pair.tar.body, ctx)
-                // console.log(target)
+                if(verbose) info(`Contextualized target. Size of contextualized target object ${sizeof(target)} Bytes`)
+                console.log(target[1][2][1])
                 // console.log(JSON.stringify(target))
                 output += ResolveTarget(target)
             }

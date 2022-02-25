@@ -1,7 +1,7 @@
 import { MarbleTranspile } from '../transpile.js'
 
 const test_cases = ['loop']
-const all = false
+const all = true
 
 /**
  * Testing function for single values
@@ -49,6 +49,42 @@ if (test_cases.includes('loop') || all){
     [loop 2]
         [x] is [num]
     [/loop]
+[/target]`, 'public int my_var = 2', 'transpile'), `
+    
+        my_var is 2
+    
+        my_var is 2
+    
+`)
+}
+
+if (test_cases.includes('nests') || all){
+    console.log('📝 Testing nests...')
+
+    test('basic IF in LOOP', MarbleTranspile(`
+["public int "] [var "x"] [" = "] [var "num"] [end]
+[target]
+    [loop 2]
+        [if [2] > 1]
+            [x] is [num]
+        [/if]
+    [/loop]
+[/target]`, 'public int my_var = 2', 'transpile'), `
+    
+        my_var is 2
+    
+        my_var is 2
+    
+`)
+
+    test('basic LOOP in IF', MarbleTranspile(`
+["public int "] [var "x"] [" = "] [var "num"] [end]
+[target]
+    [if [2] > 1]
+        [loop 2]
+            [x] is [num]
+        [/loop]
+    [/if]
 [/target]`, 'public int my_var = 2', 'transpile'), `
     
         my_var is 2

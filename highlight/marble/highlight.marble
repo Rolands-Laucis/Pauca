@@ -8,21 +8,16 @@
 [>= 1,2]
 [<= 1,2]
 
-[loop [2]]
-[/loop]
-
 //some comment
 
 [n] [i] [c] [sym "smth"] ['smth'] [var "smth"] [end] //other comment
 
-[rec] ['smth'] [/rec] [var "smth"] [end]
 
-[target]
-
-[/target]
-
+[rec] {['smth'], ['smth2']} [/rec] [s] [var "smth"] [;] [end]
 [target "js"]
     [if [2] > 0]
-        
+        [loop [2]]
+            smth
+        [/loop]
     [/if]
 [/target]

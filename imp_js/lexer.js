@@ -77,9 +77,9 @@ export function Pairer(text) {
  */
 export function Tokenizer(pairs) {
     const re_tag = /\[.*?\]/g
-    const re_tar_lang = /\[target\s?("(?<lang>.*?)")?\]/
-    const re_tar_body = /\[target(\s"\w+?")?\](?<body>(\n|.)*?)\[\/target\]/
-    const re_tar_split_by_tag = /(\[[\w/]+?(?:\s[\[\d\w_\>\<\=\]]+)?\])/g
+    const re_tar_lang = /\[target\s?("(?<lang>\w+?)")?\]/
+    const re_tar_body = /\[target(\s?"\w+?")?\](?<body>(\n|.)*?)\[\/target\]/
+    const re_tar_split_by_tag =  /(\[\/?\w+?(?:\s[\[\d\w_\>\<\=\]]+?)?\])/g ///(\[\/?\w+(?:\s.+?(\+|-|\/|\*|>|<|==|>=|<=).+?)?\])/g  /(\[(\/(if|loop) (\[[\w_]+?\]|\d+) (\+|-|\/|\*|>|<|==|>=|<=) \d+|(\+|-|\/|\*|>|<|==|>=|<=) \d+,\d+|[\w_]+)\])/g
 
     //the map has to return an object, since the annonymous function body decleration has the same syntax as object decleration in javascript :(
     return pairs.map(p => { 

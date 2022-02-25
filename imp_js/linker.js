@@ -221,7 +221,7 @@ export function ContextualizeTargetTags(target, ctx){
             tree.push(t, ctx)
         else if(typeof(t) == 'object') //array
             tree.push(ContextualizeTargetTags(t, ctx))
-        else if (typeof (t) == 'string' || (typeof (t) == 'function' && [tar_grams.if, tar_grams.loop].includes(t)))
+        else if (typeof (t) == 'string' || typeof (t) == 'number' || (typeof (t) == 'function' && [tar_grams.if, tar_grams.loop].includes(t)))
             tree.push(t)
         else
             error(`U dun fucked up now, idk what u did, but the current token (${JSON.stringify(t)}|${typeof(t)}) in the target tag parse tree is not a function, object or string. Fix it.`, t, true)

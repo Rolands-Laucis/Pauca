@@ -67,7 +67,7 @@
 			"patterns": [
 				{
 					"name": "keyword.operator.logical.marble",
-					"match": "(\\+|-|\\/|\\*|>|<|==|>=|<=)\\s"
+					"match": "(\\+|-|\\/|\\*|>|<|==|>=|<=)"
 				}
 			]
 		},
