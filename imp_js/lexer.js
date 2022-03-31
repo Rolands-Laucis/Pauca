@@ -1,3 +1,7 @@
+//NOTE DEPRECATED AS OF parser.js added (this commit), works fine with previous repo versions.
+//The parser was rewritten, since i later descided Marble would have a recursive LISP like syntax, which is not viable to parse with js regex, as done here, bcs it does not support the recursive regex rules.
+//A classic parser implementation is used in parser.js
+
 // This script contains lexing functions for parsing the Marble file syntax - Pairer, tTokenizer, Linter, Linker, Builder
 // "If you have a problem and you solve it with regex, you now have 2 problems." Marble uses only regex for these processes.
 
