@@ -8,9 +8,9 @@ import sizeof from 'object-sizeof'
 /**
  * @param {string} syntax
  * @param {string} source
- * @param {boolean} verbose
+ * @param {object} opts
  */
-export function MarbleTranspile(syntax, source, mode = 'transpile', segment = null, verbose = false) {
+export function MarbleTranspile(syntax, source, { mode = 'transpile', segment = null, verbose = false } = {}) { //opts as a dictionary of opts with defaults
     if (verbose) startTimer()
 
     if (verbose) info('Starting transpilation...')
