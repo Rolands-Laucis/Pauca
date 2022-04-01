@@ -7,7 +7,8 @@
     "marble": "node marble -s=\"./gen/test.marble\" -i=\"./gen/input.txt\" -o=\"./gen/output.txt\"",
     "lex": "node tests/lexer_tests",
     "link": "node tests/linker_tests",
-    "out": "node tests/transpile_tests"
+    "out": "node tests/transpile_tests",
+    "parse": "node tests/parser_tests"
   },
   "author": "Rolands Laucis",
   "license": "MIT",
