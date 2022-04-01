@@ -33,6 +33,7 @@ export const TarGrams = {
     BLOCK:{
         if: () => null,
         loop: () => null,
+        target: () => null,
     }
     // : () => null,
 }
