@@ -2,6 +2,10 @@ import { Token, TokenType } from './token.js'
 import { TarGrams } from './grammar.js'
 import { error } from './log.js'
 
+let counter = 0 //unique identifier - could be something fancier like a UUID or combination of counter + random ascii, but rly this just works
+const stack = [] //stack mechanism, whereby pushing and popping in the same order as source text keeps the structure of the source text blocks
+Array.prototype.last = function () { return this[this.length - 1] } //for some reason this cant be an annonymous function
+
 /**
  * Expects the syntax text preprocessed without \n, i.e. the entire string is on a single line.
  * It then segments that into pairs of pattern and target strings
@@ -110,41 +114,46 @@ export function Tokenize(str, {ignore_ws=false} = {}){
     for (let i = 0; i < str.length; i++) {
         switch(str[i]){
             case str[i].match(/[\n\r\t\s]/)?.input: if(!ignore_ws) col += str[i]; break; //dont accumulate white space symbols
+            // case (ignore_ws ? false : str[i].match(/[\n\r\t\s]/)?.input): col += str[i]; break; //this for some reason always adds a space
 
             case '[': //starting a new list - [...]
                 Add(); //add str token of whatever was before the new list
 
                 const j = Peek(str.slice(i))//peek a few chars ahead and find where this particular [ ends with a ] then that string is recursively parsed into smaller tokens
-                const list_str = str.slice(i + 1, i + j) //select the whole list
-
-                //if begins with a slash, then it is the end of a block
-                if(list_str[0] == '/'){
-                    Add(list_str, TokenType.BLOCKEND)
-                    i += j; break;
-                }
-
+                const list_str = str.slice(i + 1, i + j) //select the whole list string
                 //a space or another [ would indicate the first chars is the name of a function for this list, otherwise it should be a variable name. I.e. [fun [x] ...] or [my_var]
-                const list_type = list_str.replace(/[\n\r\s\t]{2,}/, ' ').match(/[\s\[]/) //collapse spaces, just bcs. If this matches, then its a FUN, otherwise VAR
-                // console.log(`Whole list slice:${list_str}`)
-                // list_type ? console.log('first chars of list slice:', str.slice(i + 1, i + list_type.index + 1)) : null
+                const list_type = list_str.replace(/[\n\r\s\t]+/, '').match(/[\[]/) //collapse spaces, just bcs. If this matches, then its a FUN, otherwise VAR
 
-                if (list_type){
-                    const list_tokens = Tokenize(list_str.slice(list_type.index), { ignore_ws: true }) //recursively parse. Whitespaces inside lists should be ignored. Generate less tokens
-                    
-                    //a function can be a regular function to execute on some params, like an operation, but it can also designate a block that has a body, this destincion can be made by checking the grams of Marble
-                    const FUN_str = str.slice(i + 1, i + list_type.index + 1)
-                    list_tokens.unshift(new Token(FUN_str, Object.keys(TarGrams.BLOCK).includes(FUN_str) ? TokenType.BLOCK : TokenType.FUN))//insert the FUN token at the start
-                    
-                    Add(list_tokens, TokenType.LIST) //LIST types indicate that this token's val property is an array of other tokens
+                switch (true) { //meaning true has to match one of the cases, so case expr have to resolve to true to execute
+                    case list_str[0] == '/'://if begins with a slash, then it is the end of a block
+                        Add(list_str, TokenType.BLOCKEND(stack.pop()))
+                        break;
+                    case list_type != null: //this is a list, so recursive parse down the arguments after the first part of the string, which would be the FUN token name asociated with this list and prepend that
+                        counter++; stack.push(counter);
+                        const list_tokens = Tokenize(list_str.slice(list_type.index), { ignore_ws: true }) //recursively parse. Whitespaces inside lists should be ignored. Generate less tokens
+                        
+                        //a function can be a regular function to execute on some params, like an operation, but it can also designate a block that has a body, this destincion can be made by checking the grams of Marble
+                        const FUN_str = str.slice(i + 1, i + list_type.index + 1)
+                        list_tokens.unshift(new Token(FUN_str, Object.keys(TarGrams.BLOCK).includes(FUN_str) ? TokenType.BLOCK(stack.last()) : TokenType.FUN))//insert the FUN token at the start
+
+                        Add(list_tokens, TokenType.LIST) //LIST types indicate that this token's val property is an array of other tokens
+                        break;
+                    case Object.keys(TarGrams.BLOCK).includes(list_str):
+                        counter++; stack.push(counter);
+                        Add(list_str, TokenType.BLOCK(stack.last()))
+                        break;
+                    case Object.keys(TarGrams.FUN).includes(list_str):
+                        Add(list_str, TokenType.FUN)
+                        break;
+                    default:
+                        Add(list_str, TokenType.VAR)
+                        break;
                 }
-                else
-                    Add(list_str, TokenType.VAR)
-                
-                i += j
-                break;
+                i += j //skip over the peeked string
+                break; //and end this case
 
             //base case just add the chars to the string, since they arent important
-            default: col += str[i]; break; //console.log(`|${str[i]}|"${col}"`); 
+            default: col += str[i]; break;
         }
     }
     Add() //handling end of string last collected
