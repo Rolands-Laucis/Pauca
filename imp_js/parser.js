@@ -1,4 +1,5 @@
 import { Token, TokenType } from './token.js'
+import { TarGrams } from './grammar.js'
 import { error } from './log.js'
 
 /**
@@ -97,7 +98,7 @@ export function Tokenizer(pairs) {
  * @param {string} str
  * @returns {object[]} tokens
  */
-function Tokenize(str, {ignore_ws=false} = {}){
+export function Tokenize(str, {ignore_ws=false} = {}){
     if (!str) return undefined
 
     let tokens = []
@@ -114,17 +115,26 @@ function Tokenize(str, {ignore_ws=false} = {}){
                 Add(); //add str token of whatever was before the new list
 
                 const j = Peek(str.slice(i))//peek a few chars ahead and find where this particular [ ends with a ] then that string is recursively parsed into smaller tokens
+                const list_str = str.slice(i + 1, i + j) //select the whole list
+
+                //if begins with a slash, then it is the end of a block
+                if(list_str[0] == '/'){
+                    Add(list_str, TokenType.BLOCKEND)
+                    i += j; break;
+                }
 
                 //a space or another [ would indicate the first chars is the name of a function for this list, otherwise it should be a variable name. I.e. [fun [x] ...] or [my_var]
-                const list_str = str.slice(i + 1, i + j) //select the whole list
                 const list_type = list_str.replace(/[\n\r\s\t]{2,}/, ' ').match(/[\s\[]/) //collapse spaces, just bcs. If this matches, then its a FUN, otherwise VAR
-                // console.log(i, i + j)
                 // console.log(`Whole list slice:${list_str}`)
                 // list_type ? console.log('first chars of list slice:', str.slice(i + 1, i + list_type.index + 1)) : null
 
                 if (list_type){
                     const list_tokens = Tokenize(list_str.slice(list_type.index), { ignore_ws: true }) //recursively parse. Whitespaces inside lists should be ignored. Generate less tokens
-                    list_tokens.unshift(new Token(str.slice(i + 1, i + list_type.index + 1), TokenType.FUN)) //insert the FUN token at the start
+                    
+                    //a function can be a regular function to execute on some params, like an operation, but it can also designate a block that has a body, this destincion can be made by checking the grams of Marble
+                    const FUN_str = str.slice(i + 1, i + list_type.index + 1)
+                    list_tokens.unshift(new Token(FUN_str, Object.keys(TarGrams.BLOCK).includes(FUN_str) ? TokenType.BLOCK : TokenType.FUN))//insert the FUN token at the start
+                    
                     Add(list_tokens, TokenType.LIST) //LIST types indicate that this token's val property is an array of other tokens
                 }
                 else
