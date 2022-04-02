@@ -2,97 +2,16 @@ import { Token, TokenType } from './token.js'
 import { Grams } from './grammar.js'
 import { error } from './log.js'
 
+//these need to be outside the scope of Tokenize function, since it is recursive and uses these. Could also define these as static inside a Token enum, but does that make sense? idk. I dont like them being global here tho
 let counter = 0 //unique identifier - could be something fancier like a UUID or combination of counter + random ascii, but rly this just works
 const stack = [] //stack mechanism, whereby pushing and popping in the same order as source text keeps the structure of the source text blocks
 Array.prototype.last = function () { return this[this.length - 1] } //for some reason this cant be an annonymous function
 
 /**
- * Expects the syntax text preprocessed without \n, i.e. the entire string is on a single line.
- * It then segments that into pairs of pattern and target strings
- * @param {string} text
- * @returns {object[]} pairs
- */
-export function Pairer(text) {
-    const pairs = []
-
-    const re_pat = /((.|\n|\t|\r)*?\[end(\s\".*?\")?\])/m
-    const re_target = /(\[target(\s\".*?\")?\](.|\n|\t|\r)*?\[\/target\])/m
-    const re_target_start_tag = /(\[target(\s\".*?\")?\])/m
-    const re_target_begin = /^(\[target(\s\".*?\")?\])/m
-    const re_pat_end_tag = /(\[end(\s\".*?\")?\])/m
-
-    let match = text.match(re_pat)
-    if (!match)
-        error('Could not find starting pattern block', match)
-
-
-    while (match) {
-
-        //save down the pattern
-        const pat = match[0].trim().replace('\n', '') || null
-        if (pat) {
-            pairs.push({ 'pat': pat })
-            //remove the extracted match
-            text = text.replace(re_pat, '').trim()
-        } else {
-            error('Could not find starting pattern block', match)
-        }
-
-        if (pat && pat.match(re_target_start_tag))
-            error('Target tag found in pattern sequence. Exiting...', pairs)
-
-        //Now the text should begin with a target tag. save down the target
-        if (!text.match(re_target_begin))
-            error('No target tag after pattern match. Exiting...', pairs)
-
-        match = text.match(re_target)
-        if (!match) {
-            pairs[pairs.length - 1]['tar'] = {}
-            //re-search for next iter
-            match = text.match(re_pat)
-            continue
-        }
-
-        const target = match[0].trim() || null
-
-        if (target && target.match(re_pat_end_tag))
-            error('End tag found in target sequence. Exiting...', pairs)
-
-        if (target) {
-            pairs[pairs.length - 1]['tar'] = target
-            //remove the extracted match
-            text = text.replace(re_target, '').trim()
-        }
-
-        //re-search for next iter
-        match = text.match(re_pat)
-    }
-
-    return pairs
-}
-
-/**
- * Expects a pairs object, where the pat and tar vals are a string. 
- * It then converts these strings into more useful arrays of tokens
- * @param {object[]} pairs
- * @returns {object[]} pairs
- */
-export function Tokenizer(pairs) {
-    //the map has to return an object, since the annonymous function body decleration has the same syntax as object decleration in javascript :(
-    return pairs.map(p => {
-        return {
-            //split pat string into array of [tag]. Then also remove the surrounding [] symbols from each tag
-            pat: p.pat?.split(/\[.*?\]/g).map(t => t.slice(1, -1)) || undefined,
-            tar: p.tar ? Tokenize(p.tar) : undefined
-        }
-    })
-}
-
-/**
  * Expects a target body string
  * It then converts these strings into more useful arrays of tokens
  * @param {string} str
- * @returns {object[]} tokens
+ * @returns {Token[]} tokens
  */
 export function Tokenize(str, {ignore_ws=false} = {}){
     if (!str) return undefined
@@ -169,42 +88,53 @@ export function Tokenize(str, {ignore_ws=false} = {}){
     return tokens
 }
 
-
 /**
  * Expects a pairs object, where the pat and tar vals are tokenized. 
  * Wraps target raw block start and end and body tokens into a single BLOCK token
- * @param {object[]} pairs
- * @returns {object[]} pairs
+ * @param {Token[]} tokens
+ * @returns {Token[]} blocks
  */
-export function BlockWrapper(pairs){
-
-    /**
-     * @param {Token[]} tokens
-     * @returns {Token[]} tokens
-     */
-    function Wrap(tokens){
-        for(let i = 0; i < tokens.length; i++){
-            const t = tokens[i]
-            // console.log(t.type.name, t.val, `i:${i}`)
-            if (t.type.name == 'BLOCKSTART') {
-                for (let j = 1; j < tokens.length - i; j++) {
-                    // console.log('inner', tokens[i + j].type.name, tokens[i + j].val, `j:${j}`)
-                    if (tokens[i + j].type.name == 'BLOCKEND' && t.type.id == tokens[i + j].type.id) {
-                        tokens.splice(i, j+1, new Token([t, ...Wrap(tokens.slice(i+1, i + j)), tokens[i + j]], TokenType.BLOCK)) //splice goes to index i, then deletes the next j+1 elements, then inserts a new BLOCK token at that place, but that BLOCK token is recursively parsed the same way
-                        break
-                    }
+export function WrapBlocks(tokens){
+    for (let i = 0; i < tokens.length; i++) {
+        const t = tokens[i]
+        // console.log(t.type.name, t.val, `i:${i}`)
+        if (t.type.name == 'BLOCKSTART') {
+            for (let j = 1; j < tokens.length - i; j++) {
+                // console.log('inner', tokens[i + j].type.name, tokens[i + j].val, `j:${j}`)
+                if (tokens[i + j].type.name == 'BLOCKEND' && t.type.id == tokens[i + j].type.id) {
+                    tokens.splice(i, j + 1, new Token([t, ...WrapBlocks(tokens.slice(i + 1, i + j)), tokens[i + j]], TokenType.BLOCK)) //splice goes to index i, then deletes the next j+1 elements, then inserts a new BLOCK token at that place, but that BLOCK token is recursively parsed the same way
+                    break
                 }
             }
         }
-        return tokens
     }
+    return tokens
+}
 
-    return pairs.map(p => {
-        return {
-            pat: p.pat || undefined,
-            tar: p.tar ? Wrap(p.tar) : undefined
-        }
-    })
+/**
+ * Expects an array of BLOCK tokens, some of which may be components, patterns or targets
+ * This function organizes them into correct pairs of blocks, since patterns must have targets
+ * @param {Token[]} blocks
+ * @returns {Array} pairs
+ */
+export function Pair(blocks) {
+    blocks = blocks.filter(b => b.type == TokenType.BLOCK) //keep only BLOCK tokens, bcs there might be anything between them
+    const pairs = []
+    const Add = ({ pat = undefined, tar=undefined, comp=false } = {}) => pairs.push({pat:pat, tar:tar, comp:comp})
+
+    for(let i = 0; i < blocks.length; i++){
+        const b = blocks[i]
+        if (b.type == TokenType.BLOCK) //current token is a BLOCk
+            switch(b.val[0].val){//BLOCKs val is a LIST, where the first and last token are BLOCK start and end tokens.
+                case 'c': Add({pat:b, comp:true});break;
+                case 'p':
+                    Add({ pat: b, tar: blocks[i+1]})
+                    i += 1;
+                    break;
+                default: error('Pairing has gone wrong. Possibly have not skipped over a target block. Current BLOCKs first BLOCKSTART token:', b.val[0])
+            }
+    }
+    return pairs
 }
 
 /**
@@ -213,7 +143,7 @@ export function BlockWrapper(pairs){
  * @param {Function[]} steps
  * @returns {object[]} pairs
  */
-export function Parse(text, steps = [Pairer, Tokenizer, BlockWrapper]) { //
+export function Parse(text, steps = [Tokenize, WrapBlocks, Pair]) { //
     steps.unshift(text) //insert the text as the first element, so that we can just use the reduce function to apply all steps
     return steps.reduce((text, f) => f(text))
 }

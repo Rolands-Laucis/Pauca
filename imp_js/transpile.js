@@ -1,5 +1,6 @@
 import { Preprocess, ExtractSection } from './preproc.js'
-import { Parse } from './lexer.js'
+// import { Parse } from './lexer.js'
+import { Parse } from './parser.js'
 import { ContextualizeTargetTags, ResolveTarget } from './linker.js'
 
 import { info, startTimer } from "./log.js"
@@ -26,7 +27,8 @@ export function MarbleTranspile(syntax, source, { mode = 'transpile', segment = 
     const parsed_marble = Parse(syntax)
     if (verbose) info(`Done parsing marble file. Size of parsed target object ${sizeof(parsed_marble)} Bytes`)
     // console.log(parsed_marble[0].tar.body)
-    // return
+    console.log(parsed_marble)
+    return
 
     let output = ''
     //---Convert source lines with regex

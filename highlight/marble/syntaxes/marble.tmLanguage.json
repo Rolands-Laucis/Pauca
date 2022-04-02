@@ -18,10 +18,13 @@
 			"include": "#operators"
 		},
 		{
-			"include": "#keywords_pat"
+			"include": "#block_tags"
 		},
 		{
-			"include": "#keywords_tar"
+			"include": "#pattern_tags"
+		},
+		{
+			"include": "#target_tags"
 		},
 		{
 			"include": "#pre-tags"
@@ -71,19 +74,27 @@
 				}
 			]
 		},
-		"keywords_pat": {
+		"block_tags":{
 			"patterns": [
 				{
-					"name": "variable.marble",
-					"match": "\\b(sym|var|end|rec)\\b"
+					"name": "variable.other.constant.marble",
+					"match": "\\b(p|c|target|end)\\b"
 				}
 			]
 		},
-		"keywords_tar": {
+		"pattern_tags": {
+			"patterns": [
+				{
+					"name": "variable.marble",
+					"match": "\\b(sym|var|rec|s|;)\\b"
+				}
+			]
+		},
+		"target_tags": {
 			"patterns": [
 				{
 					"name": "entity.name.function.marble",
-					"match": "\\b(target|if|loop)\\b"
+					"match": "\\b(if|loop)\\b"
 				}
 			]
 		},
@@ -91,7 +102,7 @@
 			"patterns": [
 				{
 					"name": "support.function.marble",
-					"match": "\\b(n|c|i)\\b"
+					"match": "\\b(n|i)\\b"
 				}
 			]
 		}
