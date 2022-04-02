@@ -34,25 +34,43 @@ export const TarGrams = {
         if: () => null,
         loop: () => null,
         target: () => null,
+    },
+    OP: {
+        '+': (a, b) => a + b,
+        '-': (a, b) => a - b,
+        '*': (a, b) => a * b,
+        '/': (a, b) => b != 0 ? Math.floor(a / b) : error(`Division by 0 error. [a b] = ${[a, b]}`),
+        '^': (a, b) => a ^ b,
+        '%': (a, b) => a % b,
+
+        '==': (a, b) => a === b,
+        '>': (a, b) => a > b,
+        '<': (a, b) => a < b,
+        '>=': (a, b) => a >= b,
+        '<=': (a, b) => a <= b,
+        '||': (a, b) => a || b,
+        '&&': (a, b) => a && b,
+
+        // '': (a, b) => a  b,
     }
     // : () => null,
 }
 
-export const OPS = {
-    '+': (a, b) => a + b,
-    '-': (a, b) => a - b,
-    '*': (a, b) => a * b,
-    '/': (a, b) => b != 0 ? Math.floor(a / b) : error(`Division by 0 error. [a b] = ${[a, b]}`),
-    '^': (a, b) => a ^ b,
-    '%': (a, b) => a % b,
+// export const OpGrams = {
+//     '+': (a, b) => a + b,
+//     '-': (a, b) => a - b,
+//     '*': (a, b) => a * b,
+//     '/': (a, b) => b != 0 ? Math.floor(a / b) : error(`Division by 0 error. [a b] = ${[a, b]}`),
+//     '^': (a, b) => a ^ b,
+//     '%': (a, b) => a % b,
 
-    '==': (a, b) => a === b,
-    '>': (a, b) => a > b,
-    '<': (a, b) => a < b,
-    '>=': (a, b) => a >= b,
-    '<=': (a, b) => a <= b,
-    '||': (a, b) => a || b,
-    '&&': (a, b) => a && b,
+//     '==': (a, b) => a === b,
+//     '>': (a, b) => a > b,
+//     '<': (a, b) => a < b,
+//     '>=': (a, b) => a >= b,
+//     '<=': (a, b) => a <= b,
+//     '||': (a, b) => a || b,
+//     '&&': (a, b) => a && b,
 
-    // '': (a, b) => a  b,
-};
+//     // '': (a, b) => a  b,
+// };

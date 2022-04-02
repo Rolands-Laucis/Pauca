@@ -149,15 +149,19 @@ export function Tokenize(str, {ignore_ws=false} = {}){
                             Add(list_tokens, TokenType.ARGS) //blockstarts are currently always functions, so the lists within are the function arguments, which is still just a LIST token, but there may later be blockstarts that arent functions and therefor would have LIST here instead of ARGS
                         }
                         else
-                            Add([new Token(FUN_str, TokenType.FUN), ...list_tokens], TokenType.LIST) //insert the FUN token at the start of the list. LIST types indicate that this token's val property is an array of other tokens
+                            Add([new Token(FUN_str, Object.keys(TarGrams.OP).includes(FUN_str) ? TokenType.OP : TokenType.FUN), ...list_tokens], TokenType.LIST) //insert the FUN or OP token at the start of the list. LIST types indicate that this token's val property is an array of other tokens
                         break;
                     case Object.keys(TarGrams.BLOCK).includes(list_str):
                         counter++; stack.push(counter);//stack and counter defined globally at the top of script
                         Add(list_str, TokenType.BLOCKSTART(stack.last()))
                         break;
-                    case Object.keys(TarGrams.FUN).includes(list_str):
-                        Add(list_str, TokenType.FUN)
-                        break;
+                    //these dont make sense, bcs if they r functions, then they would have params, which would match earlier
+                    // case Object.keys(TarGrams.FUN).includes(list_str):
+                    //     Add(list_str, TokenType.FUN)
+                    //     break;
+                    // case Object.keys(TarGrams.OP).includes(list_str):
+                    //     Add(list_str, TokenType.OP)
+                    //     break;
                     default:
                         Add(list_str, TokenType.VAR)
                         break;
