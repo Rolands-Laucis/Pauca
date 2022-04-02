@@ -79,19 +79,14 @@ export function Pairer(text) {
  */
 export function Tokenizer(pairs) {
     const re_tag = /\[.*?\]/g
-    const re_tar_lang = /\[target\s?("(?<lang>\w+?)")?\]/
-    const re_tar_body = /\[target(\s?"\w+?")?\](?<body>(\n|.)*?)\[\/target\]/
 
     //the map has to return an object, since the annonymous function body decleration has the same syntax as object decleration in javascript :(
     return pairs.map(p => {
         return {
             //split pat string into array of [tag]. Then also remove the surrounding [] symbols from each tag
-            'pat': p['pat']?.split(re_tag).map(t => t.slice(1, -1)) || undefined,
-            //from target extract its language and tokenize its body
-            'tar': p['tar'] ? {
-                'lang': p['tar'].match(re_tar_lang).groups.lang || undefined,
-                'body': Tokenize(p['tar'].match(re_tar_body).groups.body || undefined)
-            } : undefined
+            pat: p.pat?.split(re_tag).map(t => t.slice(1, -1)) || undefined,
+            //from target tokenize its body
+            tar: p.tar ? Tokenize(p.tar) : undefined
         }
     })
 }
@@ -105,6 +100,22 @@ export function Tokenizer(pairs) {
 export function Tokenize(str, {ignore_ws=false} = {}){
     if (!str) return undefined
 
+    //looks further into the string until a closing ] is found for the original opening [. Expects a string to be passed in
+    function Peek(str) {
+        let bracket_count = 1 //finds it via simple braket balacing algo. Starts at 1, bcs peek begins after a [ symbol has been detected
+        for (let j = 1; j < str.length; j++) {
+            if (str[j] == '[')
+                bracket_count++
+            else if (str[j] == ']') {
+                bracket_count--;
+                if (bracket_count == 0) { //when no more open brackets are left
+                    return j
+                }
+            }
+        }
+        error('Did not find a closing ] symbol when peeking a list. Braket count unbalanced.', { str: str, open_brackets_left: bracket_count })
+    }
+
     let tokens = []
     let col = '' //current chars collected from parsing
 
@@ -114,7 +125,6 @@ export function Tokenize(str, {ignore_ws=false} = {}){
     for (let i = 0; i < str.length; i++) {
         switch(str[i]){
             case str[i].match(/[\n\r\t\s]/)?.input: if(!ignore_ws) col += str[i]; break; //dont accumulate white space symbols
-            // case (ignore_ws ? false : str[i].match(/[\n\r\t\s]/)?.input): col += str[i]; break; //this for some reason always adds a space
 
             case '[': //starting a new list - [...]
                 Add(); //add str token of whatever was before the new list
@@ -125,22 +135,28 @@ export function Tokenize(str, {ignore_ws=false} = {}){
                 const list_type = list_str.replace(/[\n\r\s\t]+/, '').match(/[\[]/) //collapse spaces, just bcs. If this matches, then its a FUN, otherwise VAR
 
                 switch (true) { //meaning true has to match one of the cases, so case expr have to resolve to true to execute
-                    case list_str[0] == '/'://if begins with a slash, then it is the end of a block
+                    case list_str[0] == '/'://if begins with a slash, then it is the end of a block. TODO this could be the operator /
                         Add(list_str, TokenType.BLOCKEND(stack.pop()))
                         break;
                     case list_type != null: //this is a list, so recursive parse down the arguments after the first part of the string, which would be the FUN token name asociated with this list and prepend that
-                        counter++; stack.push(counter);
                         const list_tokens = Tokenize(list_str.slice(list_type.index), { ignore_ws: true }) //recursively parse. Whitespaces inside lists should be ignored. Generate less tokens
                         
                         //a function can be a regular function to execute on some params, like an operation, but it can also designate a block that has a body, this destincion can be made by checking the grams of Marble
                         const FUN_str = str.slice(i + 1, i + list_type.index + 1)
-                        list_tokens.unshift(new Token(FUN_str, Object.keys(TarGrams.BLOCK).includes(FUN_str) ? TokenType.BLOCK(stack.last()) : TokenType.FUN))//insert the FUN token at the start
+                        if (Object.keys(TarGrams.BLOCK).includes(FUN_str)){
+                            counter++; stack.push(counter); //console.log(stack);
+                            Add(FUN_str, TokenType.BLOCKSTART(stack.last()))
+                            Add(list_tokens, TokenType.ARGS)
+                        }
+                        else
+                            Add([new Token(FUN_str, TokenType.FUN), ...list_tokens], TokenType.LIST) //LIST types indicate that this token's val property is an array of other tokens
+                            // list_tokens.unshift(new Token(FUN_str, TokenType.FUN))//insert the FUN token at the start of the list
 
-                        Add(list_tokens, TokenType.LIST) //LIST types indicate that this token's val property is an array of other tokens
+                        
                         break;
                     case Object.keys(TarGrams.BLOCK).includes(list_str):
                         counter++; stack.push(counter);
-                        Add(list_str, TokenType.BLOCK(stack.last()))
+                        Add(list_str, TokenType.BLOCKSTART(stack.last()))
                         break;
                     case Object.keys(TarGrams.FUN).includes(list_str):
                         Add(list_str, TokenType.FUN)
@@ -161,22 +177,44 @@ export function Tokenize(str, {ignore_ws=false} = {}){
     return tokens
 }
 
-//looks further into the string until a closing ] is found for the original opening [. Expects a string to be passed in
-function Peek(str){
-    let bracket_count = 1
-    for (let j = 1; j < str.length; j++) {
-        if (str[j] == '[')
-            bracket_count++
-        else if (str[j] == ']') {
-            bracket_count--;
-            if (bracket_count == 0) { //when no more open brackets are left
-                return j
+
+/**
+ * Expects a pairs object, where the pat and tar vals are tokenized. 
+ * Wraps target raw block start and end and body tokens into a single BLOCK token
+ * @param {object[]} pairs
+ * @returns {object[]} pairs
+ */
+export function BlockWrapper(pairs){
+    /**
+     * @param {Token[]} tokens
+     * @param {number} id
+     * @returns {Token[]} tokens
+     */
+    function Wrap(tokens, id = 0){
+        for(let i = 0; i < tokens.length; i++){
+            const t = tokens[i]
+            if (t.type.name == 'BLOCKSTART') {
+                // console.log(t.type.name, t.val, t.type.id)
+                for (let j = 1; j < tokens.length - i; j++) {
+                    if (tokens[i + j].type.name == 'BLOCKEND' && t.type.id == tokens[i + j].type.id) {
+                        // console.log(tokens[i + j].type.name, tokens[i + j].val, tokens[i + j].type.id)
+                        tokens.splice(i, j+1, new Token([t, ...Wrap(tokens.slice(i+1, i + j), t.type.id), tokens[i + j]], TokenType.BLOCK)) //splice goes to index i, then deletes the next j+1 elements, then inserts a new BLOCK token at that place, but that BLOCK token is recursively parsed the same way
+                        i += j
+                        break
+                    }
+                }
             }
         }
+        return tokens
     }
-    error('Did not find a closing ] symbol when peeking a list.', str)
-}
 
+    return pairs.map(p => {
+        return {
+            pat: p.pat || undefined,
+            tar: p.tar ? Wrap(p.tar) : undefined
+        }
+    })
+}
 
 /**
  * Expects the syntax text preprocessed without \n, i.e. the entire string is on a single line
@@ -184,7 +222,7 @@ function Peek(str){
  * @param {Function[]} steps
  * @returns {object[]} pairs
  */
-export function Parse(text, steps = [Pairer, Tokenizer]) { //
+export function Parse(text, steps = [Pairer, Tokenizer, BlockWrapper]) { //
     steps.unshift(text) //insert the text as the first element, so that we can just use the reduce function to apply all steps
     return steps.reduce((text, f) => f(text))
 }
