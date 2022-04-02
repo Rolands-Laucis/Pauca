@@ -27,10 +27,20 @@ export const PatGrams = {
 //these are the recognized, reserved grams of the target block. 
 export const TarGrams = {
     FUN:{
+        //PAT
+        sym: (str, opt = false) => `(?:${str})` + (opt ? '?' : ''),
+        var: (label = '', opt = false) => (label ? `(?<${label}>[a-zA-Z\\d_]+)` : `([a-zA-Z\\d_]+)`) + (opt ? '?' : ''),
+
+        //TAR
         ctx: () => null,
         cond: () => null,
     },
     BLOCK:{
+        //PAT
+        p: () => null,
+        end: () => null,
+
+        //TAR
         if: () => null,
         loop: () => null,
         target: () => null,

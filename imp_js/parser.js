@@ -78,14 +78,11 @@ export function Pairer(text) {
  * @returns {object[]} pairs
  */
 export function Tokenizer(pairs) {
-    const re_tag = /\[.*?\]/g
-
     //the map has to return an object, since the annonymous function body decleration has the same syntax as object decleration in javascript :(
     return pairs.map(p => {
         return {
             //split pat string into array of [tag]. Then also remove the surrounding [] symbols from each tag
-            pat: p.pat?.split(re_tag).map(t => t.slice(1, -1)) || undefined,
-            //from target tokenize its body
+            pat: p.pat?.split(/\[.*?\]/g).map(t => t.slice(1, -1)) || undefined,
             tar: p.tar ? Tokenize(p.tar) : undefined
         }
     })
@@ -131,11 +128,12 @@ export function Tokenize(str, {ignore_ws=false} = {}){
 
                 const j = Peek(str.slice(i))//peek a few chars ahead and find where this particular [ ends with a ] then that string is recursively parsed into smaller tokens
                 const list_str = str.slice(i + 1, i + j) //select the whole list string
+
                 //a space or another [ would indicate the first chars is the name of a function for this list, otherwise it should be a variable name. I.e. [fun [x] ...] or [my_var]
-                const list_type = list_str.replace(/[\n\r\s\t]+/, '').match(/[\[]/) //collapse spaces, just bcs. If this matches, then its a FUN, otherwise VAR
+                const list_type = list_str.replace(/[\n\r\s\t]+/, '').match(/[\[\"]/) //collapse spaces, just bcs. If this matches, then its a FUN, otherwise VAR
 
                 switch (true) { //meaning true has to match one of the cases, so case expr have to resolve to true to execute
-                    case list_str[0] == '/' && list_str[1] == ' '://if begins with a slash, then it is the end of a block. The space checks that its not a literal OP / FUN
+                    case list_str[0] == '/' && list_str[1] != ' '://if begins with a slash, then it is the end of a block. The space checks that its not a literal OP / FUN
                         Add(list_str, TokenType.BLOCKEND(stack.pop()))
                         break;
                     case list_type != null: //this is a list, so recursive parse down the arguments after the first part of the string, which would be the FUN token name asociated with this list and prepend that
@@ -151,17 +149,10 @@ export function Tokenize(str, {ignore_ws=false} = {}){
                         else
                             Add([new Token(FUN_str, Object.keys(TarGrams.OP).includes(FUN_str) ? TokenType.OP : TokenType.FUN), ...list_tokens], TokenType.LIST) //insert the FUN or OP token at the start of the list. LIST types indicate that this token's val property is an array of other tokens
                         break;
-                    case Object.keys(TarGrams.BLOCK).includes(list_str):
+                    case Object.keys(TarGrams.BLOCK).includes(list_str): //a block without ARGS
                         counter++; stack.push(counter);//stack and counter defined globally at the top of script
                         Add(list_str, TokenType.BLOCKSTART(stack.last()))
                         break;
-                    //these dont make sense, bcs if they r functions, then they would have params, which would match earlier
-                    // case Object.keys(TarGrams.FUN).includes(list_str):
-                    //     Add(list_str, TokenType.FUN)
-                    //     break;
-                    // case Object.keys(TarGrams.OP).includes(list_str):
-                    //     Add(list_str, TokenType.OP)
-                    //     break;
                     default:
                         Add(list_str, TokenType.VAR)
                         break;
@@ -195,13 +186,12 @@ export function BlockWrapper(pairs){
     function Wrap(tokens, id = 0){
         for(let i = 0; i < tokens.length; i++){
             const t = tokens[i]
+            // console.log(t.type.name, t.val, `i:${i}`)
             if (t.type.name == 'BLOCKSTART') {
-                // console.log(t.type.name, t.val, t.type.id)
                 for (let j = 1; j < tokens.length - i; j++) {
+                    // console.log('inner', tokens[i + j].type.name, tokens[i + j].val, `j:${j}`)
                     if (tokens[i + j].type.name == 'BLOCKEND' && t.type.id == tokens[i + j].type.id) {
-                        // console.log(tokens[i + j].type.name, tokens[i + j].val, tokens[i + j].type.id)
                         tokens.splice(i, j+1, new Token([t, ...Wrap(tokens.slice(i+1, i + j), t.type.id), tokens[i + j]], TokenType.BLOCK)) //splice goes to index i, then deletes the next j+1 elements, then inserts a new BLOCK token at that place, but that BLOCK token is recursively parsed the same way
-                        i += j
                         break
                     }
                 }
