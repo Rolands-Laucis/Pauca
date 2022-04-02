@@ -4,7 +4,6 @@ import { error } from "./log.js";
 //can write string literals of regex that it should cast to
 //can write lambda functions, that will be called
 //can write function names, that are defined somewhere later in the script
-
 export const Grams = {
     FUN:{
         //PAT

@@ -180,7 +180,6 @@ export function BlockWrapper(pairs){
 
     /**
      * @param {Token[]} tokens
-     * @param {number} id
      * @returns {Token[]} tokens
      */
     function Wrap(tokens){
