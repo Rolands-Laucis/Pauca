@@ -1,5 +1,5 @@
 import { Token, TokenType } from './token.js'
-import { TarGrams } from './grammar.js'
+import { Grams } from './grammar.js'
 import { error } from './log.js'
 
 let counter = 0 //unique identifier - could be something fancier like a UUID or combination of counter + random ascii, but rly this just works
@@ -141,15 +141,15 @@ export function Tokenize(str, {ignore_ws=false} = {}){
                         
                         //a function can be a regular function to execute on some params, like an operation, but it can also designate a block that has a body, this destincion can be made by checking the grams of Marble
                         const FUN_str = str.slice(i + 1, i + list_type.index + 1)
-                        if (Object.keys(TarGrams.BLOCK).includes(FUN_str)){
+                        if (Object.keys(Grams.BLOCK).includes(FUN_str)){
                             counter++; stack.push(counter); //console.log(stack); //stack and counter defined globally at the top of script
                             Add(FUN_str, TokenType.BLOCKSTART(stack.last()))//insert the blockstart token
                             Add(list_tokens, TokenType.ARGS) //blockstarts are currently always functions, so the lists within are the function arguments, which is still just a LIST token, but there may later be blockstarts that arent functions and therefor would have LIST here instead of ARGS
                         }
                         else
-                            Add([new Token(FUN_str, Object.keys(TarGrams.OP).includes(FUN_str) ? TokenType.OP : TokenType.FUN), ...list_tokens], TokenType.LIST) //insert the FUN or OP token at the start of the list. LIST types indicate that this token's val property is an array of other tokens
+                            Add([new Token(FUN_str, Object.keys(Grams.OP).includes(FUN_str) ? TokenType.OP : TokenType.FUN), ...list_tokens], TokenType.LIST) //insert the FUN or OP token at the start of the list. LIST types indicate that this token's val property is an array of other tokens
                         break;
-                    case Object.keys(TarGrams.BLOCK).includes(list_str): //a block without ARGS
+                    case Object.keys(Grams.BLOCK).includes(list_str): //a block without ARGS
                         counter++; stack.push(counter);//stack and counter defined globally at the top of script
                         Add(list_str, TokenType.BLOCKSTART(stack.last()))
                         break;
@@ -183,7 +183,7 @@ export function BlockWrapper(pairs){
      * @param {number} id
      * @returns {Token[]} tokens
      */
-    function Wrap(tokens, id = 0){
+    function Wrap(tokens){
         for(let i = 0; i < tokens.length; i++){
             const t = tokens[i]
             // console.log(t.type.name, t.val, `i:${i}`)
@@ -191,7 +191,7 @@ export function BlockWrapper(pairs){
                 for (let j = 1; j < tokens.length - i; j++) {
                     // console.log('inner', tokens[i + j].type.name, tokens[i + j].val, `j:${j}`)
                     if (tokens[i + j].type.name == 'BLOCKEND' && t.type.id == tokens[i + j].type.id) {
-                        tokens.splice(i, j+1, new Token([t, ...Wrap(tokens.slice(i+1, i + j), t.type.id), tokens[i + j]], TokenType.BLOCK)) //splice goes to index i, then deletes the next j+1 elements, then inserts a new BLOCK token at that place, but that BLOCK token is recursively parsed the same way
+                        tokens.splice(i, j+1, new Token([t, ...Wrap(tokens.slice(i+1, i + j)), tokens[i + j]], TokenType.BLOCK)) //splice goes to index i, then deletes the next j+1 elements, then inserts a new BLOCK token at that place, but that BLOCK token is recursively parsed the same way
                         break
                     }
                 }
