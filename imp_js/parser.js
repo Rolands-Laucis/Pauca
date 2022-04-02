@@ -135,7 +135,7 @@ export function Tokenize(str, {ignore_ws=false} = {}){
                 const list_type = list_str.replace(/[\n\r\s\t]+/, '').match(/[\[]/) //collapse spaces, just bcs. If this matches, then its a FUN, otherwise VAR
 
                 switch (true) { //meaning true has to match one of the cases, so case expr have to resolve to true to execute
-                    case list_str[0] == '/'://if begins with a slash, then it is the end of a block. TODO this could be the operator /
+                    case list_str[0] == '/' && list_str[1] == ' '://if begins with a slash, then it is the end of a block. The space checks that its not a literal OP / FUN
                         Add(list_str, TokenType.BLOCKEND(stack.pop()))
                         break;
                     case list_type != null: //this is a list, so recursive parse down the arguments after the first part of the string, which would be the FUN token name asociated with this list and prepend that
@@ -144,18 +144,15 @@ export function Tokenize(str, {ignore_ws=false} = {}){
                         //a function can be a regular function to execute on some params, like an operation, but it can also designate a block that has a body, this destincion can be made by checking the grams of Marble
                         const FUN_str = str.slice(i + 1, i + list_type.index + 1)
                         if (Object.keys(TarGrams.BLOCK).includes(FUN_str)){
-                            counter++; stack.push(counter); //console.log(stack);
-                            Add(FUN_str, TokenType.BLOCKSTART(stack.last()))
-                            Add(list_tokens, TokenType.ARGS)
+                            counter++; stack.push(counter); //console.log(stack); //stack and counter defined globally at the top of script
+                            Add(FUN_str, TokenType.BLOCKSTART(stack.last()))//insert the blockstart token
+                            Add(list_tokens, TokenType.ARGS) //blockstarts are currently always functions, so the lists within are the function arguments, which is still just a LIST token, but there may later be blockstarts that arent functions and therefor would have LIST here instead of ARGS
                         }
                         else
-                            Add([new Token(FUN_str, TokenType.FUN), ...list_tokens], TokenType.LIST) //LIST types indicate that this token's val property is an array of other tokens
-                            // list_tokens.unshift(new Token(FUN_str, TokenType.FUN))//insert the FUN token at the start of the list
-
-                        
+                            Add([new Token(FUN_str, TokenType.FUN), ...list_tokens], TokenType.LIST) //insert the FUN token at the start of the list. LIST types indicate that this token's val property is an array of other tokens
                         break;
                     case Object.keys(TarGrams.BLOCK).includes(list_str):
-                        counter++; stack.push(counter);
+                        counter++; stack.push(counter);//stack and counter defined globally at the top of script
                         Add(list_str, TokenType.BLOCKSTART(stack.last()))
                         break;
                     case Object.keys(TarGrams.FUN).includes(list_str):
@@ -185,6 +182,7 @@ export function Tokenize(str, {ignore_ws=false} = {}){
  * @returns {object[]} pairs
  */
 export function BlockWrapper(pairs){
+
     /**
      * @param {Token[]} tokens
      * @param {number} id
