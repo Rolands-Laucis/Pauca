@@ -24,7 +24,7 @@ const all = true
 const syntax = ExtractSection(fs.readFileSync('../gen/test.marble', {encoding:'utf-8'}), 0)
 const parsed = Parse(syntax)
 // console.log(parsed)
-const out = Grams.BLOCK.target(parsed[0].tar.val, {'1':3, '2':2, 'x':'my_var'})
+const out = Grams.BLOCK.target(parsed[0].tar.val, {'x':3, 'y':2, 'z':'my_var'})
 console.log(out)
 // ExportParsed(parsed)
 process.exit(0)

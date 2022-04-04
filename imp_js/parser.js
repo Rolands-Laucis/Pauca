@@ -35,7 +35,7 @@ export function Tokenize(str, {ignore_ws=false} = {}){
     let tokens = []
     let col = '' //current chars collected from parsing
 
-    function Add(str = col, t = TokenType.STR) { str ? tokens.push(new Token(str, t)) : null; col = '';}
+    function Add(str = col, t = TokenType.STR) { str ? tokens.push(new Token(str, t)) : null; col = ''; } //typeof(str) == 'string' ? str.trim() : 
 
     //said to be fastest current way to go through all chars https://stackoverflow.com/questions/1966476/how-can-i-process-each-letter-of-text-using-javascript
     for (let i = 0; i < str.length; i++) {

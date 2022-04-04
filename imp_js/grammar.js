@@ -2,7 +2,7 @@
 //it defines every meaningful keyword reserved by Marble and its functionality.
 
 import { error, TODO } from "./log.js";
-import { RecursiveReduceToString, ResolveCondition } from './resolver.js'
+import { RecursiveReduceToString } from './resolver.js'
 import { Token, TokenType } from "./token.js"; //for ES linting
 
 //?: means non-capturing group
@@ -41,6 +41,7 @@ export const Grams = {
          */
         ctx: (arg, ctx = {}) => {
             const num = parseInt(arg.val);
+            // console.log(arg, num, ctx[arg.val])
             switch(arg.type){
                 case TokenType.VAR:
                     if (!isNaN(num)) //meaning this is a number, cant just check num, bcs it might be 0, which isnt truthy! Grab by index in pattern
@@ -58,8 +59,9 @@ export const Grams = {
          * @param {object} ctx
          * @returns {boolean} output
          */
-        cond: (args=[], ctx = {}) => { //args is definitely an ARGS token .val array of tokens, since that check was made when calling the if
+        cond: (args=[], ctx = {}) => { //args is definitely an ARGS token - .val array of tokens, since that check was made when calling the if
             return args.every(a => {
+                // console.log(a)
                 switch (a.type){
                     case TokenType.VAR: return Grams.FUN.ctx(a.val, ctx);
                     case TokenType.LIST://first item in a list is always a function

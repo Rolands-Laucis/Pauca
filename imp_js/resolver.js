@@ -18,7 +18,7 @@ export function RecursiveReduceToString(tokens = [], ctx = {}) {
     return tokens.reduce((s = '', t) => {
         switch (t.type) {
             case TokenType.STR: return s += t.val;
-            case TokenType.VAR: return s += ctx[t.val];
+            case TokenType.VAR: return s += Grams.FUN.ctx(t, ctx);
             case TokenType.LIST://first item in a list is always a function
                 switch (t.val[0].type) {
                     case TokenType.OP: return s += (Grams.OP[t.val[0].val](Grams.FUN.ctx(t.val[1], ctx), Grams.FUN.ctx(t.val[2], ctx))).toString();//TODO no reason why this should only be 2. Could use the ...spread args syntax to apply the operator on infinite operands
@@ -32,13 +32,4 @@ export function RecursiveReduceToString(tokens = [], ctx = {}) {
             // case TokenType.: ; break;
         }
     }, '') //initial value is an empty string
-}
-
-/**
- * @param {Token[]} tokens
- * @param {object} ctx
- * @returns {string} output
- */
-export function ResolveCondition(tokens = [], ctx = {}){
-    
 }
