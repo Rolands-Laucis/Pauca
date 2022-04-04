@@ -7,6 +7,8 @@ import { Parse, Tokenize, WrapBlocks, Pair } from '../parser.js'
 // import { endTimer, startTimer } from "../log.js"
 import { ExportParsed } from '../utils/fs_utils.js'
 import { ExtractSection } from '../preproc.js'
+import { Token, TokenType } from '../token.js'
+import { Grams } from '../grammar.js'
 
 import fs from 'fs'
 
@@ -14,9 +16,16 @@ import fs from 'fs'
 const test_cases = ['operators'] //
 const all = true
 
+// const tree = [new Token('smth', TokenType.STR), new Token(' other stuff \n', TokenType.STR)]
+// const out = Grams.BLOCK.target(tree)
+// console.log(out)
+// process.exit(0)
+
 const syntax = ExtractSection(fs.readFileSync('../gen/test.marble', {encoding:'utf-8'}), 0)
 const parsed = Parse(syntax)
-console.log(parsed)
+// console.log(parsed)
+const out = Grams.BLOCK.target(parsed[0].tar.val, {'1':3, '2':2, 'x':'my_var'})
+console.log(out)
 // ExportParsed(parsed)
 process.exit(0)
 

@@ -6,12 +6,20 @@ let last_time = 0
  * @param {object} obj
  * @param {boolean} exit
  */
-export function error(msg, obj = null, exit = true) {
-    console.log('😐 Bruh...\n'+msg)
-    if(obj)
+export function error(msg, ...objs) {
+    console.log('[MARBLE] 😐 Bruh...\n', msg)
+    if(objs)
+        console.log(...objs)
+    process.exit(1)
+}
+
+export function TODO(msg = '', obj = null, exit=false){
+    console.log('[MARBLE] Not implemented (TODO):', msg)
+    if (obj)
         console.log(obj)
     if (exit)
         process.exit(1)
+    return null
 }
 
 export function info(msg){
