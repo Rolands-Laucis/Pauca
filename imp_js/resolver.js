@@ -55,13 +55,13 @@ export function ResolvePattern(tokens=[]){
         }
     }, '') 
 
-    console.log(full_string)
+    // console.log(full_string)
     return RegExp(full_string)
 }
 
 /**
+ * resolves each pair's pattern block to a regex object
  * @param {object[]} pairs
- * @returns {object[]} pairs
  */
 export function ResolvePatternsToRegex(pairs=[]){
     return pairs.map(p => {
@@ -70,4 +70,13 @@ export function ResolvePatternsToRegex(pairs=[]){
             tar: p.tar
         }
     })
+}
+
+/**
+ * @param {Token} tar_block
+ * @param {object} ctx
+ * @returns {string} output
+ */
+export function ResolveTarget(tar_block, ctx){
+    return RecursiveReduceToString(tar_block.val, ctx)
 }

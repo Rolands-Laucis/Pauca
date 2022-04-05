@@ -7,7 +7,7 @@
 import parse from "args-parser" //i was too lazy to parse them myself ;-;
 import fs from 'fs' //for reading the 3 files content
 
-import { MarbleTranspile } from "./transpile.js"
+import { MarbleTranspile, TranspileMode } from "./transpile.js"
 import { info } from "./log.js"
 
 const error_code = Main()
@@ -46,7 +46,7 @@ optional arguments:
     const source = fs.readFileSync(args.i, { encoding: 'utf8', flag: 'r' })
 
     //do the transpilation
-    const output = MarbleTranspile(syntax, source, { mode: 'transpile', segment: 1, verbose:true}) || ''
+    const output = MarbleTranspile(syntax, source, { mode: TranspileMode.SINGLES, segment: 0, verbose: true}) || ''
 
     //write transpilation to output file
     fs.writeFileSync(args.o, output, { encoding: 'utf8', flag: 'w' })

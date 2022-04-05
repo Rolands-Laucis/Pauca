@@ -9,7 +9,7 @@ import { ExportParsed } from '../utils/fs_utils.js'
 import { ExtractSection } from '../preproc.js'
 import { Token, TokenType } from '../token.js'
 import { Grams } from '../grammar.js'
-import { ResolvePatternsToRegex } from '../resolver.js'
+import { ResolvePatternsToRegex, ResolveTarget } from '../resolver.js'
 
 import fs from 'fs'
 
@@ -17,27 +17,14 @@ import fs from 'fs'
 const test_cases = ['operators'] //
 const all = true
 
-// const tree = [new Token('smth', TokenType.STR), new Token(' other stuff \n', TokenType.STR)]
-// const out = Grams.BLOCK.target(tree)
-// console.log(out)
-// process.exit(0)
-
 const syntax = ExtractSection(fs.readFileSync('../gen/test.marble', {encoding:'utf-8'}), 0)
 const parsed = Parse(syntax)
 // console.log(parsed)
-const out = ResolvePatternsToRegex(parsed)
+// const out = ResolvePatternsToRegex(parsed)
 // const out = Grams.BLOCK.target(parsed[0].tar.val, {'x':3, 'y':2, 'z':'my_var'})
+const out = ResolveTarget(parsed[0].tar, { 'x': 3, 'y': 2, 'z': 'my_var' })
 console.log(out)
-ExportParsed(parsed)
-process.exit(0)
-
-// const parse_tree = Tokenize(syntax)
-// console.log(parse_tree)
-// process.exit(0)
-
-// const wrapped = BlockWrapper([{tar:parse_tree}])
-// console.log(wrapped[0])
-// ExportParsed(wrapped[0])
+// ExportParsed(parsed)
 process.exit(0)
 
 /**
