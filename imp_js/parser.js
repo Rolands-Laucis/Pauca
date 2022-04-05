@@ -68,9 +68,12 @@ export function Tokenize(str, {ignore_ws=false} = {}){
                         else
                             Add([new Token(FUN_str, Object.keys(Grams.OP).includes(FUN_str) ? TokenType.OP : TokenType.FUN), ...list_tokens], TokenType.LIST) //insert the FUN or OP token at the start of the list. LIST types indicate that this token's val property is an array of other tokens
                         break;
-                    case Object.keys(Grams.BLOCK).includes(list_str): //a block without ARGS
+                    case Object.keys(Grams.BLOCK).includes(list_str): //a BLOCK without ARGS
                         counter++; stack.push(counter);//stack and counter defined globally at the top of script
                         Add(list_str, TokenType.BLOCKSTART(stack.last()))
+                        break;
+                    case Object.keys(Grams.FUN).includes(list_str): //a FUN without ARGS
+                        Add(list_str, TokenType.FUN)
                         break;
                     default:
                         Add(list_str, TokenType.VAR)

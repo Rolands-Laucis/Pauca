@@ -10,6 +10,9 @@ import { Grams } from "./grammar.js";
 //which then goes straight into the output.txt
 
 /**
+ * Used to resolve the target token block to a final output string.
+ * CTX is the regex.match.groups object that contains labeled variables from the pattern
+ * recursive, bcs calls Grams functions, some of which would call this function in their body.
  * @param {Token[]} tokens
  * @param {object} ctx
  * @returns {string} output
@@ -23,7 +26,7 @@ export function RecursiveReduceToString(tokens = [], ctx = {}) {
                 switch (t.val[0].type) {
                     case TokenType.OP: return s += (Grams.OP[t.val[0].val](Grams.FUN.ctx(t.val[1], ctx), Grams.FUN.ctx(t.val[2], ctx))).toString();//TODO no reason why this should only be 2. Could use the ...spread args syntax to apply the operator on infinite operands
                     case TokenType.FUN: return TODO('FUN Token resolution not supported'); //Grams.FUN[t.val[0].val]()
-                    default: TODO('unsuported token in Recursive reduction list', t.val[0]); break;
+                    default: error('unexpected token in Recursive reduction LIST', t.val[0]); break;
                 }; break;
             case TokenType.BLOCK:
                 return s += Grams.BLOCK[t.val[0].val](t.val.slice(2, -1), ctx, t.val[1].type == TokenType.ARGS ? t.val[1].val : t.val[1])
@@ -32,4 +35,39 @@ export function RecursiveReduceToString(tokens = [], ctx = {}) {
             // case TokenType.: ; break;
         }
     }, '') //initial value is an empty string
+}
+
+/**
+ * @param {Token[]} tokens
+ * @returns {RegExp} regex
+ */
+export function ResolvePattern(tokens=[]){
+    const full_string = tokens.reduce((s = '', t) => {
+        switch (t.type) {
+            case TokenType.FUN: return s += Grams.FUN[t.val]();
+            case TokenType.LIST: 
+                const list_tokens = t.val
+                if (list_tokens.length > 2) TODO('currently only 1 pattern tag argument allowed. [current token; list_tokens]', t, list_tokens)
+                return s += Grams.FUN[list_tokens[0].val](...list_tokens.slice(1));
+            case TokenType.NULL: error('Found NULL token!', t); break;
+            default: return s; //BLOCKSTART and BLOCKEND types ignored.
+            // case TokenType.: ; break;
+        }
+    }, '') 
+
+    console.log(full_string)
+    return RegExp(full_string)
+}
+
+/**
+ * @param {object[]} pairs
+ * @returns {object[]} pairs
+ */
+export function ResolvePatternsToRegex(pairs=[]){
+    return pairs.map(p => {
+        return {
+            pat: p.pat ? ResolvePattern(p.pat.val) : undefined,
+            tar: p.tar
+        }
+    })
 }

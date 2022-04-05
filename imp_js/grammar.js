@@ -24,14 +24,14 @@ export const Grams = {
         i: () => '(?<indent>[\t\s]+)',
 
         //regular
-        sym: (str, opt = false) => `(?:${str})` + (opt ? '?' : ''),
-        var: (label = '', opt = false) => (label ? `(?<${label}>[a-zA-Z\\d_]+)` : `([a-zA-Z\\d_]+)`) + (opt ? '?' : ''),
-        rec: () => '(',
-        '/rec': () => ')+',
-        re: (str) => str.match(/\/(?<exp>.*)\/(a-zA-Z{0,5})?/).groups.exp,
+        sym: (token) => `(?:${Grams.UTIL.unquote(token.val)})`,// + (opt ? '?' : ''),
+        var: (token) => (token.val ? `(?<${Grams.UTIL.unquote(token.val)}>\\w+)` : `(\\w+)`), // + (opt ? '?' : ''), //NOTE \w matches letters, numbers and underscore. TODO token.val might not be empty, but after cleanup, it might
+        // rec: () => '(',
+        // '/rec': () => ')+',
+        // re: (str) => str.match(/\/(?<exp>.*)\/(a-zA-Z{0,5})?/).groups.exp,
 
         //shorthands
-        s: () => '(?: )',
+        s: () => '(?:\\s)',
         ';': () => '(?:;)',
 
         //TAR
@@ -103,6 +103,10 @@ export const Grams = {
         '&&': (a, b) => a && b,
 
         // '': (a, b) => a  b,
+    },
+
+    UTIL:{
+        unquote: (str='') => str.match(/[\"\'\`](?<body>.*)[\"\'\`]/).groups.body
     }
     // : () => null,
 }
