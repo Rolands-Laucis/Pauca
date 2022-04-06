@@ -4,11 +4,10 @@
   "description": "generic transpiler for programming languages",
   "main": "marble.js",
   "scripts": {
-    "marble": "node marble -s=\"./gen/test.marble\" -i=\"./gen/input.txt\" -o=\"./gen/output.txt\"",
-    "lex": "node tests/lexer_tests",
-    "link": "node tests/linker_tests",
+    "marble": "node marble -s=\"./gen/test.marble\" -i=\"./gen/input.txt\" -o=\"./gen/output.txt\" -v=true",
     "out": "node tests/transpile_tests",
-    "parse": "node tests/parser_tests"
+    "parse": "node tests/parser_tests",
+    "gram": "node tests/gram_tests"
   },
   "author": "Rolands Laucis",
   "license": "MIT",

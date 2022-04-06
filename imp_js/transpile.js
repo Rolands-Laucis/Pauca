@@ -3,7 +3,7 @@ import { Preprocess, ExtractSection } from './preproc.js'
 import { Parse } from './parser.js'
 import { ResolvePatternsToRegex, ResolveTarget } from './resolver.js'
 
-import { info, startTimer, error, TODO } from "./log.js"
+import { info, startTimer, error, log } from "./log.js"
 import sizeof from 'object-sizeof'
 
 export class TranspileMode {
@@ -34,13 +34,14 @@ export function MarbleTranspile(syntax, source, { mode = TranspileMode.SINGLES, 
 
     //parse the marble syntax into a ready-to-use data structure
     let parse_tree = Parse(syntax)
-    if (verbose) info(`Parsed marble file. Size of parsed target object ${sizeof(parse_tree)} Bytes`)
-    console.log(parse_tree[0].pat.val[4])
+    // log(parse_tree)
+    if (verbose) info(`Parsed marble file. Size of parse tree object: [${sizeof(parse_tree)}] Bytes`)
     if (only_parse) error('Purposeful program termination to print parse tree:',parse_tree)
 
     //resolve the pattern tokens to a regex object
     parse_tree = ResolvePatternsToRegex(parse_tree)
     if (verbose) info(`Resolved patterns to regex`)
+    // log(parse_tree)
     if (only_resolve_pat) error('Purposeful program termination to print parse tree after pattern resolve:', parse_tree)
 
     let output = ''
@@ -48,7 +49,6 @@ export function MarbleTranspile(syntax, source, { mode = TranspileMode.SINGLES, 
     switch(mode){
         case TranspileMode.SINGLES:
             parse_tree.forEach((pair, i) => {
-                console.log(pair)
                 if (pair.pat && pair.pat.test(source)) {
                     if (verbose) info(`Matched pattern [${i}] in input string`)
                     const ctx = source.match(pair.pat)?.groups

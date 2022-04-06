@@ -1,6 +1,6 @@
 //this script contains functions for resolving (linking, rendering, executing) the parsed Marble tree of tokens into a final single string to be writen as the output to a file.
 
-import { error, TODO } from "./log.js";
+import { error, TODO, log } from "./log.js";
 import { Token, TokenType } from "./token.js";
 import { Grams } from "./grammar.js";
 
@@ -48,6 +48,7 @@ export function ResolvePattern(tokens=[]){
             case TokenType.LIST: 
                 const list_tokens = t.val
                 if (list_tokens.length > 2) TODO('currently only 1 pattern tag argument allowed. [current token; list_tokens]', t, list_tokens)
+                // log(list_tokens)
                 return s += Grams.FUN[list_tokens[0].val](...list_tokens.slice(1));
             case TokenType.NULL: error('Found NULL token!', t); break;
             default: return s; //BLOCKSTART and BLOCKEND types ignored.
@@ -56,7 +57,7 @@ export function ResolvePattern(tokens=[]){
     }, '') 
 
     // console.log(full_string)
-    return RegExp(full_string)
+    return RegExp(full_string, 'm')
 }
 
 /**

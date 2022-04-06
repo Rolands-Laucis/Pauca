@@ -2,7 +2,7 @@
 //And thus i present - Marble.
 
 //cd imp_js
-//node marble -s="./gen/test.marble" -i="./gen/input.txt" -o="./gen/output.txt"
+//node marble -s="./gen/test.marble" -i="./gen/input.txt" -o="./gen/output.txt" -v=true
 
 import parse from "args-parser" //i was too lazy to parse them myself ;-;
 import fs from 'fs' //for reading the 3 files content
@@ -41,12 +41,12 @@ optional arguments:
         process.exit(1)
     }
 
-    //set up the 3 texts to work with from their files
+    //set up the 2 texts to work with from their files
     const syntax = fs.readFileSync(args.s, { encoding: 'utf8', flag: 'r' })
     const source = fs.readFileSync(args.i, { encoding: 'utf8', flag: 'r' })
 
     //do the transpilation
-    const output = MarbleTranspile(syntax, source, { mode: TranspileMode.SINGLES, segment: 0, verbose: true}) || ''
+    const output = MarbleTranspile(syntax, source, { mode: TranspileMode.SINGLES, segment: 0, verbose: args.v}) || ''
 
     //write transpilation to output file
     fs.writeFileSync(args.o, output, { encoding: 'utf8', flag: 'w' })

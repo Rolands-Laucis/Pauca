@@ -1,7 +1,7 @@
 //this script contains the grammar dictionary for the Marble language.
 //it defines every meaningful keyword reserved by Marble and its functionality.
 
-import { error, TODO } from "./log.js";
+import { error, TODO, log } from "./log.js";
 import { RecursiveReduceToString } from './resolver.js'
 import { Token, TokenType } from "./token.js"; //for ES linting
 
@@ -24,7 +24,7 @@ export const Grams = {
         i: () => '(?<indent>[\t\s]+)',
 
         //regular
-        sym: (token) => `(?:${Grams.UTIL.unquote(token.val)})`,// + (opt ? '?' : ''),
+        sym: (token) => `(?:${Grams.UTIL.unquote(token.val.trim())})`,// + (opt ? '?' : ''),
         var: (token) => (token.val ? `(?<${Grams.UTIL.unquote(token.val)}>\\w+)` : `(\\w+)`), // + (opt ? '?' : ''), //NOTE \w matches letters, numbers and underscore. TODO token.val might not be empty, but after cleanup, it might
         // rec: () => '(',
         // '/rec': () => ')+',
@@ -38,16 +38,17 @@ export const Grams = {
         /**
          * @param {Token} arg
          * @param {object} ctx
+         * @returns {number|string} output
          */
         ctx: (arg, ctx = {}) => {
             const num = parseInt(arg.val);
-            // console.log(arg, num, ctx[arg.val])
+            // log('arg in ctx:', arg)
             switch(arg.type){
                 case TokenType.VAR:
                     if (!isNaN(num)) //meaning this is a number, cant just check num, bcs it might be 0, which isnt truthy! Grab by index in pattern
                         return Object.values(ctx)[num] //TODO this needs an efficient error case handling, when the index might be out of bounds!
                     else //grab by label in pattern
-                        return ctx.hasOwnProperty(arg.val) ? ctx[arg.val] : error('Variable accessed without declaration! [variable tag; pattern context]', arg, ctx);
+                        return (arg.val in ctx) ? ctx[arg.val] : error('Variable accessed without declaration! [variable tag; pattern context]', arg, ctx);
                 case TokenType.STR: //its a string literal for a number
                     return num ? num : error('String could not be parsed as integer!', arg)
                 default: TODO('unsuported token in CTX', arg); break;
@@ -61,9 +62,9 @@ export const Grams = {
          */
         cond: (args=[], ctx = {}) => { //args is definitely an ARGS token - .val array of tokens, since that check was made when calling the if
             return args.every(a => {
-                // console.log(a)
+                //log(a)
                 switch (a.type){
-                    case TokenType.VAR: return Grams.FUN.ctx(a.val, ctx);
+                    case TokenType.VAR: return Grams.FUN.ctx(a, ctx);
                     case TokenType.LIST://first item in a list is always a function
                         switch (a.val[0].type) {
                             case TokenType.OP: return Grams.OP[a.val[0].val](Grams.FUN.ctx(a.val[1], ctx), Grams.FUN.ctx(a.val[2], ctx));//TODO no reason why this should only be 2. Could use the ...spread args syntax to apply the operator on infinite operands
@@ -106,7 +107,8 @@ export const Grams = {
     },
 
     UTIL:{
-        unquote: (str='') => str.match(/[\"\'\`](?<body>.*)[\"\'\`]/).groups.body
+        unquote: (str='') => str.match(/[\"\'\`](?<body>.*)[\"\'\`]/)?.groups?.body,
+        cast_spaces: (str='') => str.replace(/\s\t/gm, '\\s')
     }
     // : () => null,
 }

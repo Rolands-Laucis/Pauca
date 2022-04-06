@@ -1,0 +1,59 @@
+//node linker_tests.js
+// import { Token, TokenType } from "../token.js"
+import { Grams } from "../grammar.js"
+import { Parse, Tokenize } from "../parser.js"
+// import { ResolveTarget } from "../resolver.js"
+import { endTimer, startTimer, log } from "../log.js"
+
+const test_cases = ['cond']
+const all = false
+startTimer()
+
+/**
+ * Testing function for single values
+ * @param {string} name
+ * @param generated
+ * @param expected
+ */
+function test(name, generated, expected) {    
+    if (generated === expected)
+        console.log('✔️\t', name, ` - ${endTimer()}ms`)
+    else
+        console.log('❌', name, 'FAIL - GOT\n', generated, '\nBUT EXPECTED\n', expected)
+    startTimer()
+}
+
+if (test_cases.includes('ctx') || all) {
+    log('📝', 'Testing context resolutions...')
+
+    let tokens = Parse('[smth]', [Tokenize])
+    test('variable by label', Grams.FUN.ctx(tokens[0], {'smth':1}), 1)
+
+    tokens = Parse('[0]', [Tokenize])
+    test('variable by index', Grams.FUN.ctx(tokens[0], { 'smth': 1 }), 1)
+
+    tokens = Parse('[0]', [Tokenize])
+    test('variable pat label as int', Grams.FUN.ctx(tokens[0], { '0': 1 }), 1)
+
+    tokens = Parse('1', [Tokenize])
+    test('variable as int literal', Grams.FUN.ctx(tokens[0], {}), 1)
+}
+
+if (test_cases.includes('cond') || all) {
+    log('📝', 'Testing condition resolutions...')
+
+    let tokens = Parse('[> [0] [1]]', [Tokenize])
+    test('condition OP >', Grams.FUN.cond(tokens, { '0': 0, '1':1 }), false)
+
+    tokens = Parse('[< [0] [1]]', [Tokenize])
+    test('condition OP <', Grams.FUN.cond(tokens, { '0': 0, '1': 1 }), true)
+
+    tokens = Parse('[== [0] [1]]', [Tokenize])
+    test('condition OP ==', Grams.FUN.cond(tokens, { '0': 1, '1': 1 }), true)
+
+    tokens = Parse('[smth]', [Tokenize])
+    test('condition single variable truthyness', Grams.FUN.cond(tokens, { smth:1 }), true)
+
+    tokens = Parse('[smth]', [Tokenize])
+    test('condition single variable falsyness', Grams.FUN.cond(tokens, { smth: 0 }), false)
+}

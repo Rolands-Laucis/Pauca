@@ -21,10 +21,9 @@ const syntax = ExtractSection(fs.readFileSync('../gen/test.marble', {encoding:'u
 const parsed = Parse(syntax)
 // console.log(parsed)
 // const out = ResolvePatternsToRegex(parsed)
-// const out = Grams.BLOCK.target(parsed[0].tar.val, {'x':3, 'y':2, 'z':'my_var'})
-const out = ResolveTarget(parsed[0].tar, { 'x': 3, 'y': 2, 'z': 'my_var' })
-console.log(out)
-// ExportParsed(parsed)
+// const out = ResolveTarget(parsed[0].tar, { 'x': 3, 'y': 2, 'z': 'my_var' })
+// console.log(out)
+ExportParsed(parsed)
 process.exit(0)
 
 /**

@@ -35,7 +35,10 @@ export function Tokenize(str, {ignore_ws=false} = {}){
     let tokens = []
     let col = '' //current chars collected from parsing
 
-    function Add(str = col, t = TokenType.STR) { str ? tokens.push(new Token(str, t)) : null; col = ''; } //typeof(str) == 'string' ? str.trim() : 
+    function Add(str = col, t = TokenType.STR) { 
+        (str && str != ' ') ? tokens.push(new Token(str, t)) : null; 
+        col = ''; 
+    }
 
     //said to be fastest current way to go through all chars https://stackoverflow.com/questions/1966476/how-can-i-process-each-letter-of-text-using-javascript
     for (let i = 0; i < str.length; i++) {
@@ -49,14 +52,14 @@ export function Tokenize(str, {ignore_ws=false} = {}){
                 const list_str = str.slice(i + 1, i + j) //select the whole list string
 
                 //a space or another [ would indicate the first chars is the name of a function for this list, otherwise it should be a variable name. I.e. [fun [x] ...] or [my_var]
-                const list_type = list_str.replace(/[\n\r\s\t]+/, '').match(/[\[\"]/) //collapse spaces, just bcs. If this matches, then its a FUN, otherwise VAR
+                const list_type = list_str.replace(/[\n\r\s\t]+/, '').match(/[\[\"]/) //collapse spaces, just bcs. If this matches, then its a FUN, otherwise VAR 
 
                 switch (true) { //meaning true has to match one of the cases, so case expr have to resolve to true to execute
                     case list_str[0] == '/' && list_str[1] != ' '://if begins with a slash, then it is the end of a block. The space checks that its not a literal OP / FUN
                         Add(list_str, TokenType.BLOCKEND(stack.pop()))
                         break;
                     case list_type != null: //this is a list, so recursive parse down the arguments after the first part of the string, which would be the FUN token name asociated with this list and prepend that
-                        const list_tokens = Tokenize(list_str.slice(list_type.index), { ignore_ws: true }) //recursively parse. Whitespaces inside lists should be ignored. Generate less tokens
+                        const list_tokens = Tokenize(list_str.slice(list_type.index), { ignore_ws: false }) //recursively parse. Whitespaces inside lists should be ignored. Generate less tokens
                         
                         //a function can be a regular function to execute on some params, like an operation, but it can also designate a block that has a body, this destincion can be made by checking the grams of Marble
                         const FUN_str = str.slice(i + 1, i + list_type.index + 1)
