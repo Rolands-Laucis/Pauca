@@ -8,7 +8,7 @@ import parse from "args-parser" //i was too lazy to parse them myself ;-;
 import fs from 'fs' //for reading the 3 files content
 
 import { MarbleTranspile, TranspileMode } from "./transpile.js"
-import { info } from "./log.js"
+import { info } from "./utils/log.js"
 
 const error_code = Main()
 if(error_code)

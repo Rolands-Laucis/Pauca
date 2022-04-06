@@ -1,6 +1,6 @@
 import { Token, TokenType } from './token.js'
 import { Grams } from './grammar.js'
-import { error } from './log.js'
+import { error } from './utils/log.js'
 
 //these need to be outside the scope of Tokenize function, since it is recursive and uses these. Could also define these as static inside a Token enum, but does that make sense? idk. I dont like them being global here tho
 let counter = 0 //unique identifier - could be something fancier like a UUID or combination of counter + random ascii, but rly this just works

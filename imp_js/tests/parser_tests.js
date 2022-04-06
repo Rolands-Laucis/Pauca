@@ -4,7 +4,7 @@
 //node parser_tests.js
 
 import { Parse, Tokenize, WrapBlocks, Pair } from '../parser.js'
-// import { endTimer, startTimer } from "../log.js"
+// import { endTimer, startTimer } from "../utils/log.js"
 import { ExportParsed } from '../utils/fs_utils.js'
 import { ExtractSection } from '../preproc.js'
 import { Token, TokenType } from '../token.js'
@@ -42,15 +42,6 @@ function test(name, generated, expected) {
 
 startTimer()
 if (test_cases.includes('operators') || all) {
-    // const parse_tree = Parse(`[end] [target][if [x] [+ [1] [2]]] inner [/if][/target]`)
-    // process.exit(0)
     const parse_tree = Tokenize(`[target] other stuff here [if[x][1]] x [/if] and here [/target]`)
     console.log(parse_tree)
-    
-    // ExportParsed(parse_tree, {path:'./gen/parse_tree.json'})
-    // ExportParsed(parse_tree)
 }
-
-// if (test_cases.includes('') || all) {
-
-// }

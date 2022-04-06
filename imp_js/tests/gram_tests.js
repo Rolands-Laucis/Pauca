@@ -3,11 +3,19 @@
 import { Grams } from "../grammar.js"
 import { Parse, Tokenize } from "../parser.js"
 // import { ResolveTarget } from "../resolver.js"
-import { endTimer, startTimer, log } from "../log.js"
+import { endTimer, startTimer, log } from "../utils/log.js"
 
 const test_cases = ['cond']
 const all = false
 startTimer()
+
+Array.prototype.equals = function (arr) {
+    if (!arr || this.length != arr.length)
+        return false
+
+    //compare all aligned elements (same order in place) recursively. This will exit early, if there is a mismatch.
+    return this.every((e, i) => typeof (e) == 'array' ? (typeof (arr[i]) == 'array' ? e.equals(arr[i]) : false) : e === arr[i])
+}
 
 /**
  * Testing function for single values

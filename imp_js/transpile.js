@@ -3,7 +3,7 @@ import { Preprocess, ExtractSection } from './preproc.js'
 import { Parse } from './parser.js'
 import { ResolvePatternsToRegex, ResolveTarget } from './resolver.js'
 
-import { info, startTimer, error, log } from "./log.js"
+import { info, startTimer, error, log } from "./utils/log.js"
 import sizeof from 'object-sizeof'
 
 export class TranspileMode {
