@@ -13,11 +13,18 @@
 [c] [n] [i] [sym "smth"] ['smth'] [var "smth"] [/end] //other comment
 
 
-[p] [rec] {['smth'], ['smth2']} [/rec] [s] [var "smth"] [;] [/end]
+[p] [or [sym 'smth'] [var 'smth2']] [s] [var "smth"] [;] [/end]
+
 [target "js"]
-    [if [> [2] [0]]]
-        [loop [2]]
+    [def [x] 10]
+    
+    [if [> [smth] 1]]
+        [loop 2]
             smth
         [/loop]
+    [/if]
+
+    [if [cond [== [x] 2]]]
+        [ctx [x]]
     [/if]
 [/target]

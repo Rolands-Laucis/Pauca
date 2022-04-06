@@ -70,7 +70,7 @@
 			"patterns": [
 				{
 					"name": "keyword.operator.logical.marble",
-					"match": "(\\+|-|\\/|\\*|>|<|==|>=|<=)"
+					"match": "(\\+|-|\\/|\\*|>|<|==|>\\=|<\\=|=)"
 				}
 			]
 		},
@@ -86,7 +86,7 @@
 			"patterns": [
 				{
 					"name": "variable.marble",
-					"match": "\\b(sym|var|rec|s|;)\\b"
+					"match": "\\b(sym|var|rec|or|s|\\;)\\b"
 				}
 			]
 		},
@@ -94,7 +94,7 @@
 			"patterns": [
 				{
 					"name": "entity.name.function.marble",
-					"match": "\\b(if|loop)\\b"
+					"match": "\\b(if|loop|cond|ctx|def)\\b"
 				}
 			]
 		},
