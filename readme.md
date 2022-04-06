@@ -1,42 +1,43 @@
 # General purpose source-to-source (s2s) programming language transpiler tool/framework - "Marble".
 
 ## What is Marble?
-Marble is a pseudo code language syntax for writing transpilers for other languages (or plain text in general). It does not execute the code, it merely translates from 1 plain text to another, via easily definable text patterns in the text file. These patterns are mapped to corresponding text with arguments and conditions. The mapping is manual - using Marble and your knowledge of the source texts. Marble of course also has its own syntax for enabling you to do things. Lets take a quick look.
+Marble is a glorified "find and replace" engine, where the replace bit is programmable with a LISP-like language. It does not execute the code, it merely translates from 1 plain text to another, via easily definable text patterns in the text file. These patterns are mapped to corresponding text with arguments and conditions. The mapping is manual - using Marble and your knowledge of the source texts.
 
 ### Brief intro. What and how does Marble do?
 
-Using square brackets to define tags similarly to html and xml. The inside of square bracket says what type of tag it is - its functionality in the Marble syntax.
-So Marble takes a reductionist approach to patterns, by letting you build up a whole pattern by individual primitive pieces. This is easier and more readable than using regex.
+The Marble language syntax is LISP-like, where lists (aka "tags") are denoted with square brakets. The first element in a list is a function and the rest are its parameters. These can be nested of course.
 
 ``[sym "int"]`` tells Marble to look for a symbol string "int". A literal string in the source code text file.
 
-These can be chained together, delimiting tags by spaces, like so:
+These and other tags can be chained together, like so:
 
-``[sym "public"] [sym " "] [sym "int"] ...``
+``[sym "public int"] [var "the_variable_name"] ...``
 
-This will match any line of text that is similar to "public int". [sym] tags are just string literals to search for, so most often in programming languages these are language reserved keywords. But you can look for any string literal, since Marble aims for generalization.
+This will match any line of text that is similar to "public int foo", where "foo" is any \w+ string and will be captured from the pattern match, so it can programmatically be used in the transpilation.
 
-An interesting use of Marble would be to create "flavors" of whatever language you desire and transpile the source code file before handing it to the corresponding language compiler or interpreter. Like so:
+So Marble takes a reductionist approach to patterns, by letting you build up a whole pattern by individual primitive pieces. Patterns are componential.
 
-``[sym="public-ish"] [sym=" "] [sym="int"] ...``
+Then after the pattern definition comes the target block, where you define the generation of an output string, like so:
 
-"Public-ish" is not a reserved keyword in C like languages, but you can introduce it via Marble. What you do with this match is up to you to define. 
+``[target] found variable decleration [the_variable_name] ... [/target]``
+
+The target block supports IF, LOOP etc. blocks to programmatically generate the output.
+
+An interesting use of Marble would be to create "flavors" of a programming language and transpile the source code file before handing it to the corresponding language compiler or interpreter.
 
 You can check [the Specification for Marble syntax here](https://github.com/Rolands-Laucis/Marble/blob/master/specification.md) for all possible tags.
 
 ## Running Marble.
 
-Currently Marble's specification is being devloped by Rolands Laucis, and this may take a considerable amount of time. So far there is no implementation of the Marble engine, i.e. it is still just an idea. You are free to implement it in whatever language you wish, so long as you credit this repo. However, i did tinker around with an implementation in Node.js, as can be seen in `./imp_js`. See `./imp_js/tests` for currently supported Marble features. This implementation is currently paused, since i realised that Marble is a LISP like language, and my parser doesnt support recursive rules, since js regex engine does not support recursion. There is some beautiful code there though :)
+Currently Marble's specification is being developed, and this may take a considerable amount of time. So far there is a demo implementation of the Marble engine in Node.js by me, that is in development. You are free to implement it in whatever language you wish, so long as it's under the MIT licence and you credit this repo. See [./imp_js/tests](https://github.com/Rolands-Laucis/Marble/tree/master/imp_js/tests) for currently supported Marble features.
 
-Marble could be built with Node.js, so it could simply run with a CLI as such:
+After downloading the repo, simply run:
 
-``node marble syntax.marble script.c output.js``
+``node marble -s="./gen/syntax.marble" -i="./gen/input.txt" -o="./gen/output.txt" -v=true``
 
-This would launch Marble to read the `syntax.marble` definition script that is full of the lines seen above for generic syntax patterns, then looks for these patterns in the `script.c` text file and transpiles them to whatever target language script, here - `output.js`. Both script and output are just any plain text files, not necessarily programming language scripts.
+This would launch Marble to read the `syntax.marble` definition script that is full of the lines seen above for generic syntax patterns, then looks for these patterns in the `input.c` text file and transpiles them to whatever target text file, here - `output.txt`.
 
 Marble engine implementations should be built such that they can be invoked from CLI and programmatically, by calling a single function in a script.
-
-``./imp_js/playground/`` contains example excersises and challenges to try with Marble and understand how to use it. Fun puzzles maybe.
 
 ### Motivation
 
