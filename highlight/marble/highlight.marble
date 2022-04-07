@@ -14,7 +14,6 @@
 
 
 [p] [or [sym 'smth'] [var 'smth2']] [s] [var "smth"] [;] [/end]
-
 [target "js"]
     [def [x] 10]
     
