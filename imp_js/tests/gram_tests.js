@@ -5,7 +5,7 @@ import { Parse, Tokenize } from "../parser.js"
 // import { ResolveTarget } from "../resolver.js"
 import { endTimer, startTimer, log } from "../utils/log.js"
 
-const test_cases = ['cond']
+const test_cases = ['def']
 const all = false
 startTimer()
 
@@ -64,4 +64,14 @@ if (test_cases.includes('cond') || all) {
 
     tokens = Parse('[smth]', [Tokenize])
     test('condition single variable falsyness', Grams.FUN.cond(tokens, { smth: 0 }), false)
+}
+
+if (test_cases.includes('def') || all) {
+    log('📝', 'Testing definition resolutions...')
+
+    let tokens = Parse('[def [x] 1]', [Tokenize])
+    test('def num literal to label', Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], { }).x, {'x':1}.x)
+
+    tokens = Parse('[def [x] [y]]', [Tokenize])
+    test('def ctx variable to label', Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], {y:1}).x, { 'x': 1 }.x)
 }

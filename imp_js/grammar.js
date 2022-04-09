@@ -29,6 +29,7 @@ export const Grams = {
         // rec: () => '(',
         // '/rec': () => ')+',
         // re: (str) => str.match(/\/(?<exp>.*)\/(a-zA-Z{0,5})?/).groups.exp,
+        regex: () => { },
 
         //shorthands
         s: () => '(?:\\s)',
@@ -75,12 +76,13 @@ export const Grams = {
                 }
             })
         },
+        print:(...args) => {console.log(...args)},
+        def: (t_arg, t_val, ctx = {}) => { ctx[t_arg.val] = Grams.FUN.ctx(t_val, ctx); return ctx},
     },
     BLOCK:{
         //PAT
         p: () => null,
         c: () => null,
-        end: () => '$',
 
         //TAR
         if: (tokens = [], ctx = {}, args = []) => Grams.FUN.cond(args, ctx) ? RecursiveReduceToString(tokens, ctx) : '', //RecursiveReduceToString(tokens, ctx),
@@ -110,6 +112,6 @@ export const Grams = {
         unquote: (str='') => str.match(/[\"\'\`](?<body>.*)[\"\'\`]/)?.groups?.body,
         cast_spaces: (str='') => str.replace(/\s\t/gm, '\\s')
     }
-    // : () => null,
+    // : () => {},
 }
 
