@@ -10,12 +10,14 @@
 
 //some comment
 
-[c] [n] [i] [sym "smth"] ['smth'] [var "smth"] [/end] //other comment
+[c] [n] [i] [sym "smth"] ['smth'] [var "smth"] [/c] //other comment
 
+[p] [regex ""] [/p]
 
-[p] [or [sym 'smth'] [var 'smth2']] [s] [var "smth"] [;] [/end]
+[p] [or [sym 'smth'] [var 'smth2']] [s] [var "smth"] [;] [/p]
 [target "js"]
     [def [x] 10]
+    [print [x]]
     
     [if [> [smth] 1]]
         [loop 2]

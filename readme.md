@@ -1,5 +1,7 @@
 # General purpose source-to-source (s2s) plain text transpiler tool and programming language - "Marble".
 
+[marble logo](./media/Marble%20logo.png)
+
 ## What is Marble?
 Marble is a glorified "find and replace" engine, where the replace bit is programmable with a LISP-like language. It does not execute the code, it merely translates from 1 plain text to another, via easily definable text patterns in the text file. These patterns are mapped to corresponding text with arguments and conditions. The mapping is manual - using Marble and your knowledge of the source texts.
 
@@ -25,11 +27,11 @@ The target block supports IF, LOOP etc. blocks to programmatically generate the 
 
 An interesting use of Marble would be to create "flavors" of a programming language and transpile the source code file before handing it to the corresponding language compiler or interpreter.
 
-You can check [the Specification for Marble syntax here](https://github.com/Rolands-Laucis/Marble/blob/master/specification.md) for all possible tags.
+You can check [the Specification for Marble syntax here](./specification.md) or [the internal compiler grammar functions here](./imp_js/grammar.js) for all possible and currently implemented tags.
 
 ## Running Marble.
 
-Currently Marble's specification is being developed, and this may take a considerable amount of time. So far there is a demo implementation of the Marble engine in Node.js by me, that is in development. You are free to implement it in whatever language you wish, so long as it's under the MIT licence and you credit this repo. See [./imp_js/tests](https://github.com/Rolands-Laucis/Marble/tree/master/imp_js/tests) for currently supported Marble features.
+Currently Marble's specification is being developed, and this may take a considerable amount of time. So far there is a demo implementation of the Marble engine in Node.js by me, that is in development. You are free to implement it in whatever language you wish, so long as it's under the MIT licence and you credit this repo. See [./imp_js/tests](./imp_js/tests) for currently supported Marble features.
 
 After downloading the repo, simply run:
 
