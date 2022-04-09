@@ -73,7 +73,6 @@ if (test_cases.includes('def') || all) {
     test('def num literal to label', Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], { }).x, {'x':1}.x)
 
     tokens = Parse('[def [x] [y]]', [Tokenize])
-    const ctx = { y: 1 }
+    const ctx = { y: 1 } //a ctx passed by reference here will augment this ctx just by the f call.
     test('def ctx variable to label', Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], ctx).x, { 'x': 1 }.x)
-    log(ctx)
 }
