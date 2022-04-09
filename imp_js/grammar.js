@@ -77,6 +77,8 @@ export const Grams = {
             })
         },
         print:(...args) => {console.log(...args)},
+
+        //reeives 2 tokens and ctx object by reference and inserts a new ctx entry. Also returns the ctx for testing purposes, but it alters the passed one.
         def: (t_arg, t_val, ctx = {}) => { ctx[t_arg.val] = Grams.FUN.ctx(t_val, ctx); return ctx},
     },
     BLOCK:{
