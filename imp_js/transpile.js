@@ -1,5 +1,4 @@
 import { Preprocess, ExtractSection } from './preproc.js'
-// import { Parse } from './lexer.js'
 import { Parse } from './parser.js'
 import { ResolvePatternsToRegex, ResolveTarget } from './resolver.js'
 

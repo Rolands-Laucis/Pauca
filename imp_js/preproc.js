@@ -54,6 +54,5 @@ export function ExtractSection(text, index){
  * @returns {string} text
  */
 export function Preprocess(text, steps = [RemoveComments, CollapseNewLines, Strip]) {
-    steps.unshift(text) //insert the text as the first element, so that we can just use the reduce function to apply all steps
-    return steps.reduce((text, f) => f(text))
+    return steps.reduce((text, f) => f(text), text) //initial value is the text
 }

@@ -150,6 +150,5 @@ export function Pair(blocks) {
  * @returns {object[]} pairs
  */
 export function Parse(text, steps = [Tokenize, WrapBlocks, Pair]) { //
-    steps.unshift(text) //insert the text as the first element, so that we can just use the reduce function to apply all steps
-    return steps.reduce((text, f) => f(text))
+    return steps.reduce((text, f) => f(text), text)
 }
