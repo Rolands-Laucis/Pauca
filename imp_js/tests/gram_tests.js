@@ -1,11 +1,11 @@
 //node linker_tests.js
-// import { Token, TokenType } from "../token.js"
+import { Token, TokenType } from "../token.js"
 import { Grams } from "../grammar.js"
-import { Parse, Tokenize } from "../parser.js"
+import { Parse, Tokenize, WrapBlocks } from "../parser.js"
 // import { ResolveTarget } from "../resolver.js"
 import { endTimer, startTimer, log } from "../utils/log.js"
 
-const test_cases = ['def']
+const test_cases = ['loop']
 const all = false
 startTimer()
 
@@ -75,4 +75,21 @@ if (test_cases.includes('def') || all) {
     tokens = Parse('[def [x] [y]]', [Tokenize])
     const ctx = { y: 1 } //a ctx passed by reference here will augment this ctx just by the f call.
     test('def ctx variable to label', Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], ctx).x, { 'x': 1 }.x)
+}
+
+if (test_cases.includes('if') || all) {
+    log('📝', 'Testing if condition resolutions...')
+
+    let t = Parse('[if [> [x] 1]]x[/if]', [Tokenize, WrapBlocks])[0]
+    test('if true cond output inner', Grams.BLOCK[t.val[0].val](t.val.slice(2, -1), {'x':2}, t.val[1].type == TokenType.ARGS ? t.val[1].val : t.val[1]), 'x')
+    test('if false cond output empty string', Grams.BLOCK[t.val[0].val](t.val.slice(2, -1), { 'x': 1 }, t.val[1].type == TokenType.ARGS ? t.val[1].val : t.val[1]), '')
+}
+
+if (test_cases.includes('loop') || all) {
+    log('📝', 'Testing loop resolutions...')
+
+    let t = Parse('[loop [x]]x[/loop]', [Tokenize, WrapBlocks])[0]
+    // console.log(t.val)
+    test('loop variable times', Grams.BLOCK[t.val[0].val](t.val.slice(2, -1), { 'x': 2 }, t.val[1].type == TokenType.ARGS ? t.val[1].val : t.val[1]), 'xx')
+    test('loop variable times none', Grams.BLOCK[t.val[0].val](t.val.slice(2, -1), { 'x': 0 }, t.val[1].type == TokenType.ARGS ? t.val[1].val : t.val[1]), '')
 }

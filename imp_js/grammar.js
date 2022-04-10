@@ -43,7 +43,7 @@ export const Grams = {
          */
         ctx: (arg, ctx = {}) => {
             const num = parseInt(arg.val);
-            // log('arg in ctx:', arg)
+            log('arg in ctx:', arg)
             switch(arg.type){
                 case TokenType.VAR:
                     if (!isNaN(num)) //meaning this is a number, cant just check num, bcs it might be 0, which isnt truthy! Grab by index in pattern
@@ -63,7 +63,7 @@ export const Grams = {
          */
         cond: (args=[], ctx = {}) => { //args is definitely an ARGS token - .val array of tokens, since that check was made when calling the if
             return args.every(a => {
-                //log(a)
+                // log(a)
                 switch (a.type){
                     case TokenType.VAR: return Grams.FUN.ctx(a, ctx);
                     case TokenType.LIST://first item in a list is always a function
@@ -88,7 +88,11 @@ export const Grams = {
 
         //TAR
         if: (tokens = [], ctx = {}, args = []) => Grams.FUN.cond(args, ctx) ? RecursiveReduceToString(tokens, ctx) : '', //RecursiveReduceToString(tokens, ctx),
-        loop: (tokens = [], ctx = {}, args = []) => TODO('Loop blocks'), //RecursiveReduceToString(tokens, ctx),
+        loop: (tokens = [], ctx = {}, args = []) => Array(Grams.FUN.ctx(args[0], ctx) || 0).fill(RecursiveReduceToString(tokens, ctx)).join(''),
+        // {
+        //     const times = Grams.FUN.cond(args, ctx)
+        //     return times ? Array(Grams.FUN.cond(args, ctx) || 0).fill(RecursiveReduceToString(tokens)) : ''
+        // },
         target: (tokens = [], ctx = {}, args = []) => RecursiveReduceToString(tokens, ctx),
     },
     OP: {
