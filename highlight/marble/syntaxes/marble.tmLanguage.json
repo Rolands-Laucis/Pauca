@@ -78,7 +78,7 @@
 			"patterns": [
 				{
 					"name": "variable.other.constant.marble",
-					"match": "\\b(p|c|target|end)\\b"
+					"match": "\\b(p|c|target)\\b"
 				}
 			]
 		},
@@ -94,7 +94,7 @@
 			"patterns": [
 				{
 					"name": "entity.name.function.marble",
-					"match": "\\b(if|loop|cond|ctx|def)\\b"
+					"match": "\\b(if|loop|cond|ctx|def|print)\\b"
 				}
 			]
 		},
