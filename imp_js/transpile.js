@@ -6,7 +6,9 @@ import { info, startTimer, error, log } from "./utils/log.js"
 import sizeof from 'object-sizeof'
 
 export class TranspileMode {
-    static SINGLES = new TranspileMode('SINGLES')//this is a regular string. Either unknown type or a literal string to be pushed to the output
+    static SINGLE = new TranspileMode('SINGLE')//transpile as single match and single generated output
+    static MULTIPLE = new TranspileMode('MULTIPLE') //transpile each pattern for every match in the input sequentially generating its output
+    static REPLACE = new TranspileMode('REPLACE') //transpile via classic find and replace with generated output
 
     constructor(n) {this.name = n}
 }
@@ -17,7 +19,7 @@ export class TranspileMode {
  * @param {string} source
  * @param {object} opts
  */
-export function MarbleTranspile(syntax, source, { mode = TranspileMode.SINGLES, segment = null, verbose = false, only_preprocess=false, only_parse=false, only_resolve_pat=false } = {}) { //opts as a dictionary of opts with defaults
+export function MarbleTranspile(syntax, source, { mode = TranspileMode.MULTIPLE, segment = null, verbose = false, only_preprocess=false, only_parse=false, only_resolve_pat=false } = {}) { //opts as a dictionary of opts with defaults
     if (verbose) startTimer()
 
     if (verbose) info('Starting transpilation...')
@@ -46,15 +48,26 @@ export function MarbleTranspile(syntax, source, { mode = TranspileMode.SINGLES, 
     let output = ''
     //---Convert source lines with regex
     switch(mode){
-        case TranspileMode.SINGLES:
+        case TranspileMode.SINGLE:
             parse_tree.forEach((pair, i) => {
+                pair.pat = RegExp(pair?.pat, 'm') || undefined //RegExp object .flags property only has a getter, so the only way to set the flags is to create a new object. Leave only the m flag
+
                 if (pair.pat && pair.pat.test(source)) {
                     if (verbose) info(`Matched pattern [${i}] in input string`)
-                    const ctx = source.match(pair.pat)?.groups
+                    const ctx = source.match(pair.pat)?.groups || {}
                     output += ResolveTarget(pair.tar, ctx)
                     if (verbose) info(`Resolved pattern [${i}] target to output string`)
                 }
-            });break;
+            })
+            break;
+        case TranspileMode.MULTIPLE:
+            parse_tree.forEach((pair, i) => {
+                for (const m of source.matchAll(pair.pat)) { //have to loop like this, bcs matchAll returns an iterator, which is useful for large input texts.
+                    const ctx = m?.groups || {}
+                    output += ResolveTarget(pair.tar, ctx)
+                }
+            })
+            break;
         // case TranspileMode. ;break;
         default: error('Usupported transpilation mode!', mode)
     }

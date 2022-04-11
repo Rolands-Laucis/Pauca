@@ -57,7 +57,7 @@ export function ResolvePattern(tokens=[]){
     }, '') 
 
     // console.log(full_string)
-    return RegExp(full_string, 'm')
+    return RegExp(full_string, 'gm')
 }
 
 /**
