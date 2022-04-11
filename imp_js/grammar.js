@@ -43,7 +43,7 @@ export const Grams = {
          */
         ctx: (arg, ctx = {}) => {
             const num = parseInt(arg.val);
-            log('arg in ctx:', arg)
+            // log('arg in ctx:', arg)
             switch(arg.type){
                 case TokenType.VAR:
                     if (!isNaN(num)) //meaning this is a number, cant just check num, bcs it might be 0, which isnt truthy! Grab by index in pattern
