@@ -46,7 +46,7 @@ optional arguments:
     const source = fs.readFileSync(args.i, { encoding: 'utf8', flag: 'r' })
 
     //do the transpilation
-    const output = MarbleTranspile(syntax, source, { mode: TranspileMode.SINGLES, segment: 0, verbose: args.v}) || ''
+    const output = MarbleTranspile(syntax, source, { segment: 1, verbose: args.v}) || ''
 
     //write transpilation to output file
     fs.writeFileSync(args.o, output, { encoding: 'utf8', flag: 'w' })

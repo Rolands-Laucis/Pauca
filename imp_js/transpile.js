@@ -14,12 +14,14 @@ export class TranspileMode {
 }
 
 
+String.prototype.splice = function (index, count, add='') { return this.slice(0, index) + add + this.slice(index + count); }
+
 /**
  * @param {string} syntax
  * @param {string} source
  * @param {object} opts
  */
-export function MarbleTranspile(syntax, source, { mode = TranspileMode.MULTIPLE, segment = null, verbose = false, only_preprocess=false, only_parse=false, only_resolve_pat=false } = {}) { //opts as a dictionary of opts with defaults
+export function MarbleTranspile(syntax, source, { mode = TranspileMode.REPLACE, segment = null, verbose = false, only_preprocess=false, only_parse=false, only_resolve_pat=false } = {}) { //opts as a dictionary of opts with defaults
     if (verbose) startTimer()
 
     if (verbose) info('Starting transpilation...')
@@ -53,7 +55,6 @@ export function MarbleTranspile(syntax, source, { mode = TranspileMode.MULTIPLE,
                 pair.pat = RegExp(pair?.pat, 'm') || undefined //RegExp object .flags property only has a getter, so the only way to set the flags is to create a new object. Leave only the m flag
 
                 if (pair.pat && pair.pat.test(source)) {
-                    if (verbose) info(`Matched pattern [${i}] in input string`)
                     const ctx = source.match(pair.pat)?.groups || {}
                     output += ResolveTarget(pair.tar, ctx)
                     if (verbose) info(`Resolved pattern [${i}] target to output string`)
@@ -65,8 +66,24 @@ export function MarbleTranspile(syntax, source, { mode = TranspileMode.MULTIPLE,
                 for (const m of source.matchAll(pair.pat)) { //have to loop like this, bcs matchAll returns an iterator, which is useful for large input texts.
                     const ctx = m?.groups || {}
                     output += ResolveTarget(pair.tar, ctx)
+                    if (verbose) info(`Resolved pattern [${i}] target to output string`)
                 }
             })
+            break;
+        case TranspileMode.REPLACE:
+            parse_tree.forEach((pair, i) => {
+                let offset = 0 //the match all is an iterator, which should mean that it only does the match when the next iteration is called, 
+                //but actually idfk what it does, bcs if i change the input string with the custom splice, then the match indexes are still the same as they were. Maybe since strings are immutable.
+                //the matched string length is most likely a different length than the resolved string, so i offset the "match index" manually with this var, otherwise it cuts too early or too late in the string.
+
+                for (const m of source.matchAll(pair.pat)) { //have to loop like this, bcs matchAll returns an iterator, which is useful for large input texts.
+                    const resolve = ResolveTarget(pair.tar, m.groups || {})
+                    source = source.splice(m.index + offset, m[0].length, resolve)
+                    offset += resolve.length - m[0].length
+                    if (verbose) info(`Resolved pattern [${i}] target to output string`)
+                }
+            })
+            output = source
             break;
         // case TranspileMode. ;break;
         default: error('Usupported transpilation mode!', mode)
