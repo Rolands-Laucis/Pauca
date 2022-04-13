@@ -5,7 +5,7 @@
 ## What is Marble?
 Marble is a glorified "find and replace" engine, where the replace bit is programmable with a LISP-like language. It does not execute the code, it merely translates from 1 plain text to another, via easily definable text patterns in the text file. These patterns are mapped to corresponding text with arguments and conditions. The mapping is manual - using Marble and your knowledge of the source texts.
 
-### Brief intro. What and how does Marble do?
+### Brief intro. What does Marble do?
 
 The Marble language syntax is LISP-like, where lists (aka "tags") are denoted with square brakets. The first element in a list is a function and the rest are its parameters. These can be nested of course.
 
@@ -13,7 +13,7 @@ The Marble language syntax is LISP-like, where lists (aka "tags") are denoted wi
 
 These and other tags can be chained together, like so:
 
-``[sym "public int"] [var "the_variable_name"] ...``
+``[sym "public int "] [var "the_variable_name"] ...``
 
 This will match any line of text that is similar to "public int foo", where "foo" is any \w+ string and will be captured from the pattern match, so it can programmatically be used in the transpilation.
 
@@ -29,13 +29,30 @@ An interesting use of Marble would be to create "flavors" of a programming langu
 
 You can check [the Specification for Marble syntax here](./specification.md) or [the internal compiler grammar functions here](./imp_js/grammar.js) for all possible and currently implemented tags.
 
+## Syntax snippet ``syntax.marble``
+
+```js
+[p] [var "scope"] [sym " int "] [var "variable"] [" = "] [var "val"] [/p]
+[target "js"]
+let [variable] = [val]; //([scope])
+[/target]
+[target "py"]
+[variable] = [val]
+[/target]
+```
+
+Marble syntax highlighting available [as a tml file](./highlight/marble/syntaxes/marble.tmLanguage.json).
+Currently i just drop in the marble folder into the vscode extencions folder.
+
 ## Running Marble.
 
 Currently Marble's specification is being developed, and this may take a considerable amount of time. So far there is a demo implementation of the Marble engine in Node.js by me, that is in development. You are free to implement it in whatever language you wish, so long as it's under the MIT licence and you credit this repo. See [./imp_js/tests](./imp_js/tests) for currently supported Marble features.
 
-After downloading the repo, simply run:
+After downloading the repo, have Node installed and from ``./imp_js`` simply run:
 
-``node marble -s="./gen/syntax.marble" -i="./gen/input.txt" -o="./gen/output.txt" -v=true``
+```bat
+node marble -s="./gen/syntax.marble" -i="./gen/input.txt" -o="./gen/output.txt" -v=true
+```
 
 This would launch Marble to read the `syntax.marble` definition script that is full of the lines seen above for generic syntax patterns, then looks for these patterns in the `input.c` text file and transpiles them to whatever target text file, here - `output.txt`.
 
@@ -44,6 +61,8 @@ Marble engine implementations should be built such that they can be invoked from
 ### Motivation
 
 I am creating this for fun and because i could not find something similar to this. Rather i found alot of specific s2s transpilers and a general purpose transpiler that is programmable, but it has to do with scripting the inner workings of the transpiler. The Marble way is to define patterns of syntax.
+
+Contact me on this github repo issues tab or something.
 
 ### Links, resources relating to Marble
 
