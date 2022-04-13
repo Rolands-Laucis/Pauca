@@ -8,8 +8,8 @@ import { Parse, Tokenize, WrapBlocks, Pair } from '../parser.js'
 import { ExportParsed } from '../utils/fs_utils.js'
 import { ExtractSection } from '../preproc.js'
 import { Token, TokenType } from '../token.js'
-import { Grams } from '../grammar.js'
-import { ResolvePatternsToRegex, ResolveTarget } from '../resolver.js'
+// import { Grams } from '../grammar.js'
+// import { ResolvePatternsToRegex, ResolveTarget } from '../resolver.js'
 
 import fs from 'fs'
 
@@ -19,11 +19,7 @@ const all = true
 
 const syntax = ExtractSection(fs.readFileSync('../gen/test.marble', {encoding:'utf-8'}), 0)
 const parsed = Parse(syntax)
-// console.log(parsed)
-// const out = ResolvePatternsToRegex(parsed)
-// const out = ResolveTarget(parsed[0].tar, { 'x': 3, 'y': 2, 'z': 'my_var' })
-// console.log(out)
-ExportParsed(parsed)
+// ExportParsed(parsed)
 process.exit(0)
 
 /**
