@@ -53,6 +53,6 @@ export function ExtractSection(text, index){
  * @param {string} text
  * @returns {string} text
  */
-export function Preprocess(text, steps = [RemoveComments, CollapseNewLines, Strip]) {
-    return steps.reduce((text, f) => f(text), text) //initial value is the text
+export function Preprocess(text = '', steps = [RemoveComments, CollapseNewLines, Strip]) {
+    return steps.reduce((t, f) => f(t), text) //initial value is the text
 }
