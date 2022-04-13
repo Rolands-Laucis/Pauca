@@ -52,17 +52,18 @@ export function Tokenize(str, {ignore_ws=false} = {}){
                 const list_str = str.slice(i + 1, i + j) //select the whole list string
 
                 //a space or another [ would indicate the first chars is the name of a function for this list, otherwise it should be a variable name. I.e. [fun [x] ...] or [my_var]
-                const list_type = list_str.replace(/[\n\r\s\t]+/, '').match(/[\[\"]/) //collapse spaces, just bcs. If this matches, then its a FUN, otherwise VAR 
+                const list_type = list_str.replace(/[\n\r\s\t]+/g, '').match(/[\[\"]/) //collapse spaces, just bcs. If this matches, then its a FUN, otherwise VAR 
 
                 switch (true) { //meaning true has to match one of the cases, so case expr have to resolve to true to execute
-                    case list_str[0] == '/' && list_str[1] != ' '://if begins with a slash, then it is the end of a block. The space checks that its not a literal OP / FUN
-                        Add(list_str, TokenType.BLOCKEND(stack.pop()))
+                    case list_str[0] == '/' && list_str[1] != ' '://if begins with a slash, then it is the end of a block. The space checks that its not a literal OP / FUN. 
+                        if (!Object.keys(Grams.BLOCK).includes(list_str.slice(1))) error('Unknown blockend token', list_str.slice(1)) //Then also check that it is a valid blockend
+                        else Add(list_str, TokenType.BLOCKEND(stack.pop()))
                         break;
                     case list_type != null: //this is a list, so recursive parse down the arguments after the first part of the string, which would be the FUN token name asociated with this list and prepend that
                         const list_tokens = Tokenize(list_str.slice(list_type.index), { ignore_ws: false }) //recursively parse. Whitespaces inside lists should be ignored. Generate less tokens
                         
                         //a function can be a regular function to execute on some params, like an operation, but it can also designate a block that has a body, this destincion can be made by checking the grams of Marble
-                        const FUN_str = str.slice(i + 1, i + list_type.index + 1)
+                        const FUN_str = str.slice(i + 1, i + list_type.index + 1).trim()
                         if (Object.keys(Grams.BLOCK).includes(FUN_str)){
                             counter++; stack.push(counter); //console.log(stack); //stack and counter defined globally at the top of script
                             Add(FUN_str, TokenType.BLOCKSTART(stack.last()))//insert the blockstart token
@@ -149,6 +150,6 @@ export function Pair(blocks) {
  * @param {Function[]} steps
  * @returns {object[]} pairs
  */
-export function Parse(text, steps = [Tokenize, WrapBlocks, Pair]) { //
-    return steps.reduce((text, f) => f(text), text)
+export function Parse(text='', steps = [Tokenize, WrapBlocks, Pair]) { //
+    return steps.reduce((t, f) => f(t), text)
 }
