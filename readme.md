@@ -1,8 +1,6 @@
 # General purpose source-to-source (s2s) plain text transpiler tool and programming language - "Marble".
 
-<p align="center">
-  <img src="./media/Marble%20logo%20transparent.png" />
-</p>
+<p align="center"><img src="./media/Marble%20logo.png"/></p>
 
 ## What is Marble?
 Marble is a glorified "find and replace" engine, where the replace bit is programmable with a LISP-like language. It does not execute the code, it merely translates from 1 plain text to another, via easily definable text patterns in the text file. These patterns are mapped to corresponding text with arguments and conditions. The mapping is manual - using Marble and your knowledge of the source texts.
