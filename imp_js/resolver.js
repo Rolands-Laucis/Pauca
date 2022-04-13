@@ -49,6 +49,7 @@ export function ResolvePattern(tokens=[]){
                 const list_tokens = t.val
                 if (list_tokens.length > 2) TODO('currently only 1 pattern tag argument allowed. [current token; list_tokens]', t, list_tokens)
                 // log(list_tokens)
+                if (!Grams.FUN[list_tokens[0].val]) log(list_tokens[0])
                 return s += Grams.FUN[list_tokens[0].val](...list_tokens.slice(1));
             case TokenType.NULL: error('Found NULL token!', t); break;
             default: return s; //BLOCKSTART and BLOCKEND types ignored.

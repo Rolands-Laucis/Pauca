@@ -39,14 +39,16 @@ export function log(...objs){
 /**
  * Logs an error and the errored object if there is one and exits the process
  * @param {string} msg
- * @param {object[]} objs
+ * @param objs
  * @param {boolean} exit
  */
 export function error(msg, ...objs) {
-    console.log(`${prefix('MARBLE ERROR', console_colors.FgRed)} 😐 Bruh...\n`, msg)
+    console.log(`${prefix('MARBLE ERROR', console_colors.FgRed)} 😐 Bruh...\n\n${msg}`)
     if(objs)
-        console.log(...objs)
-    process.exit(1)
+        console.log(...objs, '\n')
+    
+    throw new Error()
+    // console.trace();
 }
 
 /**
