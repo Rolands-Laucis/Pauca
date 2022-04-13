@@ -31,7 +31,7 @@ You can check [the Specification for Marble syntax here](./specification.md) or 
 
 ## Syntax snippet ``syntax.marble``
 
-```js
+```
 [p] [var "scope"] [sym " int "] [var "variable"] [" = "] [var "val"] [/p]
 [target "js"]
 let [variable] = [val]; //([scope])
