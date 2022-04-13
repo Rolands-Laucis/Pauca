@@ -5,8 +5,8 @@ import { Parse, Tokenize, WrapBlocks } from "../parser.js"
 // import { ResolveTarget } from "../resolver.js"
 import { endTimer, startTimer, log } from "../utils/log.js"
 
-const test_cases = ['loop']
-const all = false
+const test_cases = ['cond']
+const all = true
 startTimer()
 
 Array.prototype.equals = function (arr) {
@@ -59,6 +59,18 @@ if (test_cases.includes('cond') || all) {
     tokens = Parse('[== [0] [1]]', [Tokenize])
     test('condition OP ==', Grams.FUN.cond(tokens, { '0': 1, '1': 1 }), true)
 
+    tokens = Parse('[> [x] 1]', [Tokenize])
+    test('condition OP > with variable and num literal', Grams.FUN.cond(tokens, { 'x': 2}), true)
+
+    tokens = Parse('[> 2 [x]]', [Tokenize])
+    test('condition OP > with variable and num literal reversed order and falsy', Grams.FUN.cond(tokens, { 'x': 2 }), false)
+
+    // tokens = Parse('[> 2 1]', [Tokenize])
+    // test('condition OP > with both num literal', Grams.FUN.cond(tokens, { }), true)
+
+    // tokens = Parse('[> 2 3]', [Tokenize])
+    // test('condition OP > with both num literal falsy', Grams.FUN.cond(tokens, {}), false)
+
     tokens = Parse('[smth]', [Tokenize])
     test('condition single variable truthyness', Grams.FUN.cond(tokens, { smth:1 }), true)
 
@@ -92,4 +104,12 @@ if (test_cases.includes('loop') || all) {
     // console.log(t.val)
     test('loop variable times', Grams.BLOCK[t.val[0].val](t.val.slice(2, -1), { 'x': 2 }, t.val[1].type == TokenType.ARGS ? t.val[1].val : t.val[1]), 'xx')
     test('loop variable times none', Grams.BLOCK[t.val[0].val](t.val.slice(2, -1), { 'x': 0 }, t.val[1].type == TokenType.ARGS ? t.val[1].val : t.val[1]), '')
+}
+
+if (test_cases.includes('literals')) {
+    log('📝', 'Testing literals...')
+
+    let t = Parse('[> 1 2]', [Tokenize])[0]
+    console.log(t.val)
+    // test('', )
 }
