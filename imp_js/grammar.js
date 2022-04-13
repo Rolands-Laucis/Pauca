@@ -15,7 +15,6 @@ import { Token, TokenType } from "./token.js"; //for ES linting
 //which then goes straight into the output.txt
 //the resolving is called here, but the logic for it is defined in the resolver.js , bcs that logic should be seperate, but since infinite recursion is supported, then the chain has to start from here, if that makes sense
 
-
 export const Grams = {
     FUN:{
         //PAT
@@ -32,6 +31,7 @@ export const Grams = {
         regex: () => { },
 
         //shorthands
+        "": (t) => Grams.FUN.sym(t),
         s: () => '(?:\\s)',
         ';': () => '(?:;)',
 
@@ -76,7 +76,7 @@ export const Grams = {
                 }
             })
         },
-        print:(...args) => {console.log(...args)},
+        print: (...args) => { TODO('Print currently unsupported!')}, //console.log(...args)
 
         //reeives 2 tokens and ctx object by reference and inserts a new ctx entry. Also returns the ctx for testing purposes, but it alters the passed one.
         def: (t_arg, t_val, ctx = {}) => { ctx[t_arg.val] = Grams.FUN.ctx(t_val, ctx); return ctx},
@@ -87,12 +87,8 @@ export const Grams = {
         c: () => null,
 
         //TAR
-        if: (tokens = [], ctx = {}, args = []) => Grams.FUN.cond(args, ctx) ? RecursiveReduceToString(tokens, ctx) : '', //RecursiveReduceToString(tokens, ctx),
+        if: (tokens = [], ctx = {}, args = []) => Grams.FUN.cond(args, ctx) ? RecursiveReduceToString(tokens, ctx) : '',
         loop: (tokens = [], ctx = {}, args = []) => Array(Grams.FUN.ctx(args[0], ctx) || 0).fill(RecursiveReduceToString(tokens, ctx)).join(''),
-        // {
-        //     const times = Grams.FUN.cond(args, ctx)
-        //     return times ? Array(Grams.FUN.cond(args, ctx) || 0).fill(RecursiveReduceToString(tokens)) : ''
-        // },
         target: (tokens = [], ctx = {}, args = []) => RecursiveReduceToString(tokens, ctx),
     },
     OP: {
