@@ -4,7 +4,8 @@
 export class TokenType{
     static STR = new TokenType('STR')//this is a regular string. Either unknown type or a literal string to be pushed to the output
     static FUN = new TokenType('FUN')//the string is a function and this function is to be invoked
-    static OP = new TokenType('OP')//a special FUN that is an operator function. This is meaningful, bcs OPs are stored in a different subcategory of tar grams
+    static LOP = new TokenType('LOP')//a special FUN that is a logical operator function. This is meaningful, bcs OPs are stored in a different subcategory of tar grams
+    static AOP = new TokenType('AOP')//a special FUN that is an arithmatic operator function. This is meaningful, bcs OPs are stored in a different subcategory of tar grams
     static VAR = new TokenType('VAR') //the string is a variable in the patter
     static LIST = new TokenType('LIST')//this tokens val is an array of other tokens
     static ARGS = new TokenType('ARGS')//a special LIST with an added semantic, that the BLOCKSTART token before this one is a function and this is a LIST token of its arguments

@@ -70,7 +70,15 @@ export function Tokenize(str, {ignore_ws=false} = {}){
                             Add(list_tokens, TokenType.ARGS) //blockstarts are currently always functions, so the lists within are the function arguments, which is still just a LIST token, but there may later be blockstarts that arent functions and therefor would have LIST here instead of ARGS
                         }
                         else
-                            Add([new Token(FUN_str, Object.keys(Grams.OP).includes(FUN_str) ? TokenType.OP : TokenType.FUN), ...list_tokens], TokenType.LIST) //insert the FUN or OP token at the start of the list. LIST types indicate that this token's val property is an array of other tokens
+                            switch(true){
+                                case Object.keys(Grams.OP.LOP).includes(FUN_str):
+                                    Add([new Token(FUN_str, TokenType.LOP), ...list_tokens], TokenType.LIST) //OP token at the start of the list. LIST types indicate that this token's val property is an array of other tokens
+                                    break;
+                                case Object.keys(Grams.OP.AOP).includes(FUN_str):
+                                    Add([new Token(FUN_str, TokenType.AOP), ...list_tokens], TokenType.LIST)
+                                    break;
+                                default: Add([new Token(FUN_str, TokenType.FUN), ...list_tokens], TokenType.LIST) //insert the FUN token at the start of the list. LIST types indicate that this token's val property is an array of other tokens
+                            }
                         break;
                     case Object.keys(Grams.BLOCK).includes(list_str): //a BLOCK without ARGS
                         counter++; stack.push(counter);//stack and counter defined globally at the top of script

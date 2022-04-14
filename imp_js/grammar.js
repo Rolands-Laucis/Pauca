@@ -28,7 +28,7 @@ export const Grams = {
         regex: () => { TODO('Regex literals currently unsupported!')},
 
         //shorthands
-        "": (t) => Grams.FUN.sym(t),
+        "": Grams.FUN.sym,
         s: () => '(?:\\s)',
         ';': () => '(?:;)',
 
@@ -44,9 +44,11 @@ export const Grams = {
             switch(arg.type){
                 case TokenType.VAR:
                     if (!isNaN(num)) //meaning this is a number, cant just check num, bcs it might be 0, which isnt truthy! Grab by index in pattern
-                        return Object.values(ctx)[num] //TODO this needs an efficient error case handling, when the index might be out of bounds!
+                        var retrieved = Object.values(ctx)[num] //TODO this needs an efficient error case handling, when the index might be out of bounds!
                     else //grab by label in pattern
-                        return (arg.val in ctx) ? ctx[arg.val] : error('Variable accessed without declaration! [variable tag; pattern context]', arg, ctx);
+                        var retrieved = (arg.val in ctx) ? ctx[arg.val] : error('Variable accessed without declaration! [variable tag; pattern context]', arg, ctx);
+                    const cast = parseInt(retrieved) //see if the stored value can be parsed as an int, bcs context always contains strings, but those strings would be useful as numbers
+                    return cast ? cast : retrieved
                 case TokenType.STR: //its a string literal for a number
                     return num ? num : error('String could not be parsed as integer!', arg)
                 default: TODO('unsuported token in CTX', arg); break;
@@ -63,24 +65,35 @@ export const Grams = {
                 // log(a)
                 switch (a.type){
                     case TokenType.VAR: return Grams.FUN.ctx(a, ctx);
-                    case TokenType.LIST://first item in a list is always a function
-                        switch (a.val[0].type) {
-                            case TokenType.OP: 
-                                const res = Grams.OP[a.val[0].val](Grams.FUN.ctx(a.val[1], ctx), Grams.FUN.ctx(a.val[2], ctx));//TODO no reason why this should only be 2. Could use the ...spread args syntax to apply the operator on infinite operands
-                                if (a.val[1].type == TokenType.VAR) //if the first arg was in the context (a named var) then the result of the OP should be stored in it.
-                                    ctx[a.val[1].val] = res
-                                return res
-                            case TokenType.FUN: return TODO('FUN Token resolution not supported'); //Grams.FUN[t.val[0].val]()
-                            default: TODO('unsuported token in COND list', a.val[0]); break;
-                        }; break;
+                    case TokenType.LIST: return Grams.FUN.list(a.val, ctx);
                     default: TODO('unsuported token in COND', a); break;
                 }
             })
         },
+
+        /**
+         * @param {Token[]} l - should be the whole list where the first item is always a function. So if a token is of type LIST then this should be passed the t.val = []
+         * @param {object} ctx
+         * @returns {number | boolean} output
+         */
+        list: (l=[], ctx = {}) => {
+            switch (l[0].type) {
+                case TokenType.LOP: return Grams.OP.LOP[l[0].val](...l.slice(1).map(t => Grams.FUN.ctx(t, ctx))) //l is a LIST so we can slice all the args to it and map them to their resolved vals from ctx, then pass them to the OP function that takes infinite params
+                case TokenType.AOP: 
+                    const res = Grams.OP.AOP[l[0].val](...l.slice(1).map(t => Grams.FUN.ctx(t, ctx))) //l is a LIST so we can slice all the args to it and map them to their resolved vals from ctx, then pass them to the OP function that takes infinite params
+                    if (l[1].type == TokenType.VAR) //if the first arg was in the context (a named var) then the result of the OP should be stored in it.
+                        ctx[l[1].val] = res
+                    return res;
+                case TokenType.FUN: return TODO('FUN Token resolution not supported'); //Grams.FUN[t.val[0].val]()
+                default: TODO('unsuported token in COND list', l[0]); break;
+            };
+        },
+
         print: (...args) => { TODO('Print currently unsupported!')}, //console.log(...args)
 
         //reeives 2 tokens and ctx object by reference and inserts a new ctx entry. Also returns the ctx for testing purposes, but it alters the passed one.
         def: (t_arg, t_val, ctx = {}) => { ctx[t_arg.val] = Grams.FUN.ctx(t_val, ctx); return ctx},
+        '=': Grams.FUN.def, //shorthand for def
     },
     BLOCK:{
         //PAT
@@ -93,21 +106,27 @@ export const Grams = {
         target: (tokens = [], ctx = {}, args = []) => RecursiveReduceToString(tokens, ctx),
     },
     OP: {
-        '+': (a, b) => a + b,
-        '-': (a, b) => a - b,
-        '*': (a, b) => a * b,
-        '/': (a, b) => b != 0 ? Math.floor(a / b) : error(`Division by 0 error. [a b] = ${[a, b]}`),
-        '^': (a, b) => a ^ b,
-        '%': (a, b) => a % b,
-        '!': a => !a,
+        //arithmetic operators
+        AOP:{
+            '+': (...oprs) => oprs.reduce((a, b) => a + b),
+            '-': (...oprs) => oprs.reduce((a, b) => a - b),
+            '*': (...oprs) => oprs.reduce((a, b) => a * b),
+            '/': (...oprs) => oprs.reduce((a, b) => b != 0 ? Math.floor(a / b) : error(`Division by 0 error. [a b] = ${[a, b]}`)),
+            '^': (...oprs) => oprs.reduce((a, b) => a ^ b),
+            '%': (...oprs) => oprs.reduce((a, b) => a % b),
+            '!': (...oprs) => oprs.length == 1 ? !oprs[0] : oprs.map(a => !a), //returns negated element or a list of all elements negated seperately.
+        },
 
-        '==': (a, b) => a === b,
-        '>': (a, b) => a > b,
-        '<': (a, b) => a < b,
-        '>=': (a, b) => a >= b,
-        '<=': (a, b) => a <= b,
-        '||': (a, b) => a || b,
-        '&&': (a, b) => a && b,
+        //logical operators
+        LOP:{
+            '==': (a, b) => a == b,
+            '>': (a, b) => a > b,
+            '<': (a, b) => a < b,
+            '>=': (a, b) => a >= b,
+            '<=': (a, b) => a <= b,
+            '||': (a, b) => a || b,
+            '&&': (a, b) => a && b,
+        }
 
         // '': (a, b) => a  b,
     },

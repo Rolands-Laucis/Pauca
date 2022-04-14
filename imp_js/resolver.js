@@ -22,12 +22,7 @@ export function RecursiveReduceToString(tokens = [], ctx = {}) {
         switch (t.type) {
             case TokenType.STR: return s += t.val;
             case TokenType.VAR: return s += Grams.FUN.ctx(t, ctx);
-            case TokenType.LIST://first item in a list is always a function
-                switch (t.val[0].type) {
-                    case TokenType.OP: return s += (Grams.OP[t.val[0].val](Grams.FUN.ctx(t.val[1], ctx), Grams.FUN.ctx(t.val[2], ctx))).toString();//TODO no reason why this should only be 2. Could use the ...spread args syntax to apply the operator on infinite operands
-                    case TokenType.FUN: return TODO('FUN Token resolution not supported'); //Grams.FUN[t.val[0].val]()
-                    default: error('unexpected token in Recursive reduction LIST', t.val[0]); break;
-                }; break;
+            case TokenType.LIST: return s += Grams.FUN.list(t.val, ctx);
             case TokenType.BLOCK:
                 return s += Grams.BLOCK[t.val[0].val](t.val.slice(2, -1), ctx, t.val[1].type == TokenType.ARGS ? t.val[1].val : t.val[1])
             case TokenType.NULL: error('Found NULL token!', t); break;
