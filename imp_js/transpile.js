@@ -1,11 +1,11 @@
 import { Preprocess, ExtractSection } from './preproc.js'
-import { Parse } from './parser.js'
+import { Parse, Tokenize } from './parser.js'
 import { ResolvePatternsToRegex, ResolveTarget } from './resolver.js'
 
 import { info, startTimer, error, log } from "./utils/log.js"
 import sizeof from 'object-sizeof'
 
-// import { ExportParsed } from './utils/fs_utils.js'
+import { ExportParsed } from './utils/fs_utils.js'
 
 //enum class for marble transpilation modes
 export class TranspileMode {
