@@ -1,0 +1,16 @@
+//https://en.m.wikipedia.org/wiki/Fibonacci_number
+//writes out the fibonacci number sequence up to a number of times
+
+[p] ["loop = "] [var "times"] [/p]
+[target]
+    [def [x] 0]
+    [def [y] 1]
+    [def [curr] 0]
+
+    [x]
+    [y]
+    [loop [times]]
+        [def [tmp] 0][\ [= [x] [y]]][\ [= [y] [curr]]]
+        [= [curr] [+ [tmp] [y] [x]]], 
+    [/loop]
+[/target]

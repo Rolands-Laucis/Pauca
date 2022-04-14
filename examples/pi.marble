@@ -1,0 +1,16 @@
+//https://www.paulbui.net/wl/Taylor_Series_Pi_and_e
+//calculates Pi via tailor series
+
+[p] ["loop = "] [var "times"] [/p]
+[target]
+    [def [pi] 0]
+    [def [devisor] 1]
+
+    [loop [times]] // the [\ ...] list just omits the result of the evaluation, so like an anti-print
+        [\ [+ [pi] [/ 1 [devisor]]]]
+        [\ [+ [devisor] 2]]
+        [\ [* [pi] -1]]
+    [/loop]
+    
+    [* [pi] 4]
+[/target]
