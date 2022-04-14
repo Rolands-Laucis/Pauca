@@ -77,22 +77,33 @@ export const Grams = {
          * @returns {number | boolean} output
          */
         list: (l=[], ctx = {}) => {
+            //resolve the args to this list function, since they can be variables or more lists
+            const args = l.slice(1).map(t => {
+                switch(t.type){
+                    case TokenType.VAR: return Grams.FUN.ctx(t, ctx)
+                    case TokenType.STR: return Grams.FUN.ctx(t, ctx)
+                    case TokenType.LIST: return Grams.FUN.list(t.val, ctx)
+                    default: TODO('unsuported token in LIST args', t); break;
+                }
+            })//l is a LIST so we can slice all the args to it and map them to their resolved vals from ctx or res if they are other list, then pass them to the OP function that takes infinite params
+            
+            //perform this list function
             switch (l[0].type) {
-                case TokenType.LOP: return Grams.OP.LOP[l[0].val](...l.slice(1).map(t => Grams.FUN.ctx(t, ctx))) //l is a LIST so we can slice all the args to it and map them to their resolved vals from ctx, then pass them to the OP function that takes infinite params
+                case TokenType.LOP: return Grams.OP.LOP[l[0].val](...args) 
                 case TokenType.AOP: 
-                    const res = Grams.OP.AOP[l[0].val](...l.slice(1).map(t => Grams.FUN.ctx(t, ctx))) //l is a LIST so we can slice all the args to it and map them to their resolved vals from ctx, then pass them to the OP function that takes infinite params
+                    const res = Grams.OP.AOP[l[0].val](...args)
                     if (l[1].type == TokenType.VAR) //if the first arg was in the context (a named var) then the result of the OP should be stored in it.
-                        ctx[l[1].val] = res
+                        ctx[l[1].val] = res;
                     return res;
                 case TokenType.FUN: return TODO('FUN Token resolution not supported'); //Grams.FUN[t.val[0].val]()
-                default: TODO('unsuported token in COND list', l[0]); break;
+                default: TODO('unsuported token in LIST func', l[0]); break;
             };
         },
 
         print: (...args) => { TODO('Print currently unsupported!')}, //console.log(...args)
 
         //reeives 2 tokens and ctx object by reference and inserts a new ctx entry. t_arg is a token with a string label of the var and t_val will be its value. Overwrites existing. Also returns the ctx for testing purposes, but it alters the passed one.
-        def: (t_arg, t_val, ctx = {}) => { ctx[t_arg.val] = Grams.FUN.ctx(t_val, ctx); return ctx },
+        def: (t_arg, t_val, ctx = {}) => { ctx[t_arg.val] = Grams.FUN.ctx(t_val, ctx); return ''},
         '=': (...args) => Grams.FUN.def(...args), //shorthand for def
 
         /**
@@ -122,7 +133,7 @@ export const Grams = {
             '+': (...oprs) => oprs.reduce((a, b) => a + b),
             '-': (...oprs) => oprs.reduce((a, b) => a - b),
             '*': (...oprs) => oprs.reduce((a, b) => a * b),
-            '/': (...oprs) => oprs.reduce((a, b) => b != 0 ? Math.floor(a / b) : error(`Division by 0 error. [a b] = ${[a, b]}`)),
+            '/': (...oprs) => oprs.reduce((a, b) => b != 0 ? a / b : error(`Division by 0 error. [a b] = ${[a, b]}`)),
             '^': (...oprs) => oprs.reduce((a, b) => a ^ b),
             '%': (...oprs) => oprs.reduce((a, b) => a % b),
             '!': (...oprs) => oprs.length == 1 ? !oprs[0] : oprs.map(a => !a), //returns negated element or a list of all elements negated seperately.

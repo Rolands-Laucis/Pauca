@@ -5,7 +5,7 @@ import { Parse, Tokenize, WrapBlocks } from "../parser.js"
 // import { ResolveTarget } from "../resolver.js"
 import { endTimer, startTimer, log, error } from "../utils/log.js"
 
-const test_cases = ['no_print']
+const test_cases = ['list']
 const all = false
 startTimer()
 
@@ -105,6 +105,9 @@ if (test_cases.includes('list') || all) {
 
     token = Parse('[+ -1 -2]', [Tokenize])[0].val
     test('AOP + with both negative num literals', Grams.FUN.list(token, {}), -3)
+
+    token = Parse('[+ [sum] [/ 2 [y]]]', [Tokenize])[0].val
+    test('AOP + with nested AOP', Grams.FUN.list(token, {sum:1, y:2}), 2)
 }
 
 if (test_cases.includes('cond') || all) {
@@ -124,17 +127,24 @@ if (test_cases.includes('def') || all) {
     log('📝', 'Testing definition resolutions...')
 
     let tokens = Parse('[def [x] 1]', [Tokenize])
-    test('def num literal to label', Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], { }).x, {'x':1}.x)
+    let ctx = {}
+    Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], ctx)
+    test('def num literal to label', ctx.x, 1)
 
     tokens = Parse('[= [x] 1]', [Tokenize])
-    test('def short-hand num literal to label', Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], {}).x, { 'x': 1 }.x)
+    ctx = {}
+    Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], ctx)
+    test('def short-hand num literal to label', ctx.x, 1)
 
     tokens = Parse('[def [x] [y]]', [Tokenize])
-    const ctx = { y: 1 } //a ctx passed by reference here will augment this ctx just by the f call.
-    test('def ctx variable to label', Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], ctx).x, { 'x': 1 }.x)
+    ctx = { y: 1 } //a ctx passed by reference here will augment this ctx just by the f call.
+    Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], ctx)
+    test('def ctx variable to label', ctx.x, ctx.y)
 
     tokens = Parse('[def [x] foo]', [Tokenize])
-    test('def string to label', Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], {}).x, { 'x': 'foo' }.x)
+    ctx = {}
+    Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], ctx)
+    test('def string to label', ctx.x, 'foo')
 }
 
 if (test_cases.includes('if') || all) {
