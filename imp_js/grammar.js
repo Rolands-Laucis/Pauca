@@ -124,7 +124,8 @@ export const Grams = {
 
         //TAR
         if: (tokens = [], ctx = {}, args = []) => Grams.FUN.cond(args, ctx) ? RecursiveReduceToString(tokens, ctx) : '',
-        loop: (tokens = [], ctx = {}, args = []) => Array(Grams.FUN.ctx(args[0], ctx) || 0).fill(RecursiveReduceToString(tokens, ctx)).join(''),
+        // loop: (tokens = [], ctx = {}, args = []) => Array(Grams.FUN.ctx(args[0], ctx) || 0).map(a => RecursiveReduceToString(tokens, ctx)).join(''),
+        loop: (tokens = [], ctx = {}, args = []) => Array.from({ length: Grams.FUN.ctx(args[0], ctx) || 0 }, (_, i) => RecursiveReduceToString(tokens, ctx)).join(''),
         target: (tokens = [], ctx = {}, args = []) => RecursiveReduceToString(tokens, ctx),
     },
     OP: {

@@ -5,7 +5,7 @@ import { Parse, Tokenize, WrapBlocks } from "../parser.js"
 // import { ResolveTarget } from "../resolver.js"
 import { endTimer, startTimer, log, error } from "../utils/log.js"
 
-const test_cases = ['list']
+const test_cases = ['loop']
 const all = false
 startTimer()
 
@@ -160,8 +160,13 @@ if (test_cases.includes('loop') || all) {
 
     let t = Parse('[loop [x]]x[/loop]', [Tokenize, WrapBlocks])[0]
     // console.log(t.val)
-    test('loop variable times', Grams.BLOCK[t.val[0].val](t.val.slice(2, -1), { 'x': 2 }, t.val[1].type == TokenType.ARGS ? t.val[1].val : t.val[1]), 'xx')
-    test('loop variable times none', Grams.BLOCK[t.val[0].val](t.val.slice(2, -1), { 'x': 0 }, t.val[1].type == TokenType.ARGS ? t.val[1].val : t.val[1]), '')
+    test('loop variable times', Grams.BLOCK.loop(t.val.slice(2, -1), { 'x': 2 }, t.val[1].type == TokenType.ARGS ? t.val[1].val : t.val[1]), 'xx')
+
+    t = Parse('[loop 2]x[/loop]', [Tokenize, WrapBlocks])[0]
+    test('loop num literal times', Grams.BLOCK.loop(t.val.slice(2, -1), { 'x': 0 }, t.val[1].type == TokenType.ARGS ? t.val[1].val : t.val[1]), 'xx')
+
+    t = Parse('[loop 0]x[/loop]', [Tokenize, WrapBlocks])[0]
+    test('loop variable times none', Grams.BLOCK.loop(t.val.slice(2, -1), { 'x': 0 }, t.val[1].type == TokenType.ARGS ? t.val[1].val : t.val[1]), '')
 }
 
 if (test_cases.includes('no_print') || all) {
