@@ -40,7 +40,7 @@ export const Grams = {
          */
         ctx: (arg, ctx = {}) => {
             const num = parseInt(arg.val);
-            // log('arg in ctx:', arg)
+            // log('arg in ctx:', arg, num)
             switch(arg.type){
                 case TokenType.VAR:
                     if (!isNaN(num)) //meaning this is a number, cant just check num, bcs it might be 0, which isnt truthy! Grab by index in pattern
@@ -50,7 +50,7 @@ export const Grams = {
                     const cast = parseInt(retrieved) //see if the stored value can be parsed as an int, bcs context always contains strings, but those strings would be useful as numbers
                     return cast ? cast : retrieved
                 case TokenType.STR: //its a string literal that could be a number
-                    return num ? num : Grams.UTIL.unquote(arg.val)
+                    return !isNaN(num) ? num : Grams.UTIL.unquote(arg.val)
                 default: TODO('unsuported token in CTX', arg); break;
             }
         },
@@ -77,6 +77,10 @@ export const Grams = {
          * @returns {number | boolean} output
          */
         list: (l=[], ctx = {}) => {
+            //edge case, when the list is the function DEF, then all this will fail
+            if(l[0].type == TokenType.FUN && l[0].val == 'def')
+                return Grams.FUN.def(l[1], l[2], ctx)
+
             //resolve the args to this list function, since they can be variables or more lists
             const args = l.slice(1).map(t => {
                 switch(t.type){
@@ -95,15 +99,15 @@ export const Grams = {
                     if (l[1].type == TokenType.VAR) //if the first arg was in the context (a named var) then the result of the OP should be stored in it.
                         ctx[l[1].val] = res;
                     return res;
-                case TokenType.FUN: return TODO('FUN Token resolution not supported'); //Grams.FUN[t.val[0].val]()
+                case TokenType.FUN: return Grams.FUN[l[0].val](...args);
                 default: TODO('unsuported token in LIST func', l[0]); break;
             };
         },
 
-        print: (...args) => { TODO('Print currently unsupported!')}, //console.log(...args)
+        print: (arg) => { log(arg.val) }, //console.log(...args)
 
         //reeives 2 tokens and ctx object by reference and inserts a new ctx entry. t_arg is a token with a string label of the var and t_val will be its value. Overwrites existing. Also returns the ctx for testing purposes, but it alters the passed one.
-        def: (t_arg, t_val, ctx = {}) => { ctx[t_arg.val] = Grams.FUN.ctx(t_val, ctx); return ''},
+        def: (t_arg, t_val, ctx = {}) => { ctx[t_arg.val] = Grams.FUN.ctx(t_val, ctx); return '' }, //log('adding to ctx', t_arg, Grams.FUN.ctx(t_val, ctx), typeof (Grams.FUN.ctx(t_val, ctx)));
         '=': (...args) => Grams.FUN.def(...args), //shorthand for def
 
         /**
@@ -124,8 +128,8 @@ export const Grams = {
 
         //TAR
         if: (tokens = [], ctx = {}, args = []) => Grams.FUN.cond(args, ctx) ? RecursiveReduceToString(tokens, ctx) : '',
-        // loop: (tokens = [], ctx = {}, args = []) => Array(Grams.FUN.ctx(args[0], ctx) || 0).map(a => RecursiveReduceToString(tokens, ctx)).join(''),
-        loop: (tokens = [], ctx = {}, args = []) => Array.from({ length: Grams.FUN.ctx(args[0], ctx) || 0 }, (_, i) => RecursiveReduceToString(tokens, ctx)).join(''),
+        repeat: (tokens = [], ctx = {}, args = []) => Array(Grams.FUN.ctx(args[0], ctx) || 0).fill(RecursiveReduceToString(tokens, ctx)).join(''), //computes once and just repeats the nest
+        loop: (tokens = [], ctx = {}, args = []) => Array.from({ length: Grams.FUN.ctx(args[0], ctx) || 0 }, (_, i) => RecursiveReduceToString(tokens, ctx)).join(''), //computes the nest multiple times
         target: (tokens = [], ctx = {}, args = []) => RecursiveReduceToString(tokens, ctx),
     },
     OP: {
@@ -138,6 +142,7 @@ export const Grams = {
             '^': (...oprs) => oprs.reduce((a, b) => a ^ b),
             '%': (...oprs) => oprs.reduce((a, b) => a % b),
             '!': (...oprs) => oprs.length == 1 ? !oprs[0] : oprs.map(a => !a), //returns negated element or a list of all elements negated seperately.
+            '=': (a, b) => b,
         },
 
         //logical operators
