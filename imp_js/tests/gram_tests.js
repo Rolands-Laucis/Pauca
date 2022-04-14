@@ -5,8 +5,8 @@ import { Parse, Tokenize, WrapBlocks } from "../parser.js"
 // import { ResolveTarget } from "../resolver.js"
 import { endTimer, startTimer, log, error } from "../utils/log.js"
 
-const test_cases = ['def']
-const all = true
+const test_cases = ['no_print']
+const all = false
 startTimer()
 
 Array.prototype.equals = function (arr) {
@@ -152,4 +152,20 @@ if (test_cases.includes('loop') || all) {
     // console.log(t.val)
     test('loop variable times', Grams.BLOCK[t.val[0].val](t.val.slice(2, -1), { 'x': 2 }, t.val[1].type == TokenType.ARGS ? t.val[1].val : t.val[1]), 'xx')
     test('loop variable times none', Grams.BLOCK[t.val[0].val](t.val.slice(2, -1), { 'x': 0 }, t.val[1].type == TokenType.ARGS ? t.val[1].val : t.val[1]), '')
+}
+
+if (test_cases.includes('no_print') || all) {
+    log('📝', 'Testing no_print...')
+
+    let t = Parse('[+ 1 2]', [Tokenize])[0].val
+    test('print result of list', Grams.FUN.list(t, {}), 3)
+
+    t = Parse('[\\ [+ 1 2]]', [Tokenize])[0].val[1]
+    let ctx = {'x':1}
+    let res = Grams.FUN["\\"](t, ctx)
+    test('dont print result of list', res, '')
+
+    t = Parse('[\\ [+ [x] 2]]', [Tokenize])[0].val[1]
+    res = Grams.FUN["\\"](t, ctx)
+    test('dont print result of list, but update variable', ctx.x, 3)
 }

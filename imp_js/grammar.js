@@ -94,6 +94,17 @@ export const Grams = {
         //reeives 2 tokens and ctx object by reference and inserts a new ctx entry. t_arg is a token with a string label of the var and t_val will be its value. Overwrites existing. Also returns the ctx for testing purposes, but it alters the passed one.
         def: (t_arg, t_val, ctx = {}) => { ctx[t_arg.val] = Grams.FUN.ctx(t_val, ctx); return ctx },
         '=': (...args) => Grams.FUN.def(...args), //shorthand for def
+
+        /**
+         * execultes a list or arg, but always returns an empty string. A way to not print something out to output.
+         * @param {Token} arg
+         * @param {object} ctx
+         * @returns {string} empty
+         */
+        '\\': (arg, ctx={}) => {
+            if(arg.type == TokenType.LIST) Grams.FUN.list(arg.val, ctx)
+            return ''
+        }
     },
     BLOCK:{
         //PAT
