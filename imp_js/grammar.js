@@ -28,7 +28,7 @@ export const Grams = {
         regex: () => { TODO('Regex literals currently unsupported!')},
 
         //shorthands
-        "": Grams.FUN.sym,
+        "": (...args) => Grams.FUN.sym(...args),
         s: () => '(?:\\s)',
         ';': () => '(?:;)',
 
@@ -93,7 +93,7 @@ export const Grams = {
 
         //reeives 2 tokens and ctx object by reference and inserts a new ctx entry. Also returns the ctx for testing purposes, but it alters the passed one.
         def: (t_arg, t_val, ctx = {}) => { ctx[t_arg.val] = Grams.FUN.ctx(t_val, ctx); return ctx},
-        '=': Grams.FUN.def, //shorthand for def
+        '=': (...args) => Grams.FUN.def(...args), //shorthand for def
     },
     BLOCK:{
         //PAT
