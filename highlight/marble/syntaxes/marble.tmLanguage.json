@@ -94,7 +94,7 @@
 			"patterns": [
 				{
 					"name": "entity.name.function.marble",
-					"match": "\\b(if|loop|cond|ctx|def|print)\\b"
+					"match": "\\b(if|loop|repeat|cond|ctx|def|print|\\\\)\\b"
 				}
 			]
 		},
