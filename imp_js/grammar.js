@@ -49,8 +49,8 @@ export const Grams = {
                         var retrieved = (arg.val in ctx) ? ctx[arg.val] : error('Variable accessed without declaration! [variable tag; pattern context]', arg, ctx);
                     const cast = parseInt(retrieved) //see if the stored value can be parsed as an int, bcs context always contains strings, but those strings would be useful as numbers
                     return cast ? cast : retrieved
-                case TokenType.STR: //its a string literal for a number
-                    return num ? num : error('String could not be parsed as integer!', arg)
+                case TokenType.STR: //its a string literal that could be a number
+                    return num ? num : Grams.UTIL.unquote(arg.val)
                 default: TODO('unsuported token in CTX', arg); break;
             }
         },
@@ -91,7 +91,7 @@ export const Grams = {
 
         print: (...args) => { TODO('Print currently unsupported!')}, //console.log(...args)
 
-        //reeives 2 tokens and ctx object by reference and inserts a new ctx entry. Also returns the ctx for testing purposes, but it alters the passed one.
+        //reeives 2 tokens and ctx object by reference and inserts a new ctx entry. t_arg is a token with a string label of the var and t_val will be its value. Overwrites existing. Also returns the ctx for testing purposes, but it alters the passed one.
         def: (t_arg, t_val, ctx = {}) => { ctx[t_arg.val] = Grams.FUN.ctx(t_val, ctx); return ctx},
         '=': (...args) => Grams.FUN.def(...args), //shorthand for def
     },

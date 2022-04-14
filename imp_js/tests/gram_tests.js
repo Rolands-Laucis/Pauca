@@ -5,7 +5,7 @@ import { Parse, Tokenize, WrapBlocks } from "../parser.js"
 // import { ResolveTarget } from "../resolver.js"
 import { endTimer, startTimer, log, error } from "../utils/log.js"
 
-const test_cases = ['ctx']
+const test_cases = ['def']
 const all = false
 startTimer()
 
@@ -117,9 +117,15 @@ if (test_cases.includes('def') || all) {
     let tokens = Parse('[def [x] 1]', [Tokenize])
     test('def num literal to label', Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], { }).x, {'x':1}.x)
 
+    tokens = Parse('[= [x] 1]', [Tokenize])
+    test('def short-hand num literal to label', Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], {}).x, { 'x': 1 }.x)
+
     tokens = Parse('[def [x] [y]]', [Tokenize])
     const ctx = { y: 1 } //a ctx passed by reference here will augment this ctx just by the f call.
     test('def ctx variable to label', Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], ctx).x, { 'x': 1 }.x)
+
+    tokens = Parse('[def [x] "foo"]', [Tokenize])
+    test('def string to label', Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], {}).x, { 'x': 'foo' }.x)
 }
 
 if (test_cases.includes('if') || all) {
