@@ -5,17 +5,17 @@ import { Parse, Tokenize, WrapBlocks } from "../parser.js"
 // import { ResolveTarget } from "../resolver.js"
 import { endTimer, startTimer, log, error } from "../utils/log.js"
 
-const test_cases = ['loop']
+const test_cases = ['ctx']
 const all = false
 startTimer()
 
-Array.prototype.equals = function (arr) {
-    if (!arr || this.length != arr.length)
-        return false
+// Array.prototype.equals = function (arr) {
+//     if (!arr || this.length != arr.length)
+//         return false
 
-    //compare all aligned elements (same order in place) recursively. This will exit early, if there is a mismatch.
-    return this.every((e, i) => typeof (e) == 'array' ? (typeof (arr[i]) == 'array' ? e.equals(arr[i]) : false) : e === arr[i])
-}
+//     //compare all aligned elements (same order in place) recursively. This will exit early, if there is a mismatch.
+//     return this.every((e, i) => typeof (e) == 'array' ? (typeof (arr[i]) == 'array' ? e.equals(arr[i]) : false) : e === arr[i])
+// }
 
 /**
  * Testing function for single values
@@ -52,6 +52,9 @@ if (test_cases.includes('ctx') || all) {
     tokens = Parse('1', [Tokenize])
     test('variable as int literal', Grams.FUN.ctx(tokens[0], {}), 1)
 
+    tokens = Parse('0', [Tokenize])
+    test('variable as int literal 0', Grams.FUN.ctx(tokens[0], {}), 0)
+
     tokens = Parse('[0]', [Tokenize])
     test('variable by index as string of an int parsed as a num', Grams.FUN.ctx(tokens[0], {'x':'1'}), 1)
 }
@@ -86,6 +89,11 @@ if (test_cases.includes('list') || all) {
     ctx = { 'x': 1 }
     Grams.FUN.list(token, ctx)
     test('not storing the AOP result into the first arg when its an int literal', ctx.x, 1)
+
+    token = Parse('[+ [x] [y]]', [Tokenize])[0].val
+    ctx = { x: 1, y:1 }
+    Grams.FUN.list(token, ctx)
+    test('AOP + when both are variables', ctx.x, 2)
 
     token = Parse('[+ [x] 1 [x] [x]]', [Tokenize])[0].val
     ctx = { 'x': 1 }
@@ -136,6 +144,11 @@ if (test_cases.includes('def') || all) {
     Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], ctx)
     test('def short-hand num literal to label', ctx.x, 1)
 
+    tokens = Parse('[def [x] 1]', [Tokenize])
+    ctx = {}
+    Grams.FUN.list(tokens[0].val, ctx)
+    test('def called as in a LIST (practical situation)', ctx.x, 1)
+
     tokens = Parse('[def [x] [y]]', [Tokenize])
     ctx = { y: 1 } //a ctx passed by reference here will augment this ctx just by the f call.
     Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], ctx)
@@ -176,11 +189,17 @@ if (test_cases.includes('no_print') || all) {
     test('print result of list', Grams.FUN.list(t, {}), 3)
 
     t = Parse('[\\ [+ 1 2]]', [Tokenize])[0].val[1]
-    let ctx = {'x':1}
+    let ctx = {}
     let res = Grams.FUN["\\"](t, ctx)
     test('dont print result of list', res, '')
 
     t = Parse('[\\ [+ [x] 2]]', [Tokenize])[0].val[1]
+    ctx = { 'x': 1 }
     res = Grams.FUN["\\"](t, ctx)
     test('dont print result of list, but update variable', ctx.x, 3)
+
+    t = Parse('[\\ [+ [x] 2]]', [Tokenize])[0]
+    ctx = { 'x': 1 }
+    res = Grams.FUN.list(t.val, ctx)
+    test('dont print result called as list (practical situation)', ctx.x, 3)
 }
