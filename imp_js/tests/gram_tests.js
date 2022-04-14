@@ -6,7 +6,7 @@ import { Parse, Tokenize, WrapBlocks } from "../parser.js"
 import { endTimer, startTimer, log, error } from "../utils/log.js"
 
 const test_cases = ['def']
-const all = false
+const all = true
 startTimer()
 
 Array.prototype.equals = function (arr) {
@@ -74,6 +74,9 @@ if (test_cases.includes('list') || all) {
     token = Parse('[> 2 [x]]', [Tokenize])[0].val
     test('LOP > with variable and num literal reversed order and falsy', Grams.FUN.list(token, { 'x': 2 }), false)
 
+    token = Parse('[> 2 1]', [Tokenize])[0].val
+    test('LOP > with both num literal', Grams.FUN.list(token, {}), true)
+
     token = Parse('[+ [x] 1]', [Tokenize])[0].val
     let ctx = { 'x': 1 }
     Grams.FUN.list(token, ctx)
@@ -84,18 +87,24 @@ if (test_cases.includes('list') || all) {
     Grams.FUN.list(token, ctx)
     test('not storing the AOP result into the first arg when its an int literal', ctx.x, 1)
 
-    token = Parse('[+ [x] [x] [x] 1]', [Tokenize])[0].val
+    token = Parse('[+ [x] 1 [x] [x]]', [Tokenize])[0].val
     ctx = { 'x': 1 }
     Grams.FUN.list(token, ctx)
-    test('+ AOP for 4 args', ctx.x, 4)
+    test('AOP + for 4 args', ctx.x, 4)
 
     token = Parse('[+ [x] 1]', [Tokenize])[0].val
     ctx = { 'x': '1' }
     Grams.FUN.list(token, ctx)
-    test('+ AOP for ctx numbers as strings', ctx.x, 2)
+    test('AOP + for ctx numbers as strings', ctx.x, 2)
 
-    // token = Parse('[> 2 1]', [Tokenize])
-    // test('LOP > with both num literal', Grams.FUN.cond(token, { }), true)
+    token = Parse('[+ 2 1]', [Tokenize])[0].val
+    test('AOP + with both num literals', Grams.FUN.list(token, {}), 3)
+
+    token = Parse('[+ 1 2 3 4]', [Tokenize])[0].val
+    test('AOP + with 4 num literal args', Grams.FUN.list(token, {}), 10)
+
+    token = Parse('[+ -1 -2]', [Tokenize])[0].val
+    test('AOP + with both negative num literals', Grams.FUN.list(token, {}), -3)
 }
 
 if (test_cases.includes('cond') || all) {
@@ -124,7 +133,7 @@ if (test_cases.includes('def') || all) {
     const ctx = { y: 1 } //a ctx passed by reference here will augment this ctx just by the f call.
     test('def ctx variable to label', Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], ctx).x, { 'x': 1 }.x)
 
-    tokens = Parse('[def [x] "foo"]', [Tokenize])
+    tokens = Parse('[def [x] foo]', [Tokenize])
     test('def string to label', Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], {}).x, { 'x': 'foo' }.x)
 }
 

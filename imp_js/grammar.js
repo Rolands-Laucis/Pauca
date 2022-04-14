@@ -92,7 +92,7 @@ export const Grams = {
         print: (...args) => { TODO('Print currently unsupported!')}, //console.log(...args)
 
         //reeives 2 tokens and ctx object by reference and inserts a new ctx entry. t_arg is a token with a string label of the var and t_val will be its value. Overwrites existing. Also returns the ctx for testing purposes, but it alters the passed one.
-        def: (t_arg, t_val, ctx = {}) => { ctx[t_arg.val] = Grams.FUN.ctx(t_val, ctx); return ctx},
+        def: (t_arg, t_val, ctx = {}) => { ctx[t_arg.val] = Grams.FUN.ctx(t_val, ctx); return ctx },
         '=': (...args) => Grams.FUN.def(...args), //shorthand for def
     },
     BLOCK:{
@@ -132,8 +132,8 @@ export const Grams = {
     },
 
     UTIL:{
-        unquote: (str='') => str.match(/[\"\'\`](?<body>.*)[\"\'\`]/)?.groups?.body,
-        cast_spaces: (str='') => str.replace(/\s\t/gm, '\\s')
+        unquote: (str='') => str.match(/[\"\'\`](?<body>.*)[\"\'\`]/)?.groups?.body || str,
+        cast_spaces: (str='') => str.replace(/\s\t/gm, '\\s') || str
     }
     // : () => {},
 }

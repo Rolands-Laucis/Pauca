@@ -1,6 +1,6 @@
 import { Token, TokenType } from './token.js'
 import { Grams } from './grammar.js'
-import { error } from './utils/log.js'
+import { error, log } from './utils/log.js'
 
 //these need to be outside the scope of Tokenize function, since it is recursive and uses these. Could also define these as static inside a Token enum, but does that make sense? idk. I dont like them being global here tho
 let counter = 0 //unique identifier - could be something fancier like a UUID or combination of counter + random ascii, but rly this just works
@@ -13,10 +13,10 @@ Array.prototype.last = function () { return this[this.length - 1] } //for some r
  * @param {string} str
  * @returns {Token[]} tokens
  */
-export function Tokenize(str, {ignore_ws=false} = {}){
+export function Tokenize(str, { split_on_ws=false, special_quotes=false } = {}){
     if (!str) return undefined
 
-    //looks further into the string until a closing ] is found for the original opening [. Expects a string to be passed in
+    //looks further into the string until a closing ] is found for the original opening [ and returns the index where it was found.
     function Peek(str) {
         let bracket_count = 1 //finds it via simple braket balacing algo. Starts at 1, bcs peek begins after a [ symbol has been detected
         for (let j = 1; j < str.length; j++) {
@@ -32,6 +32,14 @@ export function Tokenize(str, {ignore_ws=false} = {}){
         error('Did not find a closing ] symbol when peeking a list. Braket count unbalanced.', { str: str, open_brackets_left: bracket_count })
     }
 
+    //looks further into the string for a closing quote symbol and returns the index where it was found.
+    function PeekQuote(str, q='\"'){
+        for (let j = 1; j < str.length; j++)
+            if (str[j] == q)
+                return j
+        error(`Did not find a closing ${q} symbol when peeking a list. Quote count unbalanced.`, { str: str, quote_sym: q })
+    }
+
     let tokens = []
     let col = '' //current chars collected from parsing
 
@@ -43,7 +51,13 @@ export function Tokenize(str, {ignore_ws=false} = {}){
     //said to be fastest current way to go through all chars https://stackoverflow.com/questions/1966476/how-can-i-process-each-letter-of-text-using-javascript
     for (let i = 0; i < str.length; i++) {
         switch(str[i]){
-            case str[i].match(/[\n\r\t\s]/)?.input: if(!ignore_ws) col += str[i]; break; //dont accumulate white space symbols
+            case str[i].match(/[\"\'\`]/)?.input://quotes are a specia case when inside a list, bcs their spaces should not be ignored. So just peek ahead to where the quote ends and that whole string to col.
+                if (special_quotes){
+                    const j = PeekQuote(str.slice(i), str[i]);
+                    col += str.slice(i, j+1)
+                    i += j
+                } else col += str[i]; break;
+            case str[i].match(/[\n\r\t\s]/)?.input: if (split_on_ws) Add(); else col += str[i]; break; //when inside a list we want to seperate arguments on space to get int literals, but dont want to split when outside a list
 
             case '[': //starting a new list - [...]
                 Add(); //add str token of whatever was before the new list
@@ -52,7 +66,7 @@ export function Tokenize(str, {ignore_ws=false} = {}){
                 const list_str = str.slice(i + 1, i + j) //select the whole list string
 
                 //a space or another [ would indicate the first chars is the name of a function for this list, otherwise it should be a variable name. I.e. [fun [x] ...] or [my_var]
-                const list_type = list_str.replace(/[\n\r\s\t]+/g, '').match(/[\[\"]/) //collapse spaces, just bcs. If this matches, then its a FUN, otherwise VAR 
+                const list_type = list_str.match(/[\s\[\"]/) //If this matches, then its a FUN, otherwise VAR 
 
                 switch (true) { //meaning true has to match one of the cases, so case expr have to resolve to true to execute
                     case list_str[0] == '/' && list_str[1] != ' '://if begins with a slash, then it is the end of a block. The space checks that its not a literal OP / FUN. 
@@ -60,8 +74,8 @@ export function Tokenize(str, {ignore_ws=false} = {}){
                         else Add(list_str, TokenType.BLOCKEND(stack.pop()))
                         break;
                     case list_type != null: //this is a list, so recursive parse down the arguments after the first part of the string, which would be the FUN token name asociated with this list and prepend that
-                        const list_tokens = Tokenize(list_str.slice(list_type.index), { ignore_ws: false }) //recursively parse. Whitespaces inside lists should be ignored. Generate less tokens
-                        
+                        const list_tokens = Tokenize(list_str.slice(list_type.index).trim(), { split_on_ws: true, special_quotes:true }) //recursively parse. Whitespaces inside lists should be ignored. Generate less tokens
+
                         //a function can be a regular function to execute on some params, like an operation, but it can also designate a block that has a body, this destincion can be made by checking the grams of Marble
                         const FUN_str = str.slice(i + 1, i + list_type.index + 1).trim()
                         if (Object.keys(Grams.BLOCK).includes(FUN_str)){
@@ -99,7 +113,6 @@ export function Tokenize(str, {ignore_ws=false} = {}){
         }
     }
     Add() //handling end of string last collected
-
     return tokens
 }
 
