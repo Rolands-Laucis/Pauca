@@ -122,7 +122,7 @@ export function Tokenize(str, { split_on_ws=false, special_quotes=false } = {}){
  * @param {Token[]} tokens
  * @returns {Token[]} blocks
  */
-export function WrapBlocks(tokens){
+export function WrapBlocks(tokens=[]){
     for (let i = 0; i < tokens.length; i++) {
         const t = tokens[i]
         // console.log(t.type.name, t.val, `i:${i}`)
