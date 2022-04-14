@@ -25,10 +25,7 @@ export const Grams = {
         //regular
         sym: (token) => `(?:${Grams.UTIL.unquote(token.val.trim())})`,// + (opt ? '?' : ''),
         var: (token) => (token.val ? `(?<${Grams.UTIL.unquote(token.val)}>\\w+)` : `(\\w+)`), // + (opt ? '?' : ''), //NOTE \w matches letters, numbers and underscore. TODO token.val might not be empty, but after cleanup, it might
-        // rec: () => '(',
-        // '/rec': () => ')+',
-        // re: (str) => str.match(/\/(?<exp>.*)\/(a-zA-Z{0,5})?/).groups.exp,
-        regex: () => { },
+        regex: () => { TODO('Regex literals currently unsupported!')},
 
         //shorthands
         "": (t) => Grams.FUN.sym(t),
@@ -68,7 +65,11 @@ export const Grams = {
                     case TokenType.VAR: return Grams.FUN.ctx(a, ctx);
                     case TokenType.LIST://first item in a list is always a function
                         switch (a.val[0].type) {
-                            case TokenType.OP: return Grams.OP[a.val[0].val](Grams.FUN.ctx(a.val[1], ctx), Grams.FUN.ctx(a.val[2], ctx));//TODO no reason why this should only be 2. Could use the ...spread args syntax to apply the operator on infinite operands
+                            case TokenType.OP: 
+                                const res = Grams.OP[a.val[0].val](Grams.FUN.ctx(a.val[1], ctx), Grams.FUN.ctx(a.val[2], ctx));//TODO no reason why this should only be 2. Could use the ...spread args syntax to apply the operator on infinite operands
+                                if (a.val[1].type == TokenType.VAR) //if the first arg was in the context (a named var) then the result of the OP should be stored in it.
+                                    ctx[a.val[1].val] = res
+                                return res
                             case TokenType.FUN: return TODO('FUN Token resolution not supported'); //Grams.FUN[t.val[0].val]()
                             default: TODO('unsuported token in COND list', a.val[0]); break;
                         }; break;
@@ -98,6 +99,7 @@ export const Grams = {
         '/': (a, b) => b != 0 ? Math.floor(a / b) : error(`Division by 0 error. [a b] = ${[a, b]}`),
         '^': (a, b) => a ^ b,
         '%': (a, b) => a % b,
+        '!': a => !a,
 
         '==': (a, b) => a === b,
         '>': (a, b) => a > b,

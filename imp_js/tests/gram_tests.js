@@ -6,7 +6,7 @@ import { Parse, Tokenize, WrapBlocks } from "../parser.js"
 import { endTimer, startTimer, log } from "../utils/log.js"
 
 const test_cases = ['cond']
-const all = true
+const all = false
 startTimer()
 
 Array.prototype.equals = function (arr) {
@@ -65,11 +65,23 @@ if (test_cases.includes('cond') || all) {
     tokens = Parse('[> 2 [x]]', [Tokenize])
     test('condition OP > with variable and num literal reversed order and falsy', Grams.FUN.cond(tokens, { 'x': 2 }), false)
 
+    tokens = Parse('[+ [x] 1]', [Tokenize])
+    let ctx = { 'x': 1 }
+    Grams.FUN.cond(tokens, ctx)
+    test('storing the OP result into the first arg when its a labeled var', ctx.x, 2)
+
+    tokens = Parse('[+ 1 [x]]', [Tokenize])
+    ctx = { 'x': 1 }
+    Grams.FUN.cond(tokens, ctx)
+    test('not storing the OP result into the first arg when its an int literal', ctx.x, 1)
+
+    // tokens = Parse('[+ [0] 1]', [Tokenize])
+    // ctx = { 'x': 1 }
+    // Grams.FUN.cond(tokens, ctx)
+    // test('not storing the OP result into the first arg when its an indexed var', ctx.x, 2)
+
     // tokens = Parse('[> 2 1]', [Tokenize])
     // test('condition OP > with both num literal', Grams.FUN.cond(tokens, { }), true)
-
-    // tokens = Parse('[> 2 3]', [Tokenize])
-    // test('condition OP > with both num literal falsy', Grams.FUN.cond(tokens, {}), false)
 
     tokens = Parse('[smth]', [Tokenize])
     test('condition single variable truthyness', Grams.FUN.cond(tokens, { smth:1 }), true)
