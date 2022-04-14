@@ -54,6 +54,12 @@ After downloading the repo, have Node installed and from ``./imp_js`` simply run
 node marble -s="./gen/syntax.marble" -i="./gen/input.txt" -o="./gen/output.txt" -v=true
 ```
 
+or
+
+```bat
+npm run marble
+```
+
 This would launch Marble to read the `syntax.marble` definition script that is full of the lines seen above for generic syntax patterns, then looks for these patterns in the `input.c` text file and transpiles them to whatever target text file, here - `output.txt`.
 
 Marble engine implementations should be built such that they can be invoked from CLI and programmatically, by calling a single function in a script.
@@ -65,7 +71,7 @@ Marble engine implementations should be built such that they can be invoked from
 * `./media` - images, logos etc.
 * `./specification.md` - a Marble language specification file that is always outdated, since design choices change fast and arent stable.
 
-## `./imp_js`
+#### `./imp_js`
 
 * `/gen` - a gitignored folder used for testing locally. Should have files `test.marble`, `input.txt`, `output.txt` to run the `npm run marble` shorthand script
 * `/tests` - has unit tests for the js implementation
@@ -84,7 +90,7 @@ I am creating this for fun and because i could not find something similar to thi
 
 Contact me on this github repo issues tab or something.
 
-### Links, resources relating to Marble
+## Links, resources relating to Marble
 
 * [A higher level abstract regex compiler](https://github.com/Ruminat/Asq-Server). It lets you define regex patterns with more readable syntax, specifically for csv table and such parsing.
 * [General purpose scriptable transpiler for many languages](https://awesomeopensource.com/project/jarble/transpiler). Has support for many languages and lets you script addons to the engine.
