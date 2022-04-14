@@ -58,6 +58,26 @@ This would launch Marble to read the `syntax.marble` definition script that is f
 
 Marble engine implementations should be built such that they can be invoked from CLI and programmatically, by calling a single function in a script.
 
+### Navigating the repo
+
+* `./highlight` - has a `/marble` folder VSCode extension for syntax highlighting. TML file and configs, so you can adapt to whatever IDE you use.
+* `./imp_js` - has a javascript implementation of the Marble engine written by me.
+* `./media` - images, logos etc.
+* `./specification.md` - a Marble language specification file that is always outdated, since design choices change fast and arent stable.
+
+## `./imp_js`
+
+* `/gen` - a gitignored folder used for testing locally. Should have files `test.marble`, `input.txt`, `output.txt` to run the `npm run marble` shorthand script
+* `/tests` - has unit tests for the js implementation
+* `/utils` - utility js scripts, like custom logger and file system wrapper, that are not a part of the engine really
+* `/marble.js` - the top-level main script to run with CLI args to the 3 files, this is just a Node.js env wrapper for running on desktop. Runs `transpile.js`.
+* `/transpile.js` - the main function that does the transpiling high-level steps like running the parser and resolvers.
+* `/preproc.js` - preprocessing steps and a main func to apply the ones you want.
+* `/parser.js` - parses the input marble syntax into abstract token trees as a json.
+* `/resolver.js` - uses the parse tree and resolves the pattern tags to a regex object, then later is used with regex match objects as contexts and parse tree and Marble's grammar to resolve all the target tags to an output string.
+* `/grammar.js` - contains an object that has the entirety of the Marble language grammar and each tokens functionality
+* `/token.js` - defines 2 "js enums" as classes, a top-level Token that stores the parsed string symbols and a TokenType labeling the semantics of that string. 
+
 ### Motivation
 
 I am creating this for fun and because i could not find something similar to this. Rather i found alot of specific s2s transpilers and a general purpose transpiler that is programmable, but it has to do with scripting the inner workings of the transpiler. The Marble way is to define patterns of syntax.
