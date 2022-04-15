@@ -142,7 +142,6 @@ export const Grams = {
             '^': (...oprs) => oprs.reduce((a, b) => a ^ b),
             '%': (...oprs) => oprs.reduce((a, b) => a % b),
             '!': (...oprs) => oprs.length == 1 ? !oprs[0] : oprs.map(a => !a), //returns negated element or a list of all elements negated seperately.
-            '=': (a, b) => b,
         },
 
         //logical operators

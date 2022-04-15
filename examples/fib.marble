@@ -10,7 +10,7 @@
     [x]
     [y]
     [loop [times]]
-        [def [tmp] 0][\ [= [x] [y]]][\ [= [y] [curr]]]
-        [= [curr] [+ [tmp] [y] [x]]], 
+        [\ [= [x] [y]]] [\ [= [y] [curr]]]
+        [= [curr] [+ 0 [y] [x]]], 
     [/loop]
 [/target]
