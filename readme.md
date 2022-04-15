@@ -48,15 +48,19 @@ Currently i just drop in the marble folder into the vscode extencions folder.
 
 Currently Marble's specification is being developed, and this may take a considerable amount of time. So far there is a demo implementation of the Marble engine in Node.js by me, that is in development. You are free to implement it in whatever language you wish, so long as it's under the MIT licence and you credit this repo. See [./imp_js/tests](./imp_js/tests) for currently supported Marble features.
 
-After downloading the repo, have Node installed and from ``./imp_js`` simply run:
+After downloading the repo, have Node installed simply run:
 
 ```bat
+cd imp_js
+npm i
 node marble -s="./gen/syntax.marble" -i="./gen/input.txt" -o="./gen/output.txt" -v=true
 ```
 
 or
 
 ```bat
+cd imp_js
+npm i
 npm run marble
 ```
 
