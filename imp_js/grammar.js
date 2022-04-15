@@ -106,10 +106,7 @@ export const Grams = {
             };
         },
 
-        print: (...args) => { 
-            // const ctx = args.last()
-            args.slice(0, -1).forEach(a => log(a.val))
-         },
+        print: (...args) => { args.slice(0, -1).forEach(a => log(a)); return '';},
 
         //reeives 2 tokens and ctx object by reference and inserts a new ctx entry. t_arg is a token with a string label of the var and t_val will be its value. Overwrites existing. Also returns the ctx for testing purposes, but it alters the passed one.
         def: (t_arg, t_val, ctx = {}) => { 
