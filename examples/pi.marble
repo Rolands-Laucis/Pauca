@@ -3,14 +3,17 @@
 
 [p] ["loop = "] [var "times"] [/p]
 [target]
-    [def [pi] 0]
-    [def [devisor] 1]
+    [\
+        [def [pi] 0]
+        [def [devisor] 1]
+    ]
 
-    [loop [times]] // the [\ ...] list just omits the result of the evaluation, so like an anti-print
-        [\ [+ [pi] [/ 1 [devisor]]]]
-        [\ [+ [devisor] 2]]
-        [\ [* [pi] -1]]
-    [/loop]
+    // the [\ ...] list just omits the result of the evaluation, so like an anti-print
+    [loop [times]][\ 
+            [+ [pi] [/ 1 [devisor]]]
+            [+ [devisor] 2]
+            [* [pi] -1]
+    ][/loop]
     
-    [* [pi] 4]
+    pi is aprox [* [pi] 4] with [times] iterations
 [/target]
