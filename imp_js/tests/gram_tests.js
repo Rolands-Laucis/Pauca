@@ -5,7 +5,7 @@ import { Parse, Tokenize, WrapBlocks } from "../parser.js"
 // import { ResolveTarget } from "../resolver.js"
 import { endTimer, startTimer, log, error } from "../utils/log.js"
 
-const test_cases = ['ctx']
+const test_cases = ['no_print']
 const all = false
 startTimer()
 
@@ -188,9 +188,9 @@ if (test_cases.includes('no_print') || all) {
     let t = Parse('[+ 1 2]', [Tokenize])[0].val
     test('print result of list', Grams.FUN.list(t, {}), 3)
 
-    t = Parse('[\\ [+ 1 2]]', [Tokenize])[0].val[1]
+    t = Parse('[\\ [+ 1 2]]', [Tokenize])[0]
     let ctx = {}
-    let res = Grams.FUN["\\"](t, ctx)
+    let res = Grams.FUN.list(t.val, ctx)
     test('dont print result of list', res, '')
 
     t = Parse('[\\ [+ [x] 2]]', [Tokenize])[0].val[1]

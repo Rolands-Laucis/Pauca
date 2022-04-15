@@ -15,6 +15,8 @@ import { Token, TokenType } from "./token.js"; //for ES linting
 //which then goes straight into the output.txt
 //the resolving is called here, but the logic for it is defined in the resolver.js , bcs that logic should be seperate, but since infinite recursion is supported, then the chain has to start from here, if that makes sense
 
+Array.prototype.last = function () {return this[this.length-1]}
+
 export const Grams = {
     FUN:{
         //PAT
@@ -51,7 +53,7 @@ export const Grams = {
                     return cast ? cast : retrieved
                 case TokenType.STR: //its a string literal that could be a number
                     return !isNaN(num) ? num : Grams.UTIL.unquote(arg.val)
-                default: TODO('unsuported token in CTX', arg); break;
+                default: error('unsuported token in CTX', arg); break;
             }
         },
 
@@ -78,7 +80,7 @@ export const Grams = {
          */
         list: (l=[], ctx = {}) => {
             //edge case, when the list is the function DEF, then all this will fail
-            if(l[0].type == TokenType.FUN && l[0].val == 'def')
+            if (l[0].type == TokenType.FUN && (l[0].val == 'def' || l[0].val == '=')) //TODO the shorthand would never actually get called.
                 return Grams.FUN.def(l[1], l[2], ctx)
 
             //resolve the args to this list function, since they can be variables or more lists
@@ -99,25 +101,35 @@ export const Grams = {
                     if (l[1].type == TokenType.VAR) //if the first arg was in the context (a named var) then the result of the OP should be stored in it.
                         ctx[l[1].val] = res;
                     return res;
-                case TokenType.FUN: return Grams.FUN[l[0].val](...args);
+                case TokenType.FUN: args.push(ctx); return Grams.FUN[l[0].val](...args); //meaning from this point on, that LISTs containing non-internal functions will receive all their params as an infinite spread, where the last element is the context object and can be extracted via the .ctx()
                 default: TODO('unsuported token in LIST func', l[0]); break;
             };
         },
 
-        print: (arg) => { log(arg.val) }, //console.log(...args)
+        print: (...args) => { 
+            // const ctx = args.last()
+            args.slice(0, -1).forEach(a => log(a.val))
+         },
 
         //reeives 2 tokens and ctx object by reference and inserts a new ctx entry. t_arg is a token with a string label of the var and t_val will be its value. Overwrites existing. Also returns the ctx for testing purposes, but it alters the passed one.
-        def: (t_arg, t_val, ctx = {}) => { ctx[t_arg.val] = Grams.FUN.ctx(t_val, ctx); return '' }, //log('adding to ctx', t_arg, Grams.FUN.ctx(t_val, ctx), typeof (Grams.FUN.ctx(t_val, ctx)));
+        def: (t_arg, t_val, ctx = {}) => { 
+            switch(t_val.type){
+                case TokenType.LIST: ctx[t_arg.val] = Grams.FUN.list(t_val.val, ctx); break;
+                default: ctx[t_arg.val] = Grams.FUN.ctx(t_val, ctx); break;  //for VAR and STR tokens, otherwise would raise error in ctx()
+            }
+            // log('added to ctx', ctx)
+            return ctx[t_arg.val]
+        },
         '=': (...args) => Grams.FUN.def(...args), //shorthand for def
 
         /**
-         * execultes a list or arg, but always returns an empty string. A way to not print something out to output.
-         * @param {Token} arg
-         * @param {object} ctx
+         * executes a list or arg, but always returns an empty string. A way to not print something out to output.
+         * @param {Token[]} args
          * @returns {string} empty
          */
-        '\\': (arg, ctx={}) => {
-            if(arg.type == TokenType.LIST) Grams.FUN.list(arg.val, ctx)
+        '\\': (...args) => {
+            const ctx = args.last()
+            args.slice(0, -1).forEach(a => a.type == TokenType.LIST ? Grams.FUN.list(a.val, ctx) : null) //eval all the arguments, if they are lists, but dont care about what they return
             return ''
         }
     },

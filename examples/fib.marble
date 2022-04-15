@@ -3,14 +3,19 @@
 
 [p] ["loop = "] [var "times"] [/p]
 [target]
-    [def [x] 0]
-    [def [y] 1]
-    [def [curr] 0]
+    [\ 
+        [def [x] 0]
+        [def [y] 1]
+        [def [curr] 1]
+    ]
 
     [x]
     [y]
-    [loop [times]]
-        [\ [= [x] [y]]] [\ [= [y] [curr]]]
-        [= [curr] [+ 0 [y] [x]]], 
+    // the [\ ...] list just omits the result of the evaluation, so like an anti-print
+    [loop [times]][\ 
+        [= [x] [y]] 
+        [= [y] [curr]] 
+        [= [curr] [+ 0 [y] [x]]]
+    ][curr], 
     [/loop]
 [/target]
