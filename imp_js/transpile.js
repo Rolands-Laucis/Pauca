@@ -24,7 +24,7 @@ String.prototype.splice = function (index, count, add='') { return this.slice(0,
  * @param {string} source
  * @param {object} opts
  */
-export function MarbleTranspile(syntax, source, { mode = TranspileMode.REPLACE, segment = null, verbose = false, only_preprocess=false, only_parse=false, only_resolve_pat=false } = {}) { //opts as a dictionary of opts with defaults
+export function MarbleTranspile(syntax, source, { mode = TranspileMode.SINGLE, segment = null, verbose = false, only_preprocess=false, only_parse=false, only_resolve_pat=false } = {}) { //opts as a dictionary of opts with defaults
     if (verbose) startTimer()
 
     if (verbose) info('Starting transpilation...')

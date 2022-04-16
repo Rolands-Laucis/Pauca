@@ -1,0 +1,20 @@
+//https://www.paulbui.net/wl/Taylor_Series_Pi_and_e
+//calculates e via tailor series
+
+[p] ["loop = "] [var "times"] [/p]
+[target]
+    [\
+        [def [sum] 1]
+        [def [x] 1]
+        [def [mul] 1]
+    ]
+
+    [sum]
+    [x]
+    [loop [times]][\
+            [+ [sum] [/ 1 [mul]]]
+            [* [mul] [+ [x] 1]]
+    ][/loop]
+
+    [sum]
+[/target]

@@ -41,7 +41,7 @@ export const Grams = {
          * @returns {number|string} output
          */
         ctx: (arg, ctx = {}) => {
-            const num = parseInt(arg.val);
+            const num = parseFloat(arg.val);
             // log('arg in ctx:', arg, num)
             switch(arg.type){
                 case TokenType.VAR:
@@ -49,7 +49,7 @@ export const Grams = {
                         var retrieved = Object.values(ctx)[num] //TODO this needs an efficient error case handling, when the index might be out of bounds!
                     else //grab by label in pattern
                         var retrieved = (arg.val in ctx) ? ctx[arg.val] : error('Variable accessed without declaration! [variable tag; pattern context]', arg, ctx);
-                    const cast = parseInt(retrieved) //see if the stored value can be parsed as an int, bcs context always contains strings, but those strings would be useful as numbers
+                    const cast = parseFloat(retrieved) //see if the stored value can be parsed as an float, bcs context always contains strings, but those strings would be useful as numbers
                     return cast ? cast : retrieved
                 case TokenType.STR: //its a string literal that could be a number
                     return !isNaN(num) ? num : Grams.UTIL.unquote(arg.val)
@@ -89,7 +89,7 @@ export const Grams = {
                     case TokenType.VAR: return Grams.FUN.ctx(t, ctx)
                     case TokenType.STR: return Grams.FUN.ctx(t, ctx)
                     case TokenType.LIST: return Grams.FUN.list(t.val, ctx)
-                    default: TODO('unsuported token in LIST args', t); break;
+                    default: error('unsuported token in LIST args', t); break;
                 }
             })//l is a LIST so we can slice all the args to it and map them to their resolved vals from ctx or res if they are other list, then pass them to the OP function that takes infinite params
             

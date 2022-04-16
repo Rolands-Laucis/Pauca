@@ -5,7 +5,7 @@ import { Parse, Tokenize, WrapBlocks } from "../parser.js"
 // import { ResolveTarget } from "../resolver.js"
 import { endTimer, startTimer, log, error } from "../utils/log.js"
 
-const test_cases = ['no_print']
+const test_cases = ['list']
 const all = false
 startTimer()
 
@@ -114,8 +114,10 @@ if (test_cases.includes('list') || all) {
     token = Parse('[+ -1 -2]', [Tokenize])[0].val
     test('AOP + with both negative num literals', Grams.FUN.list(token, {}), -3)
 
-    token = Parse('[+ [sum] [/ 2 [y]]]', [Tokenize])[0].val
-    test('AOP + with nested AOP', Grams.FUN.list(token, {sum:1, y:2}), 2)
+    token = Parse('[+ [sum] [/ 1 [y]]]', [Tokenize])[0].val
+    ctx = { sum: 1, y: 2 }
+    Grams.FUN.list(token, ctx)
+    test('AOP + with nested AOP', ctx.sum, 1.5)
 }
 
 if (test_cases.includes('cond') || all) {
