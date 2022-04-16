@@ -7,7 +7,7 @@ import sizeof from 'object-sizeof'
 
 import { ExportParsed } from './utils/fs_utils.js'
 
-//enum class for marble transpilation modes
+//enum class for Pauca transpilation modes
 export class TranspileMode {
     static SINGLE = new TranspileMode('SINGLE')//transpile as single match and single generated output
     static MULTIPLE = new TranspileMode('MULTIPLE') //transpile each pattern for every match in the input sequentially generating its output
@@ -38,11 +38,11 @@ export function MarbleTranspile(syntax, source, { mode = TranspileMode.REPLACE, 
     if (verbose) info('Done preprocessing')
     if (only_preprocess) return syntax
 
-    //parse the marble syntax into a ready-to-use data structure
+    //parse the Pauca syntax into a ready-to-use data structure
     let parse_tree = Parse(syntax)
     // ExportParsed(parse_tree, {path:'./gen/parse_tree.json'})
     // process.exit(1)
-    if (verbose) info(`Parsed marble file. Size of parse tree object: [${sizeof(parse_tree)}] Bytes`)
+    if (verbose) info(`Parsed Pauca file. Size of parse tree object: [${sizeof(parse_tree)}] Bytes`)
     if (only_parse) error('Purposeful program termination to print parse tree:',parse_tree)
 
     //resolve the pattern tokens to a regex object

@@ -1,5 +1,5 @@
-//this script contains the grammar dictionary for the Marble language.
-//it defines every meaningful keyword reserved by Marble and its functionality.
+//this script contains the grammar dictionary for the Pauca language.
+//it defines every meaningful keyword reserved by Pauca and its functionality.
 
 import { error, TODO, log } from "./utils/log.js";
 import { RecursiveReduceToString } from './resolver.js'
@@ -160,8 +160,8 @@ export const Grams = {
             '<': (a, b) => a < b,
             '>=': (a, b) => a >= b,
             '<=': (a, b) => a <= b,
-            '||': (a, b) => a || b,
-            '&&': (a, b) => a && b,
+            '|': (a, b) => a || b,
+            '&': (a, b) => a && b,
         }
 
         // '': (a, b) => a  b,

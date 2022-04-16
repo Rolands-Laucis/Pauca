@@ -76,7 +76,7 @@ export function Tokenize(str, { split_on_ws=false, special_quotes=false } = {}){
                     case list_type != null: //this is a list, so recursive parse down the arguments after the first part of the string, which would be the FUN token name asociated with this list and prepend that
                         const list_tokens = Tokenize(list_str.slice(list_type.index).trim(), { split_on_ws: true, special_quotes:true }) //recursively parse. Whitespaces inside lists should be ignored. Generate less tokens
 
-                        //a function can be a regular function to execute on some params, like an operation, but it can also designate a block that has a body, this destincion can be made by checking the grams of Marble
+                        //a function can be a regular function to execute on some params, like an operation, but it can also designate a block that has a body, this destincion can be made by checking the grams of Pauca
                         const FUN_str = str.slice(i + 1, i + list_type.index + 1).trim()
                         if (Object.keys(Grams.BLOCK).includes(FUN_str)){
                             counter++; stack.push(counter); //console.log(stack); //stack and counter defined globally at the top of script

@@ -1,4 +1,4 @@
-//this script contains functions for resolving (linking, rendering, executing) the parsed Marble tree of tokens into a final single string to be writen as the output to a file.
+//this script contains functions for resolving (linking, rendering, executing) the parsed Pauca tree of tokens into a final single string to be writen as the output to a file.
 
 import { error, TODO, log } from "./utils/log.js";
 import { Token, TokenType } from "./token.js";
