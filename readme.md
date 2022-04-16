@@ -1,4 +1,4 @@
-# General purpose source-to-source (s2s) plain text transpiler tool and programming language - "Pauca".
+# A general plain text templating, parsing and processing engine - "Pauca" (glorified find and replace).
 
 <p align="center"><img src="./media/pauca%20logo.png"/></p>
 
