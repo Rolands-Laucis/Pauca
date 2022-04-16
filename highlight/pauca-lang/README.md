@@ -1,6 +1,6 @@
-# marble README
+# pauca-lang README
 
-This is the README for your extension "marble". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "pauca-lang". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 

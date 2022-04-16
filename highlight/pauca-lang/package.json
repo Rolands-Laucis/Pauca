@@ -1,0 +1,25 @@
+{
+    "name": "pauca-lang",
+    "displayName": "Pauca",
+    "description": "syntax highlighting for the Pauca templating engine scripts",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.66.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "pauca",
+            "aliases": ["Pauca", "pauca"],
+            "extensions": [".pau"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "pauca",
+            "scopeName": "source.pauca",
+            "path": "./syntaxes/pauca.tmLanguage.json"
+        }]
+    }
+}
