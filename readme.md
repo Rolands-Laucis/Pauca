@@ -7,11 +7,11 @@ Pauca is a glorified "find and replace" engine, where the replace bit is program
 
 ### Brief intro. What does Pauca do?
 
-The Pauca language syntax is LISP-like, where lists (aka "tags") are denoted with square brakets. The first element in a list is a function and the rest are its parameters. These can be nested of course.
+The Pauca language syntax is LISP-like, where lists are denoted with square brakets. The first element in a list is a function and the rest are its parameters. These can be nested of course.
 
 ``[sym "int"]`` tells Pauca to look for a symbol string "int". A literal string in the source code text file.
 
-These and other tags can be chained together, like so:
+These and other lists can be chained together, like so:
 
 ``[sym "public int "] [var "the_variable_name"] ...``
 
@@ -27,7 +27,7 @@ The target block supports IF, LOOP etc. blocks to programmatically generate the 
 
 An interesting use of Pauca would be to create "flavors" of a programming language and transpile the source code file before handing it to the corresponding language compiler or interpreter.
 
-You can check [the Specification for Pauca syntax here](./specification.md) or [the internal compiler grammar functions here](./imp_js/grammar.js) for all possible and currently implemented tags.
+You can check [the Specification for Pauca syntax here](./specification.md) or [the internal compiler grammar functions here](./imp_js/grammar.js) for all possible and currently implemented lists.
 
 ## Syntax snippet ``syntax.Pauca``
 
@@ -84,7 +84,7 @@ Pauca engine implementations should be built such that they can be invoked from 
 * `/transpile.js` - the main function that does the transpiling high-level steps like running the parser and resolvers.
 * `/preproc.js` - preprocessing steps and a main func to apply the ones you want.
 * `/parser.js` - parses the input Pauca syntax into abstract token trees as a json.
-* `/resolver.js` - uses the parse tree and resolves the pattern tags to a regex object, then later is used with regex match objects as contexts and parse tree and Pauca's grammar to resolve all the target tags to an output string.
+* `/resolver.js` - uses the parse tree and resolves the pattern lists to a regex object, then later is used with regex match objects as contexts and parse tree and Pauca's grammar to resolve all the target lists to an output string.
 * `/grammar.js` - contains an object that has the entirety of the Pauca language grammar and each tokens functionality
 * `/token.js` - defines 2 "js enums" as classes, a top-level Token that stores the parsed string symbols and a TokenType labeling the semantics of that string. 
 
