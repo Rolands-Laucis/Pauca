@@ -43,7 +43,7 @@ export function log(...objs){
  * @param {boolean} exit
  */
 export function error(msg, ...objs) {
-    console.log(`${prefix('MARBLE ERROR', console_colors.FgRed)} 😐 Bruh...\n\n${msg}`)
+    console.log(`${prefix('PAUCA ERROR', console_colors.FgRed)} 😐 Bruh...\n\n${msg}`)
     if(objs)
         console.log(...objs, '\n')
     
@@ -57,7 +57,7 @@ export function error(msg, ...objs) {
  * @param {boolean} exit
  */
 export function TODO(msg = '', obj = null, exit=false){
-    console.log(`${prefix('MARBLE TODO', console_colors.FgYellow)} Not implemented:`, msg, '\n')
+    console.log(`${prefix('PAUCA TODO', console_colors.FgYellow)} Not implemented:`, msg, '\n')
     if (obj)
         console.log(obj)
     if (exit)
@@ -79,6 +79,6 @@ export function endTimer(reset = false){
     return ((ms[0] * 1000) + (ms[1] / 1000000)).toFixed(2)
 }
 
-function prefix(msg = 'MARBLE', color=console_colors.Reset){
+function prefix(msg = 'PAUCA', color=console_colors.Reset){
     return `${color}[${msg}]${console_colors.Reset}`
 }
