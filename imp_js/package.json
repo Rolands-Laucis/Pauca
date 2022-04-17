@@ -5,7 +5,8 @@
   "main": "pauca.js",
   "scripts": {
     "pauca": "node pauca -s=\"./gen/e.pau\" -i=\"./gen/input.txt\" -o=\"./gen/output.txt\" -v=true",
-    "gram": "node tests/gram_tests"
+    "gram": "node tests/gram_tests",
+    "parse": "node tests/parse_tests"
   },
   "author": "Rolands Laucis",
   "license": "MIT",

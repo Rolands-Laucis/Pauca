@@ -28,6 +28,9 @@ export const Grams = {
         sym: (token) => `(?:${Grams.UTIL.unquote(token.val.trim())})`,// + (opt ? '?' : ''),
         var: (token) => (token.val ? `(?<${Grams.UTIL.unquote(token.val)}>\\w+)` : `(\\w+)`), // + (opt ? '?' : ''), //NOTE \w matches letters, numbers and underscore. TODO token.val might not be empty, but after cleanup, it might
         regex: () => { TODO('Regex literals currently unsupported!')},
+        d: (token) => (token.val ? `(?<${Grams.UTIL.unquote(token.val)}>\\d+)` : `(\\d+)`),
+        f: (token) => (token.val ? `(?<${Grams.UTIL.unquote(token.val)}>\\d+\\.\\d+?f?)` : `(\\d+\\.\\d+?f?)`),
+        num: (token) => (token.val ? `(?<${Grams.UTIL.unquote(token.val)}>\\-?\\d+\\.?\\d+?f?)` : `(\\-?\\d+\\.?\\d+?f?)`),
 
         //shorthands
         "": (...args) => Grams.FUN.sym(...args),

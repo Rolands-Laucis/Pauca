@@ -1,4 +1,4 @@
-//node linker_tests.js
+//node gram_tests.js
 import { Token, TokenType } from "../token.js"
 import { Grams } from "../grammar.js"
 import { Parse, Tokenize, WrapBlocks } from "../parser.js"
@@ -8,14 +8,6 @@ import { endTimer, startTimer, log, error } from "../utils/log.js"
 const test_cases = ['list']
 const all = false
 startTimer()
-
-// Array.prototype.equals = function (arr) {
-//     if (!arr || this.length != arr.length)
-//         return false
-
-//     //compare all aligned elements (same order in place) recursively. This will exit early, if there is a mismatch.
-//     return this.every((e, i) => typeof (e) == 'array' ? (typeof (arr[i]) == 'array' ? e.equals(arr[i]) : false) : e === arr[i])
-// }
 
 /**
  * Testing function for single values
@@ -113,6 +105,9 @@ if (test_cases.includes('list') || all) {
 
     token = Parse('[+ -1 -2]', [Tokenize])[0].val
     test('AOP + with both negative num literals', Grams.FUN.list(token, {}), -3)
+
+    token = Parse('[+ 1.5 0.5]', [Tokenize])[0].val
+    test('AOP + with both floats', Grams.FUN.list(token, {}), 2)
 
     token = Parse('[+ [sum] [/ 1 [y]]]', [Tokenize])[0].val
     ctx = { sum: 1, y: 2 }
