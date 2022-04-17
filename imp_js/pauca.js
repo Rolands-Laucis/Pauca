@@ -2,7 +2,7 @@
 //And thus i present - Marble.
 
 //cd imp_js
-//node marble -s="./gen/test.marble" -i="./gen/input.txt" -o="./gen/output.txt" -v=true
+//node marble -s="./gen/test.marble" -i="./gen/input.txt" -o="./gen/output.txt"
 
 import parse from "args-parser" //i was too lazy to parse them myself ;-;
 import fs from 'fs' //for reading the 3 files content
@@ -17,10 +17,11 @@ else
     info('Success!')
 
 function Main(){
-    const args = parse(process.argv);
+    let CLI = parse(process.argv);
+    // process.exit(0)
 
     //handle CLI bad cases
-    if (args.h || args.help){
+    if (CLI.h || CLI.help){
         console.log(`
 usage: marble.py [-h] -s SYNTAX -i INPUT -o OUTPUT
 
@@ -36,10 +37,13 @@ optional arguments:
                         Path to the target source code plain text file.
         `)
         process.exit(0)
-    } else if (!(args.s && args.i && args.o)){
+    } else if (!(CLI.s && CLI.i && CLI.o)){
         console.error('-s, -i, -o CLI arguments are obligatory! -h or --help for instructions')
         process.exit(1)
     }
+
+    const args = Object.assign({}, { s: './s.pau', i: './input.txt', o: './output.txt', m: TranspileMode.REPLACE, v: true }, CLI);
+    // console.log(args)
 
     //set up the 2 texts to work with from their files
     const syntax = fs.readFileSync(args.s, { encoding: 'utf8', flag: 'r' })
