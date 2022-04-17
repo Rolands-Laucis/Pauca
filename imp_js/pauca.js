@@ -8,48 +8,42 @@ import parse from "args-parser" //i was too lazy to parse them myself ;-;
 import fs from 'fs' //for reading the 3 files content
 
 import { Transpile, TranspileMode } from "./transpile.js"
-import { info } from "./utils/log.js"
+import { info, log, error } from "./utils/log.js"
 
 const error_code = Main()
 if(error_code)
-    console.error(`Pauca exited with error code ${error_code}`)
+    error(`Pauca exited with error code ${error_code}`)
 else
     info('Success!')
 
 function Main(){
-    let CLI = parse(process.argv);
-    // process.exit(0)
-
-    //handle CLI bad cases
-    if (CLI.h || CLI.help){
-        console.log(`
-usage: Pauca.py [-h] -s SYNTAX -i INPUT -o OUTPUT
-
-Runs the Pauca engine transpilation on an input script.
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -s SYNTAX, --syntax SYNTAX
-                        Path to the transpilation syntax .Pauca file.
-  -i INPUT, --input INPUT
-                        Path to the input source code plain text file.
-  -o OUTPUT, --output OUTPUT
-                        Path to the target source code plain text file.
-        `)
-        process.exit(0)
-    } else if (!(CLI.s && CLI.i && CLI.o)){
-        console.error('-s, -i, -o CLI arguments are obligatory! -h or --help for instructions')
-        process.exit(1)
-    }
-
-    const args = Object.assign({}, { s: './s.pau', i: './input.txt', o: './output.txt', m: 'replace', v: true }, CLI);
-    switch(args.m){
+    let args = parse(process.argv);
+    args = Object.assign({ s: './s.pau', i: './input.txt', o: './output.txt', m: 'replace', v: 1 }, args);
+    switch (args.m) {
         case 'single': args.m = TranspileMode.SINGLE; break;
         case 'multiple': args.m = TranspileMode.MULTIPLE; break;
         case 'replace': args.m = TranspileMode.REPLACE; break;
     }
-    // console.log(args)
 
+    //handle args bad cases
+    if (args.h || args.help){
+        console.log(`
+    -h, -help               Show this help message and exit.
+    -s SYNTAX
+                            Path to the transpilation syntax .pau file (string path).
+    -i INPUT
+                            Path to the input plain text file (string path).
+    -o OUTPUT
+                            Path to the target plain text file (string path).
+    -m MODE
+                            Transpilation mode (string). [single, multiple, replace]
+    -v VERBOSE
+                            Verbose (int). [0, 1]
+        `)
+        log('Args set:', args)
+        process.exit(0)
+    }
+    
     //set up the 2 texts to work with from their files
     const syntax = fs.readFileSync(args.s, { encoding: 'utf8', flag: 'r' })
     const source = fs.readFileSync(args.i, { encoding: 'utf8', flag: 'r' })
