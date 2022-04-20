@@ -1,0 +1,5 @@
+*some line of text in input*
+
+loop = 5
+
+*another line of text*
