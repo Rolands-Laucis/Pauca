@@ -2,7 +2,7 @@
 //And thus i present - Pauca.
 
 //cd imp_js
-//node pauca -s="./gen/test.Pauca" -i="./gen/input.txt" -o="./gen/output.txt"
+//node pauca -s="./gen/test.pau" -i="./gen/input.txt" -o="./gen/output.txt"
 
 import parse from "args-parser" //i was too lazy to parse them myself ;-;
 import fs from 'fs' //for reading the 3 files content
@@ -17,7 +17,7 @@ else
     info('Success!')
 
 function Main(){
-    let args = parse(process.argv);
+    let args = parse(process.argv)
     args = Object.assign({ s: './s.pau', i: './input.txt', o: './output.txt', m: 'replace', v: 1 }, args);
     switch (args.m) {
         case 'single': args.m = TranspileMode.SINGLE; break;

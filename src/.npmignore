@@ -1,0 +1,8 @@
+# .npmignore
+node_modules
+
+gen/
+pauca.js
+
+tests
+utils/fs_utils.js

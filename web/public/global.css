@@ -1,0 +1,31 @@
+
+:root{
+    --dark_grey: #222429;
+}
+
+body,
+html {
+    font-family: 'Poppins', sans-serif;
+    width: 100vw;
+    height: 100vh;
+    box-sizing: border-box;
+    padding: 0px;
+    margin: 0px;
+
+    position: relative;
+
+    background-color: var(--dark_grey);
+}
+
+body::-webkit-scrollbar {
+    appearance: none;
+    visibility: none;
+    display: none;
+    width: 0px;
+    height: 0px;
+    padding: 0px;
+    margin: 0px;
+
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}

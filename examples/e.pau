@@ -1,5 +1,5 @@
 //https://www.paulbui.net/wl/Taylor_Series_Pi_and_e
-//calculates e via tailor series
+//calculates e via a tailor series
 
 [p] ["loop = "] [var "times"] [/p]
 [target]
@@ -16,5 +16,5 @@
             [* [mul] [+ [x] 1]]
     ][/loop]
 
-    [sum]
+    e = [sum]
 [/target]

@@ -27,7 +27,7 @@ The target block supports IF, LOOP etc. blocks to programmatically generate the 
 
 An interesting use of Pauca would be to create "flavors" of a programming language and transpile the source code file before handing it to the corresponding language compiler or interpreter.
 
-You can check [the Specification for Pauca syntax here](./specification.md) or [the internal compiler grammar functions here](./imp_js/grammar.js) for all possible and currently implemented lists.
+You can check [the Specification for Pauca syntax here](./specification.md) or [the internal compiler grammar functions here](./src/grammar.js) for all possible and currently implemented lists.
 
 ## Syntax snippet ``syntax.Pauca``
 
@@ -44,24 +44,45 @@ let [variable] = [val]; //([scope])
 Pauca syntax highlighting available [as a tml file](./highlight/).
 Currently i just drop in the Pauca folder into the vscode extencions folder.
 
-## Running Pauca.
+## Running Pauca
 
-Currently Pauca's specification is being developed, and this may take a considerable amount of time. So far there is a demo implementation of the Pauca engine in Node.js by me, that is in development. You are free to implement it in whatever language you wish, so long as it's under the MIT licence and you credit this repo. See [./imp_js/tests](./imp_js/tests) for currently supported Pauca features.
+Currently Pauca's specification is being developed, and this may take a considerable amount of time. So far there is a demo implementation of the Pauca engine in Node.js by me, that is in development. You are free to implement it in whatever language you wish, so long as it's under the MIT licence and you credit this repo. See [./imp_js/tests](./src/tests) for currently supported Pauca features.
 
-After downloading the repo, have Node installed simply run:
+A Pauca REPL website currently under development, [src in the web folder](./web/)
 
+Download:
+ 
 ```bat
-cd imp_js
-npm i
-node pauca -s="./gen/syntax.pau" -i="./gen/input.txt" -o="./gen/output.txt" -v=true
+npm i pauca
 ```
 
-or
+and import
+
+```js
+import { Transpile } from 'pauca/transpile.js'
+let out = Transpile('source.pau', 'in.txt')
+```
+
+Or download the repo
 
 ```bat
-cd imp_js
+cd src
 npm i
 npm run pauca
+```
+
+Then run:
+
+```bat
+node pauca -s="./syntax.pau" -i="./in.txt" -o="./out.txt" -v=true
+```
+or
+```bat
+npm run pauca
+```
+or
+```bat
+pauca -s="./syntax.pau" -i="./in.txt" -o="./out.txt" -v=true
 ```
 
 This would launch Pauca to read the `syntax.pau` definition script that is full of the lines seen above for generic syntax patterns, then looks for these patterns in the `input.c` text file and transpiles them to whatever target text file, here - `output.txt`.

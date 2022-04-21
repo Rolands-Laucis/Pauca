@@ -1,0 +1,102 @@
+//GLOBALS
+
+//color palette
+$red: #E03939;
+$dark: #17181C;
+$dark_grey: var(--dark_grey);
+$green: #7BC379;
+$light: #FFFFFF;
+$light_grey: #3E4149;
+$blue: #61AFEF;
+$yellow: #EFD84A;
+
+//text sizes
+
+
+//spacing
+
+
+@mixin no_space {
+    padding: 0px;
+    margin: 0px;
+}
+
+@mixin title {
+    @include no_space;
+
+    font-family: 'Poppins', sans-serif;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 96px;
+    text-transform: uppercase;
+
+    color: $red;
+
+    &::before{content: "["}
+    &::after{content: "]"}
+}
+
+@mixin seg_text {
+    @include no_space;
+    font-family: 'Poppins', sans-serif;
+
+    font-style: normal;
+    font-weight: bold;
+    font-size: 28px;
+
+    color: $yellow;
+
+    &::before{content: "["}
+    &::after{content: "]"}
+}
+
+@mixin link {
+    @include no_space;
+    
+    font-family: 'Consolas', monospace;
+    font-style: italic;
+    font-weight: normal;
+    font-size: 18px;
+    text-decoration: underline;
+
+    color: $blue;
+
+    &::before{content: "["}
+    &::after{content: "]"}
+}
+
+@mixin code_text {
+    @include no_space;
+
+    font-family: 'Consolas', monospace;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 18px;
+
+    color: $light;
+}
+
+@mixin text {
+    @include no_space;
+
+    font-family: 'Poppins', sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 18px;
+
+    color: $light;
+}
+
+@mixin no_scrollbar {
+    appearance: none;
+    visibility: none;
+    display: none;
+    width: 0px;
+    height: 0px;
+    padding: 0px;
+    margin: 0px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+

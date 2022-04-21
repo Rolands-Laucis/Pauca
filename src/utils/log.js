@@ -47,8 +47,7 @@ export function error(msg, ...objs) {
     if(objs)
         console.log(...objs, '\n')
     
-    throw new Error()
-    // console.trace();
+    throw new Error(msg)
 }
 
 /**
@@ -70,13 +69,13 @@ export function info(msg){
 }
 
 export function startTimer(){
-    last_time = process.hrtime();
+    last_time = performance.now()
 }
 
 export function endTimer(reset = false){
-    let ms = process.hrtime(last_time)
+    let ms = performance.now() - last_time
     if(reset) startTimer()
-    return ((ms[0] * 1000) + (ms[1] / 1000000)).toFixed(2)
+    return ms.toFixed(2)
 }
 
 function prefix(msg = 'PAUCA', color=console_colors.Reset){

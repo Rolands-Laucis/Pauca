@@ -1,11 +1,10 @@
 import { Preprocess, ExtractSection } from './preproc.js'
-import { Parse, Tokenize } from './parser.js'
+import { Parse } from './parser.js'
 import { ResolvePatternsToRegex, ResolveTarget } from './resolver.js'
 
 import { info, startTimer, error, log } from "./utils/log.js"
-import sizeof from 'object-sizeof'
 
-import { ExportParsed } from './utils/fs_utils.js'
+// import { ExportParsed } from '../utils/fs_utils.js'
 
 //enum class for Pauca transpilation modes
 export class TranspileMode {
@@ -42,7 +41,7 @@ export function Transpile(syntax, source, { mode = TranspileMode.REPLACE, segmen
     let parse_tree = Parse(syntax)
     // ExportParsed(parse_tree, {path:'./gen/parse_tree.json'})
     // process.exit(1)
-    if (verbose) info(`Parsed Pauca file. Size of parse tree object: [${sizeof(parse_tree)}] Bytes`)
+    if (verbose) info(`Parsed Pauca file.`)
     if (only_parse) error('Purposeful program termination to print parse tree:',parse_tree)
 
     //resolve the pattern tokens to a regex object
