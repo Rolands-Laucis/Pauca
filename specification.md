@@ -1,30 +1,30 @@
 #### VERSION 1.0
 
-## Foreword
+#### Foreword
 
-This specification document is most likely out of date, but the language internals are never. [Full grammar of Pauca](./imp_js/grammar.js) ; [Example Pauca algorithms](./examples/) ; [Grammar unit tests](./imp_js/tests/gram_tests.js)
+This specification document is most likely out of date, but the language internals are never. [Full grammar of Pauca](./src/grammar.js) | [Example Pauca algorithms](./examples/) | [Grammar unit tests](./src/tests/gram_tests.js)
 
-#### Fundamentals
+# Fundamentals
 
-In a .pau file define pattern blocks. For patterns define an associated target block. Patterns are what to look for in the input.txt (source), targets are what to generate into the output.txt. 
+In a .pau file define pattern blocks. For patterns define an associated target block. Patterns are what to look for in the input.txt (source), targets are what to generate into the output.txt. where a pattern was found.
 
-### Blocks
+## Blocks
 
 A few lists act as blocks instead of regular LISP lists, meaning they are double lists - begging list that acts as a normal list, an ending list that does nothing and a body between them.
 
 I.e. ``[p] ... [/p]`` ; ``[if [> 1 2]] ... [/if]``. blocks end with an empty list of the same name, but with a preceding slash. The body of a block can be literal text, lists and other blocks.
 
-### Pattern lists
+# Pattern lists
 
 Pattern block lists (their functions) have a different meaning than the lists allowed in the target block. But they are internally parsed the same. Still you shouldnt use functions where they are not intended. These are the lists you can use in the pattern block.
 
-## String literals
+### String literals
 
 Tell Pauca to look for a string literal in the source
 
 ``[sym "public int "]`` shorthand: ``[""]``, see [Shorthands](#Shortcuts/shorthands)
 
-## Variables
+### Variables
 
 Tell Pauca that a wildcard string (\w+) is to be captured and save it by label in memory. These can then be accesed in the target block by that label in brackets or index in the pattern, making labels optional but encouraged.
 
@@ -34,7 +34,7 @@ Tell Pauca that a wildcard string (\w+) is to be captured and save it by label i
 
 This is THE variable list, but other lists may be "varialbe lists", meaning that they are used the same as here, but have their own name and utility. This is to keep in mind when accessing variables via index, as you might retreive the wrong variable.
 
-## Types
+### Types
 
 Pauca supports recognizing patterns of various kinds of symbols. These are the same as variable lists, but whereas the variable list looks for any \w+ string, these specific variable tags look for other specific symbols.
 
@@ -48,21 +48,21 @@ Pauca supports recognizing patterns of various kinds of symbols. These are the s
 
 * N/A ``[func "function"]`` will match the generic function call pattern in most languages e.g. Factorial(n) and My_func(p1, p2 "abc", p3 "123"[, ...]) for an infinite list of parameters.
 
-## Multiples or arrays (tuples? arrays? lists? sets?)
+### Multiples or arrays (tuples? arrays? lists? sets?)
 
 Under thought. N/A.
 ```
 [p] [or ["public"] [var "scope"]] ... [/p]
 ```
 
-## Componenets and generalization
+### Componenets and generalization
 
 Under thought. N/A.
 ```
 [c] [c "var_tail"] 
 ```
 
-## Pre-lists
+### Pre-lists
 
 Under thought. N/A.
 ``[p] [n] ... [/p]`` [n] - new line
@@ -73,7 +73,7 @@ Under thought. N/A.
 The rest of a line after "//" is ignored by Pauca.
 ``... //...``
 
-### Target lists
+# Target lists
 
 The target block is used to tell Pauca, that the processed contents of the block is the output of this pattern. The output is literal utf-8 text, except for the symbols `[` and `]`, which begin and end a list. These currently cannot be escaped.
 
@@ -90,7 +90,7 @@ The target block accepts 1 argument - a target output file to write to, since yo
 
 NB! ALL lists resolve to strings at the end, but in intermediate stages can be numbers or other js datatypes. This means that all lists inside of the target will print to the output. There is a special list that executes, but doesnt print.
 
-## Variable lists
+### Variable lists
 
 Variables from the pattern can be fetched (referenced) inside the target, which is the main powerful aspect of the Pauca engine.
 
@@ -112,7 +112,7 @@ Pauca also lets you define more variables durring runtime.
 ```
 "def" and "=" are identical and both set the first argument equal to the second and save that down into memory, overwriting existing definitions, aka reasigning. Both will also return the created value.
 
-## Operator lists
+### Operator lists
 
 Sometimes you might want to perform some mathematical operations to convert the input to an output. There are arithmatic operators (AOP) and logical operators (LOP).
 
@@ -129,14 +129,14 @@ LOP (==, >, <, >=, <=, |, &):
 * ``[> [x] 2]`` supports variable operands = x > 2 ?
 * N/A ``[== [> [x] 2] true]`` nested 
 
-## Special lists
+### Special lists
 
 * ``[\ ...]`` takes infinite lists and executes them, if they can be, and returns an empty string. This is like suppressing writting to output. "dont print".
 * ``[print ...]`` takes infinite lists, executes them and prints their return value to the console. Returns empty string.
 
-### Code flow
+# Code flow
 
-## Conditionals
+### Conditionals
 
 ```
 (pattern)
@@ -151,7 +151,7 @@ LOP (==, >, <, >=, <=, |, &):
 [/target]
 ```
 
-## Loops
+### Loops
 
 ```
 (pattern)
@@ -162,7 +162,7 @@ LOP (==, >, <, >=, <=, |, &):
 [/target]
 ``` 
 
-## Functions
+### Functions
 
 Under thought. N/A.
 ```
@@ -171,9 +171,11 @@ Under thought. N/A.
 [/defn]
 ```
 
-#### Specials
+### Specials
 
-### Pre-pend and Post-pend lists
+## Pre-pend and Post-pend lists
+
+Under thought. N/A.
 
 Sometimes you may want to add extra code at the top or bottom of the transpiled script, so Pauca lets you do this with these 2 tags. These dont look for a pattern, but tell Pauca to add this target code snippets to the top and/or bottom of the script once it is done.
 
@@ -193,7 +195,7 @@ exit(0)
 [/target]
 ```
 
-### Shortcuts/shorthands
+## Shortcuts/shorthands
 
 The tag based syntax of Pauca is nescesary to allow literal target outputs, but this often creates long winded patterns. To help mitigate this, some special tags have been reserved that literally get replaced with their full lengths before Pauca starts transpiling. Here is a list of them (left side is the short form):
 
@@ -204,7 +206,7 @@ The tag based syntax of Pauca is nescesary to allow literal target outputs, but 
 ``[;]`` -> ``[?";"]`` an optional ;
 
 
-### Regex
+## Regex
 
 Under thought. N/A.
 
@@ -212,7 +214,7 @@ Since Pauca is written in js, then standard js regex literals may be used. Other
 
 ``[re "/[A-Z]{2,4}/gm"] ...``
 
-### Escapes
+## Escapes
 
 Under thought. N/A.
 
