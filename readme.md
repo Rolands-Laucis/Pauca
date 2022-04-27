@@ -131,6 +131,8 @@ Contact me on this github repo issues tab or something.
 * [Haxe language](https://haxe.org/) Haxe is an open source high-level strictly-typed programming language with a fast optimizing cross-compiler. Haxe can build cross-platform applications 
 * [Antlr page](https://www.antlr.org/) Antlr is basically like Yacc and Bison, but perhaps has some cooler features. Inner workings are customizable. 
 targeting JavaScript, C++, C#, Java, JVM, Python, Lua, PHP, Flash
+* [SED](https://www.gnu.org/software/sed/manual/sed.html) A stream editor is used to perform basic text transformations on an input stream (a file or input from a pipeline)
+* [ltpl](https://github.com/ikoloki/ltpl) ltpl is a delaritive text processing dsl. A utility that just happends to have a language inside of it. A CLI version similar to Pauca. Kinda like SED
 
 ### Name
 
