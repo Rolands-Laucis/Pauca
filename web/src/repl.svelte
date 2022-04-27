@@ -77,6 +77,7 @@ loop = 10</textarea>
 
     h1{
         @include title;
+        margin: 0px auto;
     }
 
     .buttons{
