@@ -136,4 +136,4 @@ targeting JavaScript, C++, C#, Java, JVM, Python, Lua, PHP, Flash
 
 ### Name
 
-"Pauca" is an inflection of a latin word that means "a few words". Since this is a text templating engine and uses a simple LISP-like syntax, i thought it was fitting. "Inteligenti pauca." - few words suffice for he who understands /latin proverb/.
+"Pauca" /pɑukɑ/ is an inflection of a latin word that means "a few words". Since this is a text templating engine and uses a simple LISP-like syntax, i thought it was fitting. "Inteligenti pauca." - few words suffice for he who understands /latin proverb/.
