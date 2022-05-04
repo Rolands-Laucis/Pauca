@@ -98,12 +98,12 @@ Pauca engine implementations should be built such that they can be invoked from 
 
 ### Navigating the repo
 
-* `./highlight` - has a `/pauca` folder VSCode extension for syntax highlighting. TML file and configs, so you can adapt to whatever IDE you use.
-* `./imp_js` - has a javascript implementation of the Pauca engine written by me.
+* `./highlight` - has a `/pauca-lang` folder VSCode extension for syntax highlighting. TML file and configs, so you can adapt to whatever IDE you use.
+* `./src` - has a javascript implementation of the Pauca engine written by me.
 * `./media` - images, logos etc.
 * `./specification.md` - a Pauca language specification file that is always outdated, since design choices change fast and arent stable.
 
-#### `./imp_js`
+#### `./src`
 
 * `/gen` - a gitignored folder used for testing locally. Should have files `test.Pauca`, `input.txt`, `output.txt` to run the `npm run Pauca` shorthand script
 * `/tests` - has unit tests for the js implementation
