@@ -2,10 +2,10 @@
 import { Token, TokenType } from "../token.js"
 import { Grams } from "../grammar.js"
 import { Parse, Tokenize, WrapBlocks } from "../parser.js"
-// import { ResolveTarget } from "../resolver.js"
+import { ResolveTarget } from "../resolver.js"
 import { endTimer, startTimer, log, error } from "../utils/log.js"
 
-const test_cases = ['list']
+const test_cases = ['fn']
 const all = false
 startTimer()
 
@@ -129,7 +129,7 @@ if (test_cases.includes('cond') || all) {
 }
 
 if (test_cases.includes('def') || all) {
-    log('📝', 'Testing definition resolutions...')
+    log('📝', 'Testing definitions...')
 
     let tokens = Parse('[def [x] 1]', [Tokenize])
     let ctx = {}
@@ -155,6 +155,29 @@ if (test_cases.includes('def') || all) {
     ctx = {}
     Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], ctx)
     test('def string to label', ctx.x, 'foo')
+}
+
+if (test_cases.includes('defn') || all) {
+    log('📝', 'Testing function definitions...')
+
+    let tokens = Parse('[defn "fn" [_] [x]]', [Tokenize])
+    let ctx = {}
+    // log(tokens[0].val)
+    Grams.FUN.defn(tokens[0].val[1], tokens[0].val[2], tokens[0].val[3], ctx)
+    test('defn name "fn" with 1 var arg and 1 var list body', ctx?.fn?.val, 'x')
+
+    tokens = Parse('[defn "fn" "-" [x]]', [Tokenize])
+    ctx = {}
+    // log(tokens[0].val)
+    Grams.FUN.defn(tokens[0].val[1], tokens[0].val[2], tokens[0].val[3], ctx)
+    test('defn name "fn" with no arg and 1 var body', ctx?.fn?.val, 'x')
+
+    tokens = Parse('[defn "fn" [_] [+ [x] 1]]', [Tokenize])
+    ctx = {}
+    // log(tokens[0].val)
+    Grams.FUN.defn(tokens[0].val[1], tokens[0].val[2], tokens[0].val[3], ctx)
+    test('defn name "fn" with 1 var arg and 1 list body', ctx?.fn?.type, TokenType.LIST)
+    log(ctx)
 }
 
 if (test_cases.includes('if') || all) {
@@ -191,12 +214,21 @@ if (test_cases.includes('no_print') || all) {
     test('dont print result of list', res, '')
 
     t = Parse('[\\ [+ [x] 2]]', [Tokenize])[0].val[1]
-    ctx = { 'x': 1 }
+    ctx = { x: 1 }
     res = Grams.FUN["\\"](t, ctx)
     test('dont print result of list, but update variable', ctx.x, 3)
 
     t = Parse('[\\ [+ [x] 2]]', [Tokenize])[0]
-    ctx = { 'x': 1 }
+    ctx = { x: 1 }
     res = Grams.FUN.list(t.val, ctx)
     test('dont print result called as list (practical situation)', ctx.x, 3)
+}
+
+if (test_cases.includes('fn') || all) {
+    log('📝', 'Testing custom function calling resolutions...')
+    // process.exit(0)
+    
+    let tokens = Parse('[p][/p][target] [defn "fn" [_] [+ [x] 1]] [fn [_]] [fn [_]] [/target]')[0]
+    let ctx = {x:1}
+    test('custom fn call', ResolveTarget(tokens.tar, ctx), "23")
 }

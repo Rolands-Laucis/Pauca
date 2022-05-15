@@ -82,9 +82,12 @@ export const Grams = {
          * @returns {number | boolean} output
          */
         list: (l=[], ctx = {}) => {
-            //edge case, when the list is the function DEF, then all this will fail
+            // if(l.length == 1) return ''
+            //edge case, when the list is the function DEF or DEFN, then all this will fail, so handle them beforehand
             if (l[0].type == TokenType.FUN && (l[0].val == 'def' || l[0].val == '=')) //TODO the shorthand would never actually get called.
-                return Grams.FUN.def(l[1], l[2], ctx)
+                return l.length == 3 ? Grams.FUN.def(l[1], l[2], ctx) : error(`The def list takes 2 parameters, but ${l.length} were given.`)
+            else if (l[0].type == TokenType.FUN && (l[0].val == 'defn' || l[0].val == '=>')) //TODO the shorthand would never actually get called.
+                return l.length == 4 ? Grams.FUN.defn(l[1], l[2], l[3], ctx) : error(`The defn list takes 3 parameters, but ${l.length} were given.`)
 
             //resolve the args to this list function, since they can be variables or more lists
             const args = l.slice(1).map(t => {
@@ -104,8 +107,9 @@ export const Grams = {
                     if (l[1].type == TokenType.VAR) //if the first arg was in the context (a named var) then the result of the OP should be stored in it.
                         ctx[l[1].val] = res;
                     return res;
-                case TokenType.FUN: args.push(ctx); return Grams.FUN[l[0].val](...args); //meaning from this point on, that LISTs containing non-internal functions will receive all their params as an infinite spread, where the last element is the context object and can be extracted via the .ctx()
-                default: TODO('unsuported token in LIST func', l[0]); break;
+                case TokenType.FUN: args.push(ctx); return Grams.UTIL.call(l[0].val, ...args) //meaning from this point on, that LISTs containing non-internal functions will receive all their params as an infinite spread, where the last element is the context object and can be extracted via the .ctx()
+                // case TokenType.VAR: return Grams.FUN.ctx(l[0])
+                default: error('unsuported token in LIST func', l[0]); break;
             };
         },
 
@@ -121,6 +125,19 @@ export const Grams = {
             return ctx[t_arg.val]
         },
         '=': (...args) => Grams.FUN.def(...args), //shorthand for def
+
+        //receives 3 tokens and ctx object by reference and inserts a new ctx entry. Overwrites existing. Also returns the ctx for testing purposes, but it alters the passed one.
+        defn: (t_name, t_arg, t_val, ctx = {}) => {
+            // log(t_name, t_arg, t_val, ctx)
+            const name = Grams.UTIL.unquote(t_name.val)
+            switch (t_val.type) {
+                case TokenType.LIST: ctx[name] = t_val.val ; break;
+                default: ctx[name] = t_val; break;  //for VAR and STR tokens, otherwise would raise error in ctx()
+            }
+            // log(`added ${name} to ctx`, ctx)
+            return ''//ctx[t_name.val]
+        },
+        '=>': (...args) => Grams.FUN.defn(...args), //shorthand for defn
 
         /**
          * executes a list or arg, but always returns an empty string. A way to not print something out to output.
@@ -172,7 +189,15 @@ export const Grams = {
 
     UTIL:{
         unquote: (str='') => str.match(/[\"\'\`](?<body>.*)[\"\'\`]/)?.groups?.body || str,
-        cast_spaces: (str='') => str.replace(/\s\t/gm, '\\s') || str
+        cast_spaces: (str='') => str.replace(/\s\t/gm, '\\s') || str,
+        call: (name, ...args) => {
+            const ctx = args.last()
+            switch(true){
+                case name in Grams.FUN: return Grams.FUN[name](...args)
+                case name in ctx: return Grams.FUN.list(ctx[name], ctx)
+                default: error(`Function [${name}] does not exist, but something tried to call it. [ctx]`, args.last())
+            }
+        }
     }
     // : () => {},
 }

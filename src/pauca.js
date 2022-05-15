@@ -18,7 +18,7 @@ else
 
 function Main(){
     let args = parse(process.argv)
-    args = Object.assign({ s: './s.pau', i: './input.txt', o: './output.txt', m: 'replace', v: 1 }, args);
+    args = Object.assign({ s: './s.pau', i: './input.txt', o: './output.txt', m: 'replace', v: 1, seg:null }, args);
     switch (args.m) {
         case 'single': args.m = TranspileMode.SINGLE; break;
         case 'multiple': args.m = TranspileMode.MULTIPLE; break;
@@ -30,15 +30,17 @@ function Main(){
         console.log(`
     -h, -help               Show this help message and exit.
     -s SYNTAX
-                            Path to the transpilation syntax .pau file (string path).
+                            Path to the transpilation syntax .pau file (string path). ["./s.pau"]
     -i INPUT
-                            Path to the input plain text file (string path).
+                            Path to the input plain text file (string path). ["./in.txt"]
     -o OUTPUT
-                            Path to the target plain text file (string path).
+                            Path to the target plain text file (string path). ["./out.txt"]
     -m MODE
                             Transpilation mode (string). [single, multiple, replace]
     -v VERBOSE
                             Verbose (int). [0, 1]
+    -seg SEGMENT
+                            Only work on a segment of the .pau file. Segments delimited by a comment of dashes. (int). [0 - inf]
         `)
         log('Args set:', args)
         process.exit(0)
@@ -49,7 +51,7 @@ function Main(){
     const source = fs.readFileSync(args.i, { encoding: 'utf8', flag: 'r' })
 
     //do the transpilation
-    const output = Transpile(syntax, source, { mode:args.m, verbose: args.v}) || ''
+    const output = Transpile(syntax, source, { mode:args.m, verbose: args.v, segment: args.seg}) || ''
 
     //write transpilation to output file
     fs.writeFileSync(args.o, output, { encoding: 'utf8', flag: 'w' })

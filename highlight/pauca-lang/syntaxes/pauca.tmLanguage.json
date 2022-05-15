@@ -94,7 +94,7 @@
 			"patterns": [
 				{
 					"name": "entity.name.function.pauca",
-					"match": "\\b(if|loop|repeat|cond|ctx|def|print|\\\\|regex)\\b"
+					"match": "\\b(if|loop|repeat|cond|ctx|def|defn|=>|print|\\\\|regex)\\b"
 				}
 			]
 		},

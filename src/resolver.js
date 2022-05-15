@@ -75,5 +75,6 @@ export function ResolvePatternsToRegex(pairs=[]){
  * @returns {string} output
  */
 export function ResolveTarget(tar_block, ctx){
+    ctx["_"] = 0
     return RecursiveReduceToString(tar_block.val, ctx)
 }

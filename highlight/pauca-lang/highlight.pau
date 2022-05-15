@@ -19,6 +19,8 @@
     [\ 
         [def [x] 10]
         [print [x]]
+        [defn [fn] [args] [+ [x] 1]]
+        [=> [fn] [args] [+ [x] 1]]
     ]
     
     [if [> [smth] 1]]
