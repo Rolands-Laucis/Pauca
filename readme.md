@@ -3,7 +3,7 @@
 <p align="center"><img src="./media/pauca%20logo.png"/></p>
 
 ## What is Pauca?
-Pauca is a glorified "find and replace" engine, where the replace bit is programmable with a LISP-like language. It does not execute the code, it merely translates from 1 plain text to another, via easily definable text patterns in the text file. These patterns are mapped to corresponding text with arguments and conditions. The mapping is manual - using Pauca and your knowledge of the source texts.
+Pauca is a glorified "find and replace" engine, where the replace bit is programmable with a LISP-like language. It translates from 1 plain text to another, via easily definable text patterns to look for in the text file. These patterns are mapped to corresponding text with arguments and conditions. The mapping is manual - using Pauca and your knowledge of the source texts.
 
 [LIVE ONLINE REPL](https://pauca.vercel.app/)
 
@@ -98,12 +98,12 @@ Pauca engine implementations should be built such that they can be invoked from 
 
 ### Navigating the repo
 
-* `./highlight` - has a `/pauca` folder VSCode extension for syntax highlighting. TML file and configs, so you can adapt to whatever IDE you use.
-* `./imp_js` - has a javascript implementation of the Pauca engine written by me.
+* `./highlight` - has a `/pauca-lang` folder VSCode extension for syntax highlighting. TML file and configs, so you can adapt to whatever IDE you use.
+* `./src` - has a javascript implementation of the Pauca engine written by me.
 * `./media` - images, logos etc.
 * `./specification.md` - a Pauca language specification file that is always outdated, since design choices change fast and arent stable.
 
-#### `./imp_js`
+#### `./src`
 
 * `/gen` - a gitignored folder used for testing locally. Should have files `test.Pauca`, `input.txt`, `output.txt` to run the `npm run Pauca` shorthand script
 * `/tests` - has unit tests for the js implementation
