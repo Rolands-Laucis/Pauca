@@ -18,9 +18,12 @@
 [target "js"]
     [\ 
         [def [x] 10]
+        [= [x] 10]
+        [defn "fn" [_] [+ [x] 1]] 
+        [=> "fn" [_] [+ [x] 1]] 
+
         [print [x]]
-        [defn [fn] [args] [+ [x] 1]]
-        [=> [fn] [args] [+ [x] 1]]
+        [print [fn [_]]]
     ]
     
     [if [> [smth] 1]]
@@ -33,3 +36,7 @@
         [ctx [x]]
     [/if]
 [/target]
+
+
+[defn f [+ [0] 1]]
+[f [x]]

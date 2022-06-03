@@ -1,0 +1,12 @@
+//https://cp-algorithms.com/algebra/euclid-algorithm.html#algorithm
+//writes out the greatest common divisor of any 2 integers
+
+[p] [var 'a'] ['|'] [var 'b'] [/p]
+[target]
+    [defn "gdc" 
+        [if [== [1] 0]][0][/if]
+        [if [!= [1] 0]][gdc [0] [% [0] [1]]][/if]
+    ]
+
+    GDC ([a], [b]) = [gdc [a] [b]]
+[/target]

@@ -228,7 +228,7 @@ if (test_cases.includes('fn') || all) {
     log('📝', 'Testing custom function calling resolutions...')
     // process.exit(0)
     
-    let tokens = Parse('[p][/p][target] [defn "fn" [_] [+ [x] 1]] [fn [_]] [fn [_]] [/target]')[0]
+    let tokens = Parse('[p][/p][target] [defn "fn" [+ [0] 1]] [fn 1] [fn 2 3] [/target]')[0]
     let ctx = {x:1}
     test('custom fn call', ResolveTarget(tokens.tar, ctx), "23")
 }

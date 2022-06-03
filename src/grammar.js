@@ -84,10 +84,8 @@ export const Grams = {
         list: (l=[], ctx = {}) => {
             // if(l.length == 1) return ''
             //edge case, when the list is the function DEF or DEFN, then all this will fail, so handle them beforehand
-            if (l[0].type == TokenType.FUN && (l[0].val == 'def' || l[0].val == '=')) //TODO the shorthand would never actually get called.
-                return l.length == 3 ? Grams.FUN.def(l[1], l[2], ctx) : error(`The def list takes 2 parameters, but ${l.length} were given.`)
-            else if (l[0].type == TokenType.FUN && (l[0].val == 'defn' || l[0].val == '=>')) //TODO the shorthand would never actually get called.
-                return l.length == 4 ? Grams.FUN.defn(l[1], l[2], l[3], ctx) : error(`The defn list takes 3 parameters, but ${l.length} were given.`)
+            if (l[0].type == TokenType.FUN && ['def', '=', 'defn', '=>'].includes(l[0].val))
+                return l.length == 3 ? Grams.FUN[l[0].val](l[1], l[2], ctx) : error(`The ${l[0].val} list takes 2 parameters, but ${l.length} were given.`)
 
             //resolve the args to this list function, since they can be variables or more lists
             const args = l.slice(1).map(t => {
@@ -126,9 +124,9 @@ export const Grams = {
         },
         '=': (...args) => Grams.FUN.def(...args), //shorthand for def
 
-        //receives 3 tokens and ctx object by reference and inserts a new ctx entry. Overwrites existing. Also returns the ctx for testing purposes, but it alters the passed one.
-        defn: (t_name, t_arg, t_val, ctx = {}) => {
-            // log(t_name, t_arg, t_val, ctx)
+        //receives 2 tokens and ctx object by reference and inserts a new ctx entry. Overwrites existing. Also returns the ctx for testing purposes, but it alters the passed one.
+        defn: (t_name, t_val, ctx = {}) => {
+            // log(t_name, t_val, ctx)
             const name = Grams.UTIL.unquote(t_name.val)
             switch (t_val.type) {
                 case TokenType.LIST: ctx[name] = t_val.val ; break;
@@ -194,7 +192,11 @@ export const Grams = {
             const ctx = args.last()
             switch(true){
                 case name in Grams.FUN: return Grams.FUN[name](...args)
-                case name in ctx: return Grams.FUN.list(ctx[name], ctx)
+                case name in ctx: 
+                    const params = Object.fromEntries(Array.from(args.slice(0,-1), (a, i) => [i, a])) //create a dictionary of all args. Args here would come from FUN.list resolve args loop, where they all end up as number or string, so create dict {'0':'arg', ...}
+                    const local_scope_ctx = Object.assign({}, ctx, params) //create a new object from ctx + custom func params as overwrites
+                    // log(ctx, args, params, local_scope_ctx)
+                    return Grams.FUN.list(ctx[name], local_scope_ctx) //resolve the list with global context + func args/params ctx overwrites
                 default: error(`Function [${name}] does not exist, but something tried to call it. [ctx]`, args.last())
             }
         }

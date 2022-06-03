@@ -18,7 +18,7 @@ else
 
 function Main(){
     let args = parse(process.argv)
-    args = Object.assign({ s: './s.pau', i: './input.txt', o: './output.txt', m: 'replace', v: 1, seg:null }, args);
+    args = Object.assign({ s: './s.pau', i: './input.txt', o: './output.txt', m: 'replace', v: 1, seg:0 }, args);
     switch (args.m) {
         case 'single': args.m = TranspileMode.SINGLE; break;
         case 'multiple': args.m = TranspileMode.MULTIPLE; break;

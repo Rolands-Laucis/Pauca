@@ -39,8 +39,8 @@ export function Transpile(syntax, source, { mode = TranspileMode.REPLACE, segmen
 
     //parse the Pauca syntax into a ready-to-use data structure
     let parse_tree = Parse(syntax)
-    ExportParsed(parse_tree, {path:'./gen/parse_tree.json'})
-    process.exit(1)
+    // ExportParsed(parse_tree, {path:'./gen/parse_tree.json'})
+    // process.exit(1)
     if (verbose) info(`Parsed Pauca file.`)
     if (only_parse) error('Purposeful program termination to print parse tree:',parse_tree)
 
