@@ -5,7 +5,7 @@
 ## What is Pauca?
 Pauca is a glorified "find and replace" engine, where the replace bit is programmable with a LISP-like language. It translates from 1 plain text to another, via easily definable text patterns to look for in the text file. These patterns are mapped to corresponding text with arguments and conditions. The mapping is manual - using Pauca and your knowledge of the source texts.
 
-[LIVE ONLINE REPL](https://pauca.vercel.app/)
+## [LIVE ONLINE REPL](https://pauca.vercel.app/)
 
 ### Brief intro. What does Pauca do?
 
@@ -31,14 +31,16 @@ An interesting use of Pauca would be to create "flavors" of a programming langua
 
 You can check [the Specification for Pauca syntax here](./specification.md) or [the internal compiler grammar functions here](./src/grammar.js) for all possible and currently implemented lists.
 
-## Syntax snippet ``syntax.Pauca``
+### Syntax snippet ``syntax.Pauca``
 
 ```
-[p] [var "scope"] [sym " int "] [var "variable"] [" = "] [var "val"] [/p]
-[target "js"]
-let [variable] = [val]; //([scope])
+//translates a C language variable definition to javascript and python versions.
+
+[p] [var "scope"] [sym " int "] [var "variable"] [" = "] [var "val"] [;] [/p] //define the C language pattern to match and capture attributes, like 'public int x = 0;'
+[target "js"] //javascript output
+let [variable] = [val]; //variable was in [scope] scope
 [/target]
-[target "py"]
+[target "py"] //python output
 [variable] = [val]
 [/target]
 ```
@@ -52,7 +54,7 @@ Currently Pauca's specification is being developed, and this may take a consider
 
 A Pauca REPL website currently under development, [src in the web folder](./web/)
 
-Download:
+Install from NPM:
  
 ```bat
 npm i pauca
@@ -92,23 +94,25 @@ Help:
 node pauca -h
 ```
 
-This would launch Pauca to read the `syntax.pau` definition script that is full of the lines seen above for generic syntax patterns, then looks for these patterns in the `input.c` text file and transpiles them to whatever target text file, here - `output.txt`.
+This would launch Pauca to read the `syntax.pau` definition script that is full of the lines seen above for generic syntax patterns, then looks for these patterns in the `in.txt` text file and transpiles them to whatever target text file, here - `out.txt`.
 
 Pauca engine implementations should be built such that they can be invoked from CLI and programmatically, by calling a single function in a script.
 
 ### Navigating the repo
 
+* `./examples` - has example .pau files that you can test to get a sense of how the engine and language work.
 * `./highlight` - has a `/pauca-lang` folder VSCode extension for syntax highlighting. TML file and configs, so you can adapt to whatever IDE you use.
-* `./src` - has a javascript implementation of the Pauca engine written by me.
 * `./media` - images, logos etc.
+* `./src` - has a javascript implementation of the Pauca engine written by me.
+* `./web` - code for the online REPL website using the lovely Svelte framework and hosted by Vercel
 * `./specification.md` - a Pauca language specification file that is always outdated, since design choices change fast and arent stable.
 
 #### `./src`
 
-* `/gen` - a gitignored folder used for testing locally. Should have files `test.Pauca`, `input.txt`, `output.txt` to run the `npm run Pauca` shorthand script
+* `/gen` - a gitignored folder used for testing locally. Should have files `test.pau`, `input.txt`, `output.txt` to run the `npm run test` shorthand script
 * `/tests` - has unit tests for the js implementation
 * `/utils` - utility js scripts, like custom logger and file system wrapper, that are not a part of the engine really
-* `/Pauca.js` - the top-level main script to run with CLI args to the 3 files, this is just a Node.js env wrapper for running on desktop. Runs `transpile.js`.
+* `/pauca.js` - the top-level main script to run with CLI args to the 3 files, this is just a Node.js env wrapper for running on desktop. Runs `transpile.js`.
 * `/transpile.js` - the main function that does the transpiling high-level steps like running the parser and resolvers.
 * `/preproc.js` - preprocessing steps and a main func to apply the ones you want.
 * `/parser.js` - parses the input Pauca syntax into abstract token trees as a json.
@@ -124,7 +128,7 @@ Contact me on this github repo issues tab or something.
 
 ## Links, resources relating to Pauca
 
-* [A higher level abstract regex compiler](https://github.com/Ruminat/Asq-Server). It lets you define regex patterns with more readable syntax, specifically for csv table and such parsing.
+* [Asq-Server](https://github.com/Ruminat/Asq-Server). A higher level abstract regex compiler. It lets you define regex patterns with more readable syntax, specifically for csv table and such parsing.
 * [General purpose scriptable transpiler for many languages](https://awesomeopensource.com/project/jarble/transpiler). Has support for many languages and lets you script addons to the engine.
 * [GNU Bison](https://www.gnu.org/software/bison/) A general-purpose parser generator for grammar syntaxes in C.
 * [The Lex & Yacc Page](http://dinosaur.compilertools.net/) Tokenize source code and find its hierarchical structure.

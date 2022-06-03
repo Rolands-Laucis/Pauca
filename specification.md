@@ -10,13 +10,13 @@ In a .pau file define pattern blocks. For patterns define an associated target b
 
 ## Blocks
 
-A few lists act as blocks instead of regular LISP lists, meaning they are double lists - begging list that acts as a normal list, an ending list that does nothing and a body between them.
+A few lists act as blocks instead of regular LISP lists, meaning they are double lists - starting list, that acts as a normal list, and an ending list, that does nothing and a body between them.
 
 I.e. ``[p] ... [/p]`` ; ``[if [> 1 2]] ... [/if]``. blocks end with an empty list of the same name, but with a preceding slash. The body of a block can be literal text, lists and other blocks.
 
 # Pattern lists
 
-Pattern block lists (their functions) have a different meaning than the lists allowed in the target block. But they are internally parsed the same. Still you shouldnt use functions where they are not intended. These are the lists you can use in the pattern block.
+Pattern block lists (their functions) have a different meaning than the lists allowed in the target block. But they are internally parsed the same. Still you shouldnt use functions where they are not intended. These are the lists you can use in the pattern block:
 
 ### String literals
 
@@ -64,9 +64,9 @@ Under thought. N/A.
 
 ### Pre-lists
 
-Under thought. N/A.
+Under thought. N/A kinda.
 ``[p] [n] ... [/p]`` [n] - new line
-``[p] [i] ... [/p]`` [n] - indent like tabs and spaces
+``[p] [i] ... [/p]`` [i] - indent like tabs and spaces
 
 ### Comments
 
