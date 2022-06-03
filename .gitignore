@@ -4,7 +4,6 @@
 
 src/gen
 src/readme.md
-marble_vs_tml/marble/*
 web/node_modules/
 web/public/build/
 web/scripts/
