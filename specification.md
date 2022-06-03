@@ -164,11 +164,13 @@ LOP (==, >, <, >=, <=, |, &):
 
 ### Functions
 
-Under thought. N/A.
+Under thought. Simple implementation atm.
+
+You are able to define custom functions that you can call later anywhere in code, including in the function definition, meaning functions in Pauca support recursion. But you can only call a function after definition. The DEFN list is used, its first argument must be a string literal of the name of your function (later used without quotes), and its second argument is a list that will be executed on every call of the function. Inside this list you can use function arguments by index, i.e. [0] - first parameter of function call. Calling a function is like an ordinary list, where the first argument is the custom function name without quotes, then subsequent arguments can be infinite lists, variables or literals. These arguments will be passed into the function and errors will not be raised, if there are too many, however will, if there are not enough. The passed arguments create a "local scope", which will overwrite global scope context definitions, i.e. if some value exists in [0] globally (e.g. from a pattern), it will be overwritten by the first argument value to the function, if there was one. This is a local scope overwrite, meaning the actual global scope is unaffected. In addition, if insufficient arguments are supplied to a function, it may use global scope values, or crash with an error, if there are none there either.
+
 ```
-[defn [args]]
-    [lists] ...
-[/defn]
+[defn "fn" [+ [0] 1]]
+[fn 1]
 ```
 
 ### Specials

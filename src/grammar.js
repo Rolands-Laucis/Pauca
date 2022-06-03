@@ -1,6 +1,8 @@
 //this script contains the grammar dictionary for the Pauca language.
 //it defines every meaningful keyword reserved by Pauca and its functionality.
 
+//JavaScript is beautiful :)
+
 import { error, TODO, log } from "./utils/log.js"
 import { RecursiveReduceToString } from './resolver.js'
 import { Token, TokenType } from "./token.js"; //for ES linting
