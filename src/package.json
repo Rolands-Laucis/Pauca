@@ -1,6 +1,6 @@
 {
   "name": "pauca",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "A general plain text templating, parsing and processing engine",
   "main": "transpile.js",
   "bin": "pauca.js",
