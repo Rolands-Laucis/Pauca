@@ -64,7 +64,7 @@ and import
 
 ```js
 import { Transpile } from 'pauca/transpile.js'
-let out = Transpile('source.pau', 'in.txt')
+let out = Transpile('[p] ["int "] [var "num"] [/p] ...pauca syntax...', 'some input text ...')
 ```
 
 Or download the repo
