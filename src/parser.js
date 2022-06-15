@@ -66,7 +66,7 @@ export function Tokenize(str, { split_on_ws=false, special_quotes=false } = {}){
                 const list_str = str.slice(i + 1, i + j) //select the whole list string
 
                 //a space or another [ would indicate the first chars is the name of a function for this list, otherwise it should be a variable name. I.e. [fun [x] ...] or [my_var]
-                const list_type = list_str.match(/[\s\[\"]/) //If this matches, then its a FUN, otherwise VAR 
+                const list_type = list_str.match(/[\s\[\"\'\`]/) //If this matches, then its a FUN, otherwise VAR 
 
                 switch (true) { //meaning true has to match one of the cases, so case expr have to resolve to true to execute
                     case list_str[0] == '/' && list_str[1] != ' '://if begins with a slash, then it is the end of a block. The space checks that its not a literal OP / FUN. 
@@ -125,15 +125,25 @@ export function Tokenize(str, { split_on_ws=false, special_quotes=false } = {}){
 export function WrapBlocks(tokens=[]){
     for (let i = 0; i < tokens.length; i++) {
         const t = tokens[i]
-        // console.log(t.type.name, t.val, `i:${i}`)
-        if (t.type.name == 'BLOCKSTART') {
-            for (let j = 1; j < tokens.length - i; j++) {
-                // console.log('inner', tokens[i + j].type.name, tokens[i + j].val, `j:${j}`)
-                if (tokens[i + j].type.name == 'BLOCKEND' && t.type.id == tokens[i + j].type.id) {
-                    tokens.splice(i, j + 1, new Token([t, ...WrapBlocks(tokens.slice(i + 1, i + j)), tokens[i + j]], TokenType.BLOCK)) //splice goes to index i, then deletes the next j+1 elements, then inserts a new BLOCK token at that place, but that BLOCK token is recursively parsed the same way
-                    break
+        // console.log(`i:${i}`, t.type.name, t.val)
+        switch(true){
+            case t.type == TokenType.LIST:
+                const rec_parsed_list = WrapBlocks(t.val)
+                // tokens[i] = new Token(rec_parsed_list, TokenType.NULL);
+                // log('before', tokens[i].val)
+                tokens[i] = new Token(rec_parsed_list, TokenType.LIST); 
+                // log('after', tokens[i].val)
+                break;
+            case t.type.name == 'BLOCKSTART': 
+                for (let j = 1; j < tokens.length - i; j++) {
+                    // console.log('inner', tokens[i + j].type.name, tokens[i + j].val, `j:${j}`)
+                    if (tokens[i + j].type.name == 'BLOCKEND' && t.type.id == tokens[i + j].type.id) {
+                        tokens.splice(i, j + 1, new Token([t, ...WrapBlocks(tokens.slice(i + 1, i + j)), tokens[i + j]], TokenType.BLOCK)) //splice goes to index i, then deletes the next j+1 elements, then inserts a new BLOCK token at that place, but that BLOCK token is recursively parsed the same way
+                        // i += j - 1 //optimization to skip ahead the tokens we've already wrapped ^
+                        break
+                    }
                 }
-            }
+                break;
         }
     }
     return tokens
@@ -171,6 +181,6 @@ export function Pair(blocks) {
  * @param {Function[]} steps
  * @returns {object[]} pairs
  */
-export function Parse(text='', steps = [Tokenize, WrapBlocks, Pair]) { //
+export function Parse(text = '', steps = [Tokenize, WrapBlocks, Pair]) { //
     return steps.reduce((t, f) => f(t), text)
 }
