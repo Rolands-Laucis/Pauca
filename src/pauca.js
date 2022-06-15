@@ -8,17 +8,17 @@ import parse from "args-parser" //i was too lazy to parse them myself ;-;
 import fs from 'fs' //for reading the 3 files content
 
 import { Transpile, TranspileMode } from "./transpile.js"
-import { info, log, error } from "./utils/log.js"
+import { info, log, error, console_colors } from "./utils/log.js"
 
 const error_code = Main()
 if(error_code)
     error(`Pauca exited with error code ${error_code}`)
 else
-    info('Success!')
+    info('Success!', console_colors.BgGreen + console_colors.FgWhite)
 
 function Main(){
     let args = parse(process.argv)
-    args = Object.assign({ s: './s.pau', i: './input.txt', o: './output.txt', m: 'replace', v: 1, seg:0 }, args);
+    args = Object.assign({ s: './s.pau', i: './input.txt', o: './output.txt', m: 'replace', v: 1, seg:null }, args);
     switch (args.m) {
         case 'single': args.m = TranspileMode.SINGLE; break;
         case 'multiple': args.m = TranspileMode.MULTIPLE; break;

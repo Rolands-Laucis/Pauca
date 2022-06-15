@@ -1,7 +1,7 @@
 let last_time = 0
 
 //https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color
-const console_colors = {
+export const console_colors = {
     Reset:"\x1b[0m",
     Bright:"\x1b[1m",
     Dim:"\x1b[2m",
@@ -43,7 +43,7 @@ export function log(...objs){
  * @param {boolean} exit
  */
 export function error(msg, ...objs) {
-    console.log(`${prefix('PAUCA ERROR', console_colors.FgRed)} 😐 Bruh...\n\n${msg}`)
+    console.log(`${prefix('PAUCA ERROR', console_colors.BgRed + console_colors.FgRed)} 😐 Bruh...\n\n${msg}`)
     if(objs)
         console.log(...objs, '\n')
     
@@ -64,8 +64,8 @@ export function TODO(msg = '', obj = null, exit=false){
     return null
 }
 
-export function info(msg){
-    console.log(`${prefix()} ${msg} - ${endTimer()}ms`)
+export function info(msg, color = ''){
+    console.log(`${prefix('PAUCA', color)} ${msg} - ${endTimer()}ms`)
 }
 
 export function startTimer(){
@@ -78,6 +78,6 @@ export function endTimer(reset = false){
     return ms.toFixed(2)
 }
 
-function prefix(msg = 'PAUCA', color=console_colors.Reset){
+function prefix(msg = 'PAUCA', color=''){
     return `${color}[${msg}]${console_colors.Reset}`
 }

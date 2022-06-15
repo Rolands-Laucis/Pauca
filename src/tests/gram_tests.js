@@ -5,8 +5,8 @@ import { Parse, Tokenize, WrapBlocks } from "../parser.js"
 import { ResolveTarget } from "../resolver.js"
 import { endTimer, startTimer, log, error } from "../utils/log.js"
 
-const test_cases = ['fn']
-const all = false
+const test_cases = ['defn']
+const all = true
 startTimer()
 
 /**
@@ -160,24 +160,26 @@ if (test_cases.includes('def') || all) {
 if (test_cases.includes('defn') || all) {
     log('📝', 'Testing function definitions...')
 
-    let tokens = Parse('[defn "fn" [_] [x]]', [Tokenize])
+    let tokens = Parse('[defn "fn" [x]]', [Tokenize])
     let ctx = {}
     // log(tokens[0].val)
-    Grams.FUN.defn(tokens[0].val[1], tokens[0].val[2], tokens[0].val[3], ctx)
-    test('defn name "fn" with 1 var arg and 1 var list body', ctx?.fn?.val, 'x')
+    Grams.FUN.defn(tokens[0].val[1], tokens[0].val[2], ctx)
+    test('defn name "fn" with var as body', ctx?.fn?.val, 'x')
 
-    tokens = Parse('[defn "fn" "-" [x]]', [Tokenize])
+    tokens = Parse('[defn "fn" [+ [x] 1]]', [Tokenize])
     ctx = {}
-    // log(tokens[0].val)
-    Grams.FUN.defn(tokens[0].val[1], tokens[0].val[2], tokens[0].val[3], ctx)
-    test('defn name "fn" with no arg and 1 var body', ctx?.fn?.val, 'x')
+    Grams.FUN.defn(tokens[0].val[1], tokens[0].val[2], ctx)
+    let str = ''
+    ctx.fn.forEach(a => str += a.val)
+    test('defn name "fn" with list body', str, '+x1')
 
-    tokens = Parse('[defn "fn" [_] [+ [x] 1]]', [Tokenize])
+    tokens = Parse('[defn "fn" [if 1][/if]]', [Tokenize, WrapBlocks])
     ctx = {}
-    // log(tokens[0].val)
-    Grams.FUN.defn(tokens[0].val[1], tokens[0].val[2], tokens[0].val[3], ctx)
-    test('defn name "fn" with 1 var arg and 1 list body', ctx?.fn?.type, TokenType.LIST)
-    log(ctx)
+    Grams.FUN.defn(tokens[0].val[1], tokens[0].val[2], ctx)
+    test('defn name "fn" with empty block list body', ctx?.fn?.type, TokenType.BLOCK)
+
+    tokens = Parse('[defn "fn" [if 1][x][/if]]', [Tokenize, WrapBlocks])
+    test('defn name "fn" with block list body', tokens[0].val[2].val[2].type, TokenType.VAR)
 }
 
 if (test_cases.includes('if') || all) {
@@ -229,6 +231,7 @@ if (test_cases.includes('fn') || all) {
     // process.exit(0)
     
     let tokens = Parse('[p][/p][target] [defn "fn" [+ [0] 1]] [fn 1] [fn 2 3] [/target]')[0]
+    // log(tokens.tar.val)
     let ctx = {x:1}
     test('custom fn call', ResolveTarget(tokens.tar, ctx), "23")
 }

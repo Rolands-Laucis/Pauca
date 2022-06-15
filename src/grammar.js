@@ -27,12 +27,12 @@ export const Grams = {
         i: () => '(?<indent>[\t\s]+)',
 
         //regular
-        sym: (token) => `(?:${Grams.UTIL.unquote(token.val.trim())})`,// + (opt ? '?' : ''),
-        var: (token) => (token.val ? `(?<${Grams.UTIL.unquote(token.val)}>\\w+)` : `(\\w+)`), // + (opt ? '?' : ''), //NOTE \w matches letters, numbers and underscore. TODO token.val might not be empty, but after cleanup, it might
+        sym: (token) => `(?:${Grams.UTIL.unq_and_escape(token.val.trim())})`,// + (opt ? '?' : ''),
+        var: (token) => (token?.val ? `(?<${Grams.UTIL.unq_and_escape(token.val)}>\\w+)` : `(\\w+)`), // + (opt ? '?' : ''), //NOTE \w matches letters, numbers and underscore. TODO token.val might not be empty, but after cleanup, it might
         regex: () => { TODO('Regex literals currently unsupported!')},
-        d: (token) => (token.val ? `(?<${Grams.UTIL.unquote(token.val)}>\\d+)` : `(\\d+)`),
-        f: (token) => (token.val ? `(?<${Grams.UTIL.unquote(token.val)}>\\d+\\.\\d+?f?)` : `(\\d+\\.\\d+?f?)`),
-        num: (token) => (token.val ? `(?<${Grams.UTIL.unquote(token.val)}>\\-?\\d+\\.?\\d+?f?)` : `(\\-?\\d+\\.?\\d+?f?)`),
+        d: (token) => (token.val ? `(?<${Grams.UTIL.unq_and_escape(token.val)}>\\d+)` : `(\\d+)`),
+        f: (token) => (token.val ? `(?<${Grams.UTIL.unq_and_escape(token.val)}>\\d+\\.\\d+?f?)` : `(\\d+\\.\\d+?f?)`),
+        num: (token) => (token.val ? `(?<${Grams.UTIL.unq_and_escape(token.val)}>\\-?\\d+\\.?\\d+?f?)` : `(\\-?\\d+\\.?\\d+?f?)`),
 
         //shorthands
         "": (...args) => Grams.FUN.sym(...args),
@@ -86,8 +86,9 @@ export const Grams = {
         list: (l=[], ctx = {}) => {
             // if(l.length == 1) return ''
             //edge case, when the list is the function DEF or DEFN, then all this will fail, so handle them beforehand
+            if (!l[0]?.type) error('First token in a LIST doesnt have a type, wtf...', l)
             if (l[0].type == TokenType.FUN && ['def', '=', 'defn', '=>'].includes(l[0].val))
-                return l.length == 3 ? Grams.FUN[l[0].val](l[1], l[2], ctx) : error(`The ${l[0].val} list takes 2 parameters, but ${l.length} were given.`)
+                return l.length == 3 ? Grams.FUN[l[0].val](l[1], l[2], ctx) : error(`The ${l[0].val} list takes 2 parameters, but ${l.length} were given.`, l)
 
             //resolve the args to this list function, since they can be variables or more lists
             const args = l.slice(1).map(t => {
@@ -95,6 +96,9 @@ export const Grams = {
                     case TokenType.VAR: return Grams.FUN.ctx(t, ctx)
                     case TokenType.STR: return Grams.FUN.ctx(t, ctx)
                     case TokenType.LIST: return Grams.FUN.list(t.val, ctx)
+                    case TokenType.BLOCK: return RecursiveReduceToString([t], ctx)
+                    // case TokenType.BLOCKSTART: log('here'); break;
+                    // case TokenType.BLOCK: log('here2'); break;
                     default: error('unsuported token in LIST args', t); break;
                 }
             })//l is a LIST so we can slice all the args to it and map them to their resolved vals from ctx or res if they are other list, then pass them to the OP function that takes infinite params
@@ -126,16 +130,17 @@ export const Grams = {
         },
         '=': (...args) => Grams.FUN.def(...args), //shorthand for def
 
-        //receives 2 tokens and ctx object by reference and inserts a new ctx entry. Overwrites existing. Also returns the ctx for testing purposes, but it alters the passed one.
+        //receives 2 tokens and ctx object by reference and inserts a new ctx entry. Overwrites existing.
         defn: (t_name, t_val, ctx = {}) => {
             // log(t_name, t_val, ctx)
             const name = Grams.UTIL.unquote(t_name.val)
+            ctx[name] = t_val
             switch (t_val.type) {
                 case TokenType.LIST: ctx[name] = t_val.val ; break;
                 default: ctx[name] = t_val; break;  //for VAR and STR tokens, otherwise would raise error in ctx()
             }
             // log(`added ${name} to ctx`, ctx)
-            return ''//ctx[t_name.val]
+            return ''
         },
         '=>': (...args) => Grams.FUN.defn(...args), //shorthand for defn
 
@@ -170,35 +175,45 @@ export const Grams = {
             '/': (...oprs) => oprs.reduce((a, b) => b != 0 ? a / b : error(`Division by 0 error. [a b] = ${[a, b]}`)),
             '^': (...oprs) => oprs.reduce((a, b) => a ^ b),
             '%': (...oprs) => oprs.reduce((a, b) => a % b),
-            '!': (...oprs) => oprs.length == 1 ? !oprs[0] : oprs.map(a => !a), //returns negated element or a list of all elements negated seperately.
         },
 
         //logical operators
         LOP:{
             '==': (a, b) => a == b,
+            '!=': (a, b) => a != b,
             '>': (a, b) => a > b,
             '<': (a, b) => a < b,
             '>=': (a, b) => a >= b,
             '<=': (a, b) => a <= b,
             '|': (a, b) => a || b,
             '&': (a, b) => a && b,
+            '!': (...oprs) => oprs.length == 1 ? !oprs[0] : oprs.map(a => !a), //returns negated element or a list of all elements negated seperately.
         }
 
         // '': (a, b) => a  b,
     },
 
     UTIL:{
-        unquote: (str='') => str.match(/[\"\'\`](?<body>.*)[\"\'\`]/)?.groups?.body || str,
-        cast_spaces: (str='') => str.replace(/\s\t/gm, '\\s') || str,
+        unq_and_escape: (s = '') => Grams.UTIL.escape(Grams.UTIL.unquote(s)),
+        unquote: (s='') => s.match(/[\"\'\`](?<body>.*)[\"\'\`]/)?.groups?.body || s,
+        escape: (s = '') => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), // $& means the whole matched string. https://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
+        cast_spaces: (s='') => s.replace(/\s\t/gm, '\\s') || s,
         call: (name, ...args) => {
             const ctx = args.last()
             switch(true){
                 case name in Grams.FUN: return Grams.FUN[name](...args)
-                case name in ctx: 
-                    const params = Object.fromEntries(Array.from(args.slice(0,-1), (a, i) => [i, a])) //create a dictionary of all args. Args here would come from FUN.list resolve args loop, where they all end up as number or string, so create dict {'0':'arg', ...}
+                case name in ctx:
+                    const fn = ctx[name]
+                    const params = Object.fromEntries(Array.from(args.slice(0, -1), (a, i) => [i, a])) //create a dictionary of all args. Args here would come from FUN.list resolve args loop, where they all end up as number or string, so create dict {'0':'arg', ...}
                     const local_scope_ctx = Object.assign({}, ctx, params) //create a new object from ctx + custom func params as overwrites
-                    // log(ctx, args, params, local_scope_ctx)
-                    return Grams.FUN.list(ctx[name], local_scope_ctx) //resolve the list with global context + func args/params ctx overwrites
+                    switch(true){
+                        case Array.isArray(fn)://if its an array
+                            return Grams.FUN.list(fn, local_scope_ctx) //resolve the list with global context + func args/params ctx overwrites
+                        case typeof(fn) == 'object' && fn?.type == TokenType.BLOCK: //if its a block
+                            return RecursiveReduceToString([fn], local_scope_ctx) //have to use [fn] like this bcs the fn is a block token, but this function expects an array of tokens. Also cant use fn.val for the block tokens, bcs this function needs to run into the block token in the array to call it and handle.
+                        default: error(`Tried to call a something [${name}] that wasnt a function or block`, fn)
+                    }
+                    
                 default: error(`Function [${name}] does not exist, but something tried to call it. [ctx]`, args.last())
             }
         }

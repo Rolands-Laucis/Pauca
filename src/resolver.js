@@ -4,10 +4,20 @@ import { error, TODO, log } from "./utils/log.js"
 import { Token, TokenType } from "./token.js";
 import { Grams } from "./grammar.js";
 
-//-- /from grammar.js comments/ 
+//-- /from grammar.js comments/
 //every target FUN and BLOCK function basically just receives an input of tokens and a ctx object of the pair block, which would be filled in by the pat regex match.groups.
 //and every function just resolves tokens down to strings (reduce) by calling nested FUN and BLOCK and VAR etc. functions here until those themselves reduce down to strings and all strings get concatenated,
 //which then goes straight into the output.txt
+
+/**
+ * Escapes a string for use in building a regex pattern from string
+ * https://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
+ * @param {string} s
+ * @returns {string} output
+ */
+function regexEscape(s) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
 
 /**
  * Used to resolve the target token block to a final output string.
@@ -26,7 +36,7 @@ export function RecursiveReduceToString(tokens = [], ctx = {}) {
             case TokenType.BLOCK:
                 return s += Grams.BLOCK[t.val[0].val](t.val.slice(2, -1), ctx, t.val[1].type == TokenType.ARGS ? t.val[1].val : t.val[1])
             case TokenType.NULL: error('Found NULL token!', t); break;
-            default: return s; //BLOCKSTART and BLOCKEND types ignored.
+            default: return s; //BLOCKSTART and BLOCKEND types ignored. TODO('Ignored token', t);
             // case TokenType.: ; break;
         }
     }, '') //initial value is an empty string
@@ -43,16 +53,15 @@ export function ResolvePattern(tokens=[]){
             case TokenType.LIST: 
                 const list_tokens = t.val
                 if (list_tokens.length > 2) TODO('currently only 1 pattern tag argument allowed. [current token; list_tokens]', t, list_tokens)
-                // log(list_tokens)
                 if (!Grams.FUN[list_tokens[0].val]) log(list_tokens[0])
                 return s += Grams.FUN[list_tokens[0].val](...list_tokens.slice(1));
             case TokenType.NULL: error('Found NULL token!', t); break;
             default: return s; //BLOCKSTART and BLOCKEND types ignored.
             // case TokenType.: ; break;
         }
+        
     }, '') 
 
-    // console.log(full_string)
     return RegExp(full_string, 'gm')
 }
 
