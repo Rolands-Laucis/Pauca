@@ -30,11 +30,16 @@ export const console_colors = {
 }
 
 /**
+ * short form of log, since i type it so much and the default is too long
  * @param {object[]} objs
  */
-export function log(...objs){
-    console.log(...objs)
-}
+export function log(...objs) {console.log(...objs)}
+
+/**
+ * short form of log, since i type it so much and the default is too long
+ * @param {object[]} objs
+ */
+export function log_call_stack(...objs) {console.trace(...objs)}
 
 /**
  * Logs an error and the errored object if there is one and exits the process
@@ -57,10 +62,8 @@ export function error(msg, ...objs) {
  */
 export function TODO(msg = '', obj = null, exit=false){
     console.log(`${prefix('PAUCA TODO', console_colors.FgYellow)} Not implemented:`, msg, '\n')
-    if (obj)
-        console.log(obj)
-    if (exit)
-        process.exit(1)
+    if (obj) console.trace(obj)
+    if (exit) process.exit(1)
     return null
 }
 
