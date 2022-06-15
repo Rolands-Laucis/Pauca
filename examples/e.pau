@@ -9,12 +9,10 @@
         [def [mul] 1]
     ]
 
-    [sum]
-    [x]
     [loop [times]][\
             [+ [sum] [/ 1 [mul]]]
             [* [mul] [+ [x] 1]]
     ][/loop]
 
-    e = [sum]
+    e = [sum] with [times] iterations
 [/target]
