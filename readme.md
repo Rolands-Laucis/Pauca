@@ -137,7 +137,7 @@ Contact me on this github repo issues tab or something.
 targeting JavaScript, C++, C#, Java, JVM, Python, Lua, PHP, Flash
 * [SED](https://www.gnu.org/software/sed/manual/sed.html) A stream editor is used to perform basic text transformations on an input stream (a file or input from a pipeline)
 * [ltpl](https://github.com/ikoloki/ltpl) ltpl is a delaritive text processing dsl. A utility that just happends to have a language inside of it. A CLI version similar to Pauca. Kinda like SED
-
+* [Beard.js](https://jspopisno1.github.io/Beard/) A jQuery Template Engine (beta-0.1).
 ### Name
 
 "Pauca" /pɑukɑ/ is an inflection of a latin word that means "a few words". Since this is a text templating engine and uses a simple LISP-like syntax, i thought it was fitting. "Inteligenti pauca." - few words suffice for he who understands /latin proverb/.
