@@ -58,7 +58,7 @@ export const Grams = {
                     return cast ? cast : retrieved
                 case TokenType.STR: //its a string literal that could be a number
                     return !isNaN(num) ? num : Grams.UTIL.unquote(arg.val)
-                default: error('unsuported token in CTX', arg); break;
+                default: error('unsuported token in CTX resolve', arg, ctx); break;
             }
         },
 
@@ -84,11 +84,10 @@ export const Grams = {
          * @returns {number | boolean} output
          */
         list: (l=[], ctx = {}) => {
-            // if(l.length == 1) return ''
             //edge case, when the list is the function DEF or DEFN, then all this will fail, so handle them beforehand
             if (!l[0]?.type) error('First token in a LIST doesnt have a type, wtf...', l)
             if (l[0].type == TokenType.FUN && ['def', '=', 'defn', '=>'].includes(l[0].val))
-                return l.length == 3 ? Grams.FUN[l[0].val](l[1], l[2], ctx) : error(`The ${l[0].val} list takes 2 parameters, but ${l.length} were given.`, l)
+                return l.length >= 3 ? Grams.FUN[l[0].val](l[1], ctx, ...(l.slice(2))) : error(`The ${l[0].val} list takes at least 2 parameters, but ${l.length} were given.`, l)
 
             //resolve the args to this list function, since they can be variables or more lists
             const args = l.slice(1).map(t => {
@@ -97,9 +96,7 @@ export const Grams = {
                     case TokenType.STR: return Grams.FUN.ctx(t, ctx)
                     case TokenType.LIST: return Grams.FUN.list(t.val, ctx)
                     case TokenType.BLOCK: return RecursiveReduceToString([t], ctx)
-                    // case TokenType.BLOCKSTART: log('here'); break;
-                    // case TokenType.BLOCK: log('here2'); break;
-                    default: error('unsuported token in LIST args', t); break;
+                    default: error('unsuported token type in LIST args', t); break;
                 }
             })//l is a LIST so we can slice all the args to it and map them to their resolved vals from ctx or res if they are other list, then pass them to the OP function that takes infinite params
             
@@ -111,19 +108,21 @@ export const Grams = {
                     if (l[1].type == TokenType.VAR) //if the first arg was in the context (a named var) then the result of the OP should be stored in it.
                         ctx[l[1].val] = res;
                     return res;
+                case TokenType.BLOCK: return RecursiveReduceToString([l], ctx)
                 case TokenType.FUN: args.push(ctx); return Grams.UTIL.call(l[0].val, ...args) //meaning from this point on, that LISTs containing non-internal functions will receive all their params as an infinite spread, where the last element is the context object and can be extracted via the .ctx()
-                // case TokenType.VAR: return Grams.FUN.ctx(l[0])
-                default: error('unsuported token in LIST func', l[0]); break;
+                case TokenType.LIST: return Grams.FUN.list(l[0].val, ctx) //TODO this doesnt make any sense that the first token, that should be the name of the function, is itself a list.
+                default: error('unsuported token type in LIST func', l[0]); break;
             };
         },
 
-        print: (...args) => { args.slice(0, -1).forEach(a => log(a)); return '';},
+        print: (...args) => { log(args.slice(0, -1).join('\t')); return '';},
 
         //reeives 2 tokens and ctx object by reference and inserts a new ctx entry. t_arg is a token with a string label of the var and t_val will be its value. Overwrites existing. Also returns the ctx for testing purposes, but it alters the passed one.
-        def: (t_arg, t_val, ctx = {}) => { 
-            switch(t_val.type){
-                case TokenType.LIST: ctx[t_arg.val] = Grams.FUN.list(t_val.val, ctx); break;
-                default: ctx[t_arg.val] = Grams.FUN.ctx(t_val, ctx); break;  //for VAR and STR tokens, otherwise would raise error in ctx()
+        def: (t_arg, ctx = {}, ...tokens) => {
+            tokens = tokens[0] //Grams.UTIL.listify(tokens)
+            switch (tokens.type){
+                case TokenType.LIST: ctx[t_arg.val] = Grams.FUN.list(tokens.val, ctx); break;
+                default: ctx[t_arg.val] = Grams.FUN.ctx(tokens, ctx); break;  //for VAR and STR tokens, otherwise would raise error in ctx()
             }
             // log('added to ctx', ctx)
             return ctx[t_arg.val]
@@ -131,10 +130,9 @@ export const Grams = {
         '=': (...args) => Grams.FUN.def(...args), //shorthand for def
 
         //receives 2 tokens and ctx object by reference and inserts a new ctx entry. Overwrites existing.
-        defn: (t_name, t_val, ctx = {}) => {
-            // log(t_name, t_val, ctx)
+        defn: (t_name, ctx = {}, ...tokens) => {
+            const t_val = Grams.UTIL.listify(tokens)
             const name = Grams.UTIL.unquote(t_name.val)
-            ctx[name] = t_val
             switch (t_val.type) {
                 case TokenType.LIST: ctx[name] = t_val.val ; break;
                 default: ctx[name] = t_val; break;  //for VAR and STR tokens, otherwise would raise error in ctx()
@@ -153,7 +151,9 @@ export const Grams = {
             const ctx = args.last()
             args.slice(0, -1).forEach(a => a.type == TokenType.LIST ? Grams.FUN.list(a.val, ctx) : null) //eval all the arguments, if they are lists, but dont care about what they return
             return ''
-        }
+        },
+
+        ret: (...args) => { log(args.slice(0, -1)); return RecursiveReduceToString(args.slice(0, -1), args.last())}
     },
     BLOCK:{
         //PAT
@@ -175,11 +175,12 @@ export const Grams = {
             '/': (...oprs) => oprs.reduce((a, b) => b != 0 ? a / b : error(`Division by 0 error. [a b] = ${[a, b]}`)),
             '^': (...oprs) => oprs.reduce((a, b) => a ^ b),
             '%': (...oprs) => oprs.reduce((a, b) => a % b),
+            // '%': (...oprs) => oprs[0] % oprs[1],
         },
 
         //logical operators
         LOP:{
-            '==': (a, b) => a == b,
+            '==': (a, b) => a === b,
             '!=': (a, b) => a != b,
             '>': (a, b) => a > b,
             '<': (a, b) => a < b,
@@ -189,8 +190,6 @@ export const Grams = {
             '&': (a, b) => a && b,
             '!': (...oprs) => oprs.length == 1 ? !oprs[0] : oprs.map(a => !a), //returns negated element or a list of all elements negated seperately.
         }
-
-        // '': (a, b) => a  b,
     },
 
     UTIL:{
@@ -214,9 +213,10 @@ export const Grams = {
                         default: error(`Tried to call a something [${name}] that wasnt a function or block`, fn)
                     }
                     
-                default: error(`Function [${name}] does not exist, but something tried to call it. [ctx]`, args.last())
+                default: error(`Function [${name}] does not exist, but something tried to call it. [ctx]`, args.last(), name)
             }
-        }
+        },
+        listify: (tokens) => tokens.length == 1 ? tokens[0] : new Token(tokens, TokenType.LIST),//will put all these tokens inside a new LIST token, if there are more than 1 tokens, otherwise will return the input token
     }
     // : () => {},
 }

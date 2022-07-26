@@ -5,7 +5,7 @@ import { Parse, Tokenize, WrapBlocks } from "../parser.js"
 import { ResolveTarget } from "../resolver.js"
 import { endTimer, startTimer, log, error } from "../utils/log.js"
 
-const test_cases = ['defn']
+const test_cases = ['op']
 const all = true
 startTimer()
 
@@ -51,7 +51,7 @@ if (test_cases.includes('ctx') || all) {
     test('variable by index as string of an int parsed as a num', Grams.FUN.ctx(tokens[0], {'x':'1'}), 1)
 }
 
-if (test_cases.includes('list') || all) {
+if (test_cases.includes('op') || all) {
     log('📝', 'Testing list resolutions...')
 
     let token = Parse('[> [0] [1]]', [Tokenize])[0].val
@@ -97,6 +97,11 @@ if (test_cases.includes('list') || all) {
     Grams.FUN.list(token, ctx)
     test('AOP + for ctx numbers as strings', ctx.x, 2)
 
+    token = Parse('[- [x] 1]', [Tokenize])[0].val
+    ctx = { 'x': '1' }
+    Grams.FUN.list(token, ctx)
+    test('AOP - for ctx numbers as strings', ctx.x, 0)
+
     token = Parse('[+ 2 1]', [Tokenize])[0].val
     test('AOP + with both num literals', Grams.FUN.list(token, {}), 3)
 
@@ -113,6 +118,11 @@ if (test_cases.includes('list') || all) {
     ctx = { sum: 1, y: 2 }
     Grams.FUN.list(token, ctx)
     test('AOP + with nested AOP', ctx.sum, 1.5)
+
+    token = Parse('[% [x] 3]', [Tokenize])[0].val
+    ctx = { 'x': 9 }
+    Grams.FUN.list(token, ctx)
+    test('AOP % for ctx numbers', ctx.x, 0)
 }
 
 if (test_cases.includes('cond') || all) {
@@ -133,12 +143,13 @@ if (test_cases.includes('def') || all) {
 
     let tokens = Parse('[def [x] 1]', [Tokenize])
     let ctx = {}
-    Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], ctx)
+    // log(tokens[0].val)
+    Grams.FUN.def(tokens[0].val[1], ctx, tokens[0].val[2])
     test('def num literal to label', ctx.x, 1)
 
     tokens = Parse('[= [x] 1]', [Tokenize])
     ctx = {}
-    Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], ctx)
+    Grams.FUN.def(tokens[0].val[1], ctx, tokens[0].val[2])
     test('def short-hand num literal to label', ctx.x, 1)
 
     tokens = Parse('[def [x] 1]', [Tokenize])
@@ -148,12 +159,12 @@ if (test_cases.includes('def') || all) {
 
     tokens = Parse('[def [x] [y]]', [Tokenize])
     ctx = { y: 1 } //a ctx passed by reference here will augment this ctx just by the f call.
-    Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], ctx)
+    Grams.FUN.def(tokens[0].val[1], ctx, tokens[0].val[2])
     test('def ctx variable to label', ctx.x, ctx.y)
 
     tokens = Parse('[def [x] foo]', [Tokenize])
     ctx = {}
-    Grams.FUN.def(tokens[0].val[1], tokens[0].val[2], ctx)
+    Grams.FUN.def(tokens[0].val[1], ctx, tokens[0].val[2])
     test('def string to label', ctx.x, 'foo')
 }
 
@@ -163,19 +174,19 @@ if (test_cases.includes('defn') || all) {
     let tokens = Parse('[defn "fn" [x]]', [Tokenize])
     let ctx = {}
     // log(tokens[0].val)
-    Grams.FUN.defn(tokens[0].val[1], tokens[0].val[2], ctx)
+    Grams.FUN.defn(tokens[0].val[1], ctx, tokens[0].val[2])
     test('defn name "fn" with var as body', ctx?.fn?.val, 'x')
 
     tokens = Parse('[defn "fn" [+ [x] 1]]', [Tokenize])
     ctx = {}
-    Grams.FUN.defn(tokens[0].val[1], tokens[0].val[2], ctx)
+    Grams.FUN.defn(tokens[0].val[1], ctx, tokens[0].val[2])
     let str = ''
     ctx.fn.forEach(a => str += a.val)
     test('defn name "fn" with list body', str, '+x1')
 
     tokens = Parse('[defn "fn" [if 1][/if]]', [Tokenize, WrapBlocks])
     ctx = {}
-    Grams.FUN.defn(tokens[0].val[1], tokens[0].val[2], ctx)
+    Grams.FUN.defn(tokens[0].val[1], ctx, tokens[0].val[2])
     test('defn name "fn" with empty block list body', ctx?.fn?.type, TokenType.BLOCK)
 
     tokens = Parse('[defn "fn" [if 1][x][/if]]', [Tokenize, WrapBlocks])

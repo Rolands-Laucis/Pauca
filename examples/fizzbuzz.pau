@@ -1,0 +1,13 @@
+//https://www.geeksforgeeks.org/fizz-buzz-implementation/
+//outputs fizzbuzz number sequence up to iter count
+
+[p] [var 'iter'] [/p]
+[target]
+    [\ [def [y] 0]]
+    [loop [iter]]
+        [\ [+ [y] 1] [def [x] [y]]]
+        [if [& [!= 0 [% [x] 3]] [!= 0 [% [x] 5]]]][y][/if] [\ [def [x] [y]]]
+        [if [== 0 [% [x] 3]]]fizz[/if] [\ [def [x] [y]]]
+        [if [== 0 [% [x] 5]]]buzz[/if]
+    [/loop]
+[/target]

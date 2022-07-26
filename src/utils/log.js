@@ -48,7 +48,7 @@ export function log_call_stack(...objs) {console.trace(...objs)}
  * @param {boolean} exit
  */
 export function error(msg, ...objs) {
-    console.log(`${prefix('PAUCA ERROR', console_colors.BgRed + console_colors.FgRed)} 😐 Bruh...\n\n${msg}`)
+    console.log(`${prefix('PAUCA ERROR', console_colors.BgRed + console_colors.FgWhite)} 😐 Bruh...\n\n${msg}`)
     if(objs)
         console.log(...objs, '\n')
     

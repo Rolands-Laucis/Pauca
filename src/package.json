@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "pauca": "node pauca -s=\"../examples/e.pau\" -i=\"../examples/in.txt\" -o=\"../examples/out.txt\" -v=true",
-    "test": "node pauca -s=\"./gen/test.pau\" -i=\"./gen/input.txt\" -o=\"./gen/output.txt\" -v=true -seg=0",
+    "test": "node pauca -s=\"./gen/test.pau\" -i=\"./gen/input.txt\" -o=\"./gen/output.txt\" -v=true -seg=1",
     "gram": "node tests/gram_tests",
     "parse": "node tests/parse_tests"
   },
