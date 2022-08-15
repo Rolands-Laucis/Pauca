@@ -1,6 +1,6 @@
 <script>
     import Nav from './nav.svelte'
-    import {Transpile, TranspileMode} from 'pauca/transpile.js'
+    import {Transpile, TranspileMode} from 'pauca'
 
     let source_code_panel, input_code_panel, output = '', error = false
 

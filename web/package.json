@@ -22,7 +22,7 @@
     "autoprefixer": "^10.4.4",
     "codeflask": "^1.4.1",
     "node-sass": "^7.0.1",
-    "pauca": "^1.0.2",
+    "pauca": "^1.2.0",
     "postcss": "^8.4.12",
     "sirv-cli": "^2.0.0",
     "svelte-preprocess": "^4.10.6"
