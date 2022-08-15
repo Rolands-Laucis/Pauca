@@ -128,6 +128,7 @@ Contact me on this github repo issues tab or something.
 
 ## Links, resources relating to Pauca
 
+* [Jison](https://gerhobbelt.github.io/jison/docs/) A general-purpose parser generator for grammar syntaxes for JavaScript. (Pauca doesnt use this.)
 * [Asq-Server](https://github.com/Ruminat/Asq-Server). A higher level abstract regex compiler. It lets you define regex patterns with more readable syntax, specifically for csv table and such parsing.
 * [General purpose scriptable transpiler for many languages](https://awesomeopensource.com/project/jarble/transpiler). Has support for many languages and lets you script addons to the engine.
 * [GNU Bison](https://www.gnu.org/software/bison/) A general-purpose parser generator for grammar syntaxes in C.
