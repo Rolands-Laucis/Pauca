@@ -2,6 +2,8 @@
 
 <p align="center"><img src="./media/pauca%20logo.png"/></p>
 
+#### Project abandoned due to a roadblock implementing general function definitions, and in favor of other projects. Should still work in its current state though.
+
 ## What is Pauca?
 Pauca is a glorified "find and replace" engine, where the replace bit is programmable with a LISP-like language. It translates from 1 plain text to another, via easily definable text patterns to look for in the text file. These patterns are mapped to corresponding text with arguments and conditions. The mapping is manual - using Pauca and your knowledge of the source texts.
 
